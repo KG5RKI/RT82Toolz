@@ -17,6 +17,8 @@ clean:
 	"${MAKE}" -C patches/3.020 clean
 	"${MAKE}" -C patches/s13.020 clean
 	"${MAKE}" -C patches/d13.020 clean
+	"${MAKE}" -C patches/FW_2017_nonGPS clean
+	"${MAKE}" -C patches/FW_2017_GPS clean
 	"${MAKE}" -C applet clean
 	"${MAKE}" -C annotations clean
 	"${MAKE}" -C emulator clean
@@ -31,8 +33,11 @@ image_D13:
 image_S13:
 	"${MAKE}" -C applet FW=S13_020 all 
 	
-image_2017:
-	"${MAKE}" -C applet FW=FW_2017 all  
+image_2017_nonGPS:
+	"${MAKE}" -C applet FW=FW_2017_nonGPS all
+
+image_2017_GPS:
+	"${MAKE}" -C applet FW=FW_2017_GPS all  
 
 original_D13: 
 	"${MAKE}" -C firmware unwrapped/D013.020.img
@@ -70,7 +75,10 @@ flash_D13: image_D13
 flash_S13: image_S13
 	./flasha.exe write applet/experiment.bin
 	
-flash_FW_2017: image_2017
+flash_FW_2017_nonGPS: image_2017_nonGPS
+	./md380-dfu upgrade applet/experiment.bin
+
+flash_FW_2017_GPS: image_2017_GPS
 	./md380-dfu upgrade applet/experiment.bin
 
 sync:
