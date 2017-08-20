@@ -45,14 +45,15 @@ inline int get_main_mode()
     return gui_opmode1 & 0x7F ;
 }
 
+extern void enable_backlight(uint32_t, uint32_t);
+
 void reset_backlight()
 {
 	// struct @ 0x2001dadc
 	backlight_timer = 5 * 500;
 
 	// enabling backlight again.
-	void(*f)(uint32_t, uint32_t) = (void*)(0x080374CE + 1); // S: ??? 0x0802BAE6
-	f(0x40021000, 0x10);
+	enable_backlight(0x40021000, 0x10);
 }
 
 void copy_dst_to_contact()

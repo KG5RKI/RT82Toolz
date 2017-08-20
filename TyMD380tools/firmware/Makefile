@@ -29,6 +29,9 @@ unwrapped/D013.020.img: $(OPT)
 unwrapped/D003.020.img: $(OPT) 	
 	"${MAKE}" -f Makefile_orig unwrapped/D003.020.img
 	
-unwrapped/FW_2017.img: $(OPT) 	
-	"${MAKE}" -f Makefile_orig unwrapped/FW_2017.img
+unwrapped/FW_2017_GPS.img: $(OPT) 	
+	"${MAKE}" -f Makefile_orig unwrapped/FW_2017_GPS.img
+	
+unwrapped/FW_2017_nonGPS.img: $(OPT) 	
+	"${MAKE}" -f Makefile_orig unwrapped/FW_2017_nonGPS.img
 	

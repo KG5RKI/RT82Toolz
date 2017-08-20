@@ -95,8 +95,6 @@ extern void gfx_drawtext7(const char *str, int x, int y); // firmware
 
 
 
-const char* watermark = "KC7JOE Leaked this file. Shame on him";
-
 /* Our RESET handler is called instead of the official one, so this
    main() method comes before the official one.  Our global variables
    have already been initialized, but the MD380 firmware has not yet

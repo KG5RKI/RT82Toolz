@@ -4,8 +4,8 @@ clean:
 	rm -f *~ *.bin *.img *.pyc
 
 unwrapped.img:
-	cd ../../firmware && "${MAKE}" unwrapped/FW_2017.img
-	cp ../../firmware/unwrapped/FW_2017.img $@
+	cd ../../firmware && "${MAKE}" unwrapped/FW_2017_nonGPS.img
+	cp ../../firmware/unwrapped/FW_2017_nonGPS.img $@
 
 .PHONY: patched.img
 patched.img: unwrapped.img

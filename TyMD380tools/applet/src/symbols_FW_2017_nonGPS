@@ -106,3 +106,5 @@ zone_name                                = 0x2001DD0C ;
 md380_menu_id                            = 0x2001FDC5 ;
 
 f_1444                                   = 0x0803B0B1 ;
+
+enable_backlight                         = 0x080374CF ;
