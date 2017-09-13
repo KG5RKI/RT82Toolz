@@ -42,6 +42,9 @@ int Menu_IsVisible() { return 0; }
 // 0 = none pressed
 inline int get_main_mode()
 {
+	if (!gui_opmode1 & 0x7F) {
+		syslog_printf("gui: %d - ");
+	}
     return gui_opmode1 & 0x7F ;
 }
 
@@ -245,12 +248,12 @@ int is_intercept_allowed()
         return 0 ;
     }
     
-//    switch( get_main_mode() ) {
-//        case 28 :
-//            return 1 ;
-//        default:
-//            return 0 ;
-//    }
+    switch( get_main_mode() ) {
+        case 28 :
+            return 1 ;
+        default:
+            return 0 ;
+    }
     
     switch( gui_opmode2 ) {
         case OPM2_MENU :

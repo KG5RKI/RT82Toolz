@@ -125,7 +125,7 @@ md380_usbstring                          = 0x2001C6F8 ;
 
 kb_keypressed                            = 0x2001DD84 ;
 kb_row_col_pressed                       = 0x2001E00F ;
-kb_keycode                               = 0x2001E04B ;
+kb_keycode                               = 0x2001DCC4 ;
 
 gui_opmode3                              = 0x2001E06A ;
 gui_opmode2                              = 0x2001E016 ;
