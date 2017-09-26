@@ -30,6 +30,7 @@ class MD380FW(object):
         self.header_fmt = '<16s9s7s16s33s43s8sLLL112s'
         self.footer_fmt = '<240s16s'
         self.rsrcSize = 0x5D400
+        #self.rsrcSize = 0x59800
 
     def pad(self, align=512, byte=b'\xff'):
         pad_length = (align - len(self.app) % align) % align
@@ -70,6 +71,7 @@ class MD380FW(object):
         #assert 0x8000000 <= header[6] < 0x8200000
         #assert header[7] == len(img) - 512
         self.app = self.app[rsrc_len:]
+		
 
     def crypt(self, data):
         return self.xor(data, self.key)

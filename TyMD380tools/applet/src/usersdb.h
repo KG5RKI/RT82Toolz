@@ -2,11 +2,17 @@
 #ifndef _USERSDB_H
 #define _USERSDB_H
 
-#define BSIZE 100
+#define BSIZE 0x78
 
 typedef struct {
-    char buffer[BSIZE];
-    char *id ;
+	uint32_t id;
+	char callsign[16];
+	char data[0x64];
+} user_tdb;
+
+typedef struct {
+	user_tdb buffer;
+    uint32_t id ;
     char *callsign ;
     char *firstname ;
     char *name ;

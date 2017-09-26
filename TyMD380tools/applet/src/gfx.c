@@ -107,7 +107,7 @@ void green_led(int on) {
 }
 
 
-
+/*
 void rx_screen_blue_hook(char *bmp, int x, int y)
 {
 
@@ -116,25 +116,144 @@ void rx_screen_blue_hook(char *bmp, int x, int y)
 
 	user_t usr;
 
-	int y_index = 22;
+	int y_index = 42;
 
-	usr_find_by_dmrid(&usr, rst_src);
+	int src = rst_src;
+
+	
 	gfx_set_fg_color(0x00FF00);
 	gfx_blockfill(0, 16, 159, 127);
-	gfx_set_bg_color(0x00FF00);
+	gfx_set_bg_color(0xFFFFFF);
 	gfx_set_fg_color(0x000000);
 
-	gfx_printf_pos(2, y_index, 128, "ppp %s - %s", usr.callsign, usr.name);
-	y_index += text_height;
-	gfx_printf_pos(2, y_index, 128, "pp %s, %s", usr.place, usr.state);
-	y_index += text_height * 2;
-	gfx_printf_pos(2, y_index, 128, "p %s", usr.country);
-	y_index += text_height;
+	if (usr_find_by_dmrid(&usr, src) == 0) {
+		gfx_printf_pos(2, y_index, 128, "Failed to find entry.");
+	}
+	else {
+		gfx_printf_pos2(RX_POPUP_X_START, y_index, 157, "ppp %s - %s", usr.callsign, usr.name);
+		y_index += text_height;
+		gfx_printf_pos2(RX_POPUP_X_START, y_index, 157, "pp %s, %s", usr.place, usr.state);
+		y_index += text_height * 2;
+		gfx_printf_pos2(RX_POPUP_X_START, y_index, 157, "p %s", usr.country);
+		y_index += text_height;
+	}
 	//gfx_printf_pos(2, y_index, "%s", usr.);
 	//y_index += text_height;
 
 	//gfx_drawbmp(bmp, x, y);
+}*/
+
+void rx_screen_blue_hook(unsigned int bg_color)
+{
+	static int dst;
+	int src;
+	int grp;
+	int nameLen;
+	//char *timeSlot[3];
+	//int primask = OS_ENTER_CRITICAL(); // for form sake
+
+	//channel_info_t *ci = &current_channel_info;
+
+	dst = rst_dst;
+	src = rst_src;
+	grp = rst_grp;
+
+	//OS_EXIT_CRITICAL(primask);
+
+	// clear screen
+	gfx_set_fg_color(bg_color);
+	gfx_blockfill(0, 16, MAX_X, MAX_Y);
+
+	gfx_set_bg_color(bg_color);
+	gfx_set_fg_color(0x000000);
+	gfx_select_font(gfx_font_small);
+
+	user_t usr;
+
+	if (usr_find_by_dmrid(&usr, src) == 0) {
+		usr.callsign = "ID unknown";
+		usr.firstname = "";
+		usr.name = "No entry in";
+		usr.place = "your user.bin";
+		usr.state = "see README.md";
+		usr.country = "on Github";
+	}
+
+	gfx_select_font(gfx_font_small);
+
+	//int ts1 = (ci->cc_slot_flags >> 2) & 0x1;
+	//int ts2 = (ci->cc_slot_flags >> 3) & 0x1;
+
+	int y_index = RX_POPUP_Y_START;
+
+	if (grp) {
+		gfx_printf_pos(RX_POPUP_X_START, y_index, "%d->TG %d %s", src, dst);
+	}
+	else {
+		gfx_printf_pos(RX_POPUP_X_START, y_index, "%d->%d %s", src, dst);
+	}
+	y_index += GFX_FONT_SMALL_HEIGHT;
+
+	gfx_select_font(gfx_font_norm); // switch to large font
+
+	char firstnamebuf[12] = { 0 };
+	for (int i = 0; i < 12; i++) {
+		if (usr.name[i] == ' ')
+		{
+			memcpy(firstnamebuf, usr.name, i - 1);
+		}
+	}
+
+	gfx_printf_pos2(RX_POPUP_X_START, y_index, 10, "%s %s", usr.callsign, firstnamebuf);
+	y_index += GFX_FONT_NORML_HEIGHT;
+
+	
+    {
+		// user.bin or codeplug or talkerAlias length=0
+		nameLen = strlen(usr.name);
+		if (nameLen > 16) {  // print in smaller font
+			gfx_select_font(gfx_font_small);
+			gfx_puts_pos(RX_POPUP_X_START, y_index, usr.name);
+			y_index += GFX_FONT_SMALL_HEIGHT; // previous line was in small font
+		}
+		else {  // print in larger font if it will fit
+			gfx_puts_pos(RX_POPUP_X_START, y_index, usr.name);
+			y_index += GFX_FONT_NORML_HEIGHT;
+		}
+	}
+
+	y_index += 3;
+	//if (global_addl_config.userscsv > 1) {
+		gfx_set_fg_color(0x00FF00);
+	//}
+	//else {
+	//	gfx_set_fg_color(0x0000FF);
+	//}
+	gfx_blockfill(1, y_index, 156, y_index);
+	gfx_set_fg_color(0x000000);
+	y_index += 2;
+
+	gfx_select_font(gfx_font_small);
+
+
+		if (src != 0) {
+			gfx_select_font(gfx_font_small);
+			gfx_puts_pos(RX_POPUP_X_START, y_index, usr.place);
+			y_index += GFX_FONT_SMALL_HEIGHT;
+
+			gfx_puts_pos(RX_POPUP_X_START, y_index, usr.state);
+			y_index += GFX_FONT_SMALL_HEIGHT;
+
+			gfx_puts_pos(RX_POPUP_X_START, y_index, usr.country);
+			y_index += GFX_FONT_SMALL_HEIGHT;
+		}
+	
+
+	gfx_select_font(gfx_font_norm);
+	gfx_set_fg_color(0xff8032);
+	gfx_set_bg_color(0xff000000);
 }
+
 
 void red_led(int on) {
   /* The RED LED is supposed to be on pin A0 by the schematic, but in
@@ -654,21 +773,23 @@ void draw_alt_statusline()
 												// 2017-02-18 otherwise show lastheard in status line
 
 			if (usr_find_by_dmrid(&usr, src) == 0) {
-				if (usr_find_by_dmrid(&usr2, rst_dst) == 0) {
+				gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "Failed.");
+				/*if (usr_find_by_dmrid(&usr2, rst_dst) == 0) {
 					gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%d->%d %c", src, rst_dst, mode);
 				}
 				else {
 					gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%d->%s %c", src, usr2.callsign, mode);
-				}
+				}*/
 			}
 			else {
 
-				if (usr_find_by_dmrid(&usr2, rst_dst) == 0) {
+				//if (usr_find_by_dmrid(&usr2, rst_dst) == 0) {
 					gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%s->%d %c", usr.callsign, rst_dst, mode);
-				}
-				else {
-					gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%s->%s %c", usr.callsign, usr2.callsign, mode);
-				}
+				//gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "Success~!");
+				//}
+				//else {
+				//	gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%s->%s %c", usr.callsign, usr2.callsign, mode);
+				//}
 			}
 		
 	}
@@ -676,6 +797,17 @@ void draw_alt_statusline()
 	/*gfx_set_fg_color(0);
 	gfx_set_bg_color(0xff000000);
 	gfx_select_font(gfx_font_norm);*/
+}
+
+static int fDoOnceHook = 0;
+void sub_801AC40(char *v0, int v1, int result, char *v3, char v4)
+{
+	if (!fDoOnceHook) {
+		fDoOnceHook = 1;
+		syslog_printf("%08X %08X %80X %08X %08X", (long)v0, v1, result, (long)v3, (long)v4);
+
+	}
+	
 }
 
 
