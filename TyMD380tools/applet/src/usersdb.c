@@ -73,15 +73,14 @@ static int find_dmr(char *outstr, long dmr_search,
 	/* As long as there is at least one line of text between
 	offsets dmr_begin and dmr_end... */
 	long id = 0;
-	int i = 0;
-	while (i < 20 && dmr_begin != dmr_end) {
-		const char* dmr_test = next_line_ptr(dmr_begin + (dmr_end - dmr_begin) / 2);
-		if (dmr_test == dmr_end) { dmr_test = next_line_ptr(dmr_begin); }
-		if (dmr_test == dmr_end) { dmr_test = dmr_begin; }
+	while ( dmr_begin != dmr_end) {
+		const char* dmr_test = next_line_ptr(dmr_begin + ((dmr_end - dmr_begin) / 2));
+		if (dmr_test >= (char*)((int)dmr_end - (0x78 * 2))) { dmr_test = next_line_ptr(dmr_begin); }
+		if (dmr_test >= (char*)((int)dmr_end - (0x78*2))) { dmr_test = dmr_begin; }
 		id = getfirstnumber(dmr_test);
-		syslog_printf("\nID %d %08X", id, id);
+		//syslog_printf("\nID %d %08X", id, id);
 		if (id == dmr_search) {
-			syslog_printf("\nFOUND %d %08X", id, id);
+			//syslog_printf("\nFOUND %d %08X", id, id);
 			readline(outstr, dmr_test, outsize);
 			return 1;
 		}
@@ -91,9 +90,8 @@ static int find_dmr(char *outstr, long dmr_search,
 		else {
 			dmr_begin = next_line_ptr(dmr_test);
 		}
-		i++;
 	}
-	syslog_printf("\nFailed. ID: %d %08X", dmr_search, dmr_search);
+	//syslog_printf("\nFailed. ID: %d %08X", dmr_search, dmr_search);
 	return 0;
 }
 
@@ -168,6 +166,10 @@ void usr_splitbuffer(user_t *up)
 
 	up->callsign = (char*)&up->buffer + 0x4;
 
+	*((char*)(&up->buffer + 0x68)) = '\0';
+
+	char* bb = 0xFF;
+	int aa = 0;
     for(int fld=0;fld<8;fld++) {
 
         while(1) {
@@ -184,8 +186,16 @@ void usr_splitbuffer(user_t *up)
         
         switch(fld) {
             case 0 :
-				up->firstname = start;
+				up->firstname = (char*)&up->buffer + 0x68;
 				up->name = start;
+				aa = 0;
+				for (bb = start; bb < 54 && *bb != '\0'; bb++) {
+					up->firstname[aa++] = *bb;
+					if (*bb == ' ' || *bb == ',') {
+						up->firstname[aa] = '\0';
+						break;
+					}
+				}
                 break ;
             case 1 :
 				up->place = start;
@@ -194,16 +204,15 @@ void usr_splitbuffer(user_t *up)
 				up->state = start;
                 break ;
             case 3 :
-				up->country = start;
+				
                 break ;
             case 4 :
-                
+				up->country = start;
                 break ;
             case 5 :
-                
                 break ;
             case 6 :
-                
+				
                 break ;
         }
         
