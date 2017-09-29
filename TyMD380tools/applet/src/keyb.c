@@ -24,6 +24,7 @@
 #include <stdint.h>
 #include "spiflash.h"
 #include "keyb.h"
+#include "etsi.h"
 
 
 
@@ -57,6 +58,33 @@ void reset_backlight()
 
 	// enabling backlight again.
 	enable_backlight(0x40021000, 0x10);
+}
+
+void copy_dst_to_contact_fst()
+{
+	int dst = rst_dst;
+	extern wchar_t channel_name[];
+
+	extern int adhocTG;
+
+	contact.id_l = dst & 0xFF;
+	contact.id_m = (dst >> 8) & 0xFF;
+	contact.id_h = (dst >> 16) & 0xFF;
+
+	contact2.id_l = dst & 0xFF;
+	contact2.id_m = (dst >> 8) & 0xFF;
+	contact2.id_h = (dst >> 16) & 0xFF;
+
+	adhocTG = dst;
+	
+	if (rst_grp) {
+		contact.type = CONTACT_GROUP;
+		contact2.type = CONTACT_GROUP;
+	}
+	else {
+		contact.type = CONTACT_USER;
+		contact2.type = CONTACT_USER;
+	}
 }
 
 void copy_dst_to_contact()
@@ -115,37 +143,76 @@ extern void gui_control( int r0 );
 
 extern void draw_zone_channel(); // TODO.
 
+static long dumpOffset = 0x204003;
+
+static long getfirstnumber2(const char * p) {
+	char buffer[64];
+	//long pRnd = (long)p & 0xFFFFFFF0;
+	//if (pRnd != p) {
+	//  getdata(buffer, pRnd, 16);
+	// memcpy(buffer, buffer + ((long)p - pRnd), ((long)p - pRnd));
+	//}
+	//else {
+	md380_spiflash_read(buffer, (long)p, 16);
+	//}
+	//long retid = get_adr((*(adr_t*)buffer));
+	long retid = ((*(long*)buffer)) & 0xFFFFFF;
+	//syslog_printf("\n%08X: %08X %08X", (long)p, *(long*)(buffer), retid);
+	return retid;
+}
+
 void handle_hotkey( int keycode )
 {
 	char lat[23] = { 0 };
 	char lng[23] = { 0 };
     reset_backlight();
-	
+	char buffer[64];
+	long idd;
 
-    switch( keycode ) {
-		case 0 :
+
+
+	if (nm_screen) {
+		switch (keycode) {
+		case 0:
+			break;
 			clog_redraw();
-            switch_to_screen(6);
-            break ;
+			switch_to_screen(6);
+			break;
 
 		case 1:
 			//draw_zone_channel();
+
+			//long pRnd = (long)p & 0xFFFFFFF0;
+			//if (pRnd != p) {
+			//  getdata(buffer, pRnd, 16);
+			// memcpy(buffer, buffer + ((long)p - pRnd), ((long)p - pRnd));
+			//}
+			//else {
+
+			//idd = getfirstnumber2((char*)dumpOffset);
+
+			idd = get_main_mode();
+
+			//}
+			syslog_printf("\nmain_mode: %d", idd);
+			syslog_printf("\ngui_opmode2: %d", gui_opmode2);
+			syslog_printf("\ngui_opmode3: %d", gui_opmode3);
 			break;
 
-		case 2 :
+		case 2:
 			slog_redraw();
-            switch_to_screen(5);
-            break ;
-        case 3 :
-            copy_dst_to_contact();
+			switch_to_screen(5);
+			break;
+		case 3:
+			copy_dst_to_contact();
 			//switch_to_screen(9);
-            break ;
-        case 4 :
-            lastheard_redraw();
-            switch_to_screen(4);
-            break ;
-        case 5 :
-            syslog_clear();
+			break;
+		case 4:
+			lastheard_redraw();
+			switch_to_screen(4);
+			break;
+		case 5:
+			syslog_clear();
 			lastheard_clear();
 			slog_clear();
 			clog_clear();
@@ -153,80 +220,92 @@ void handle_hotkey( int keycode )
 			nm_started = 0;	// reset nm_start flag used for some display handling
 			nm_started5 = 0;	// reset nm_start flag used for some display handling
 			nm_started6 = 0;	// reset nm_start flag used for some display handling
-            break ;
-        case 6 :
-        {
-            static int cnt = 0 ;
-            syslog_printf("=dump %d=\n",cnt++);
-        }
-            syslog_dump_dmesg();
-            break ;
-		case 13 : //end call
-            //bp_send_beep(BEEP_TEST_1);
-			if(nm_screen){
+			break;
+		case 6:
+		{
+			static int cnt = 0;
+			syslog_printf("=dump %d=\n", cnt++);
+		}
+		syslog_dump_dmesg();
+		break;
+		case 13: //end call
+			//bp_send_beep(BEEP_TEST_1);
+			if (nm_screen) {
 				//channel_num = 0;
 				switch_to_screen(0);
 				//if(Menu_IsVisible()){
 				//	channel_num = 0;
 				//}
-			}else if(!Menu_IsVisible()){
+			}
+			else if (!Menu_IsVisible()) {
 				switch_to_screen(9);
 				switch_to_screen(0);
 			}
-            break ;
-		case 7 :
+			break;
+		case 7:
 			//Let 7 disable ad-hoc tg mode;
 			if (!nm_screen && !Menu_IsVisible()) {
 				//ad_hoc_tg_channel = 0;
 			}
-			if(nm_screen){
+			if (nm_screen) {
 				//bp_send_beep(BEEP_TEST_1);
 				switch_to_screen(0);
 				//channel_num = 0;
-			}else if(!Menu_IsVisible()){
+			}
+			else if (!Menu_IsVisible()) {
 				switch_to_screen(9);
 				switch_to_screen(0);
 			}
-			
+
 			break;
-        case 8 :
-            //bp_send_beep(BEEP_TEST_2);
-            switch_to_screen(1);
-            break ;
-        case 9 :
-            //bp_send_beep(BEEP_TEST_3);
+		case 8:
+			//bp_send_beep(BEEP_TEST_2);
+			switch_to_screen(1);
+			break;
+		case 9:
+			//bp_send_beep(BEEP_TEST_3);
 			syslog_redraw();
 			switch_to_screen(3);
 			//switch_to_screen(2);
-            break ;
-        case 11 :
-            //gui_control(1);
-            //bp_send_beep(BEEP_9);
-            //beep_event_probe++ ;
-            //sms_test2(beep_event_probe);
-            //mb_send_beep(beep_event_probe);
-            break ;
-        case 12 :
-            //gui_control(241);
-            //bp_send_beep(BEEP_25);
-            //beep_event_probe-- ;
-            //sms_test2(beep_event_probe);
-            //mb_send_beep(beep_event_probe);
-            break ;
-		case 14 :
+			break;
+		case 11:
+			//gui_control(1);
+			//bp_send_beep(BEEP_9);
+			//beep_event_probe++ ;
+			//sms_test2(beep_event_probe);
+			//mb_send_beep(beep_event_probe);
+			break;
+		case 12:
+			//gui_control(241);
+			//bp_send_beep(BEEP_25);
+			//beep_event_probe-- ;
+			//sms_test2(beep_event_probe);
+			//mb_send_beep(beep_event_probe);
+			break;
+		case 14:
 			switch_to_screen(9);
 			//channel_num=0;
 			//draw_rx_screen(0xff8032);
 			break;
-			
+
 			// key '#'
-        case 15 :
-			if( !Menu_IsVisible() && nm_screen){
+		case 15:
+
+			if (!Menu_IsVisible() && nm_screen) {
 				syslog_redraw();
 				switch_to_screen(3);
 			}
-            break ;
-    }    
+			break;
+		}
+	}
+	else {
+		if (keycode == 15) {
+			if (!Menu_IsVisible()) {
+				syslog_redraw();
+				switch_to_screen(3);
+			}
+		}
+	}
 }
 
 
@@ -244,26 +323,31 @@ void trace_keyb(int sw)
 
 int is_intercept_allowed()
 {
-    if( !is_netmon_enabled() || Menu_IsVisible()) {
-        return 0 ;
-    }
+   // if( !is_netmon_enabled() || Menu_IsVisible()) {
+    //    return 0 ;
+    //}
+
+	switch (gui_opmode2) {
+		case OPM2_MENU:
+			return 0;
+		case 1:
+			return 1;
+			//case 2 : // voice
+			//case 4 : // terminate voice
+			//    return 1 ;
+		default:
+			return 1;
+	}
     
     switch( get_main_mode() ) {
-        case 28 :
+        case 27 :
+		case 28 :
             return 1 ;
         default:
             return 0 ;
     }
     
-    switch( gui_opmode2 ) {
-        case OPM2_MENU :
-            return 0 ;
-        //case 2 : // voice
-        //case 4 : // terminate voice
-        //    return 1 ;
-        default:
-            return 1 ;
-    }
+    
 }
 
 int is_intercepted_keycode( int kc )
@@ -283,7 +367,7 @@ int is_intercepted_keycode( int kc )
         //case 12 :
 		//case 13 : //end call
 		//case 14 : // *
-        //case 15 :
+        case 15 :
             return 1 ;
         default:
             return 0 ;
@@ -313,11 +397,13 @@ void kb_handle(int key) {
 
 	if (is_intercept_allowed()) {
 		if (is_intercepted_keycode2(kc)) {
-			//if ((kp & 2) == 2) {
-				//kb_keypressed = 8;
+		    if ((kp & 2) == 2) {
 				handle_hotkey(kc);
+				if (nm_screen) {
+					kb_keypressed = 8;
+				}
 				return;
-			//}
+			}
 		}
 	}
 
@@ -361,12 +447,16 @@ void kb_handler_hook()
 	//	copy_dst_to_contact();
 	//}
 	//copy_dst_to_contact();
-    //if( is_intercept_allowed() ) 
+    if( is_intercept_allowed() ) 
 	{
         if( is_intercepted_keycode(kc) ) {
-            if( (kp & 2) == 2 ) {
-                kb_keypressed = 8 ;
-                handle_hotkey(kc);
+			if ((kp & 2) == 2) {
+
+				handle_hotkey(kc);
+				if (nm_screen)
+				{
+					kb_keypressed = 8;
+				}
                 return ;
             }
         }
