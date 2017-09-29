@@ -200,7 +200,7 @@ void rx_screen_blue_hook(unsigned int bg_color)
 	for (int i = 0; i < 12; i++) {
 		if (usr.name[i] == ' ')
 		{
-			memcpy(firstnamebuf, usr.name, i - 1);
+			memcpy(firstnamebuf, usr.name, i);
 		}
 	}
 
