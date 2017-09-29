@@ -494,7 +494,7 @@ extern void f_4315_hook()
 }
 
 
-extern void rx_screen_blue_hook(char *bmp, int x, int y);
+//extern void rx_screen_blue_hook(char *bmp, int x, int y);
 
 static char fCntAGC = 0;
 void f_4225_hook()

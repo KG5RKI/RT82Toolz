@@ -53,7 +53,7 @@ void rst_voice_lc_header(lc_t *lc)
     
     int groupcall = flco == 0;
 
-	//updateSrcDst(src, dst);
+	updateSrcDst(src, dst);
     if( !rst_voice_active || rst_src != src || rst_dst != dst) {
 		updateSrcDst(src, dst);
         rst_flco = flco ;
@@ -83,7 +83,7 @@ void rst_term_with_lc(lc_t *lc)
     int flco = get_flco( lc );
     
     int groupcall = flco == 0;
-	//updateSrcDst(src, dst);
+	updateSrcDst(src, dst);
     if( rst_voice_active ) {
 		updateSrcDst(src, dst);
         //PRINT("\n* Call from %d to %s%d ended.\n", src, groupcall ? "group ":"", dst);
