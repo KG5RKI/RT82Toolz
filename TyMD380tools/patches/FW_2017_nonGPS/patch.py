@@ -37,7 +37,7 @@ if __name__ == '__main__':
     patcher.nopout((0x08028154 + 0xA))
 	
     # freeing ~200k for code patches
-    patcher.ffrange(0x0809aee8, 0x080cf754)
+    #patcher.ffrange(0x0809aee8, 0x080cf754)
 
     # This mirrors the RESET vector to 0x080C020, for use in booting.
     patcher.setword(0x0800C020,
@@ -59,6 +59,6 @@ if __name__ == '__main__':
     patcher.sethword(0x0809af0c, 0x4700)
 
     # Stores the RESET handler for our stub.
-    patcher.setword(0x0809affc, patcher.getword(0x0800C020), 0xFFFFFFFF)
+    patcher.setword(0x0809affc, patcher.getword(0x0800C020))
 	
     patcher.export("patched.img")
