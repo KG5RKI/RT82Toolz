@@ -729,12 +729,22 @@ if __name__ == '__main__':
     for adr in gfxdt10:
         merger.hookbl(adr, sapplet.getadr("gfx_drawtext2_hook"))
 	
+    rxscrn_hooks = [
+        0x80287e2,
+        0x80322ac,
+        0x803a4f6,
+    ]
+    for adr in rxscrn_hooks:
+        merger.hookbl(adr, sapplet.getadr("rx_screen_blue_hook"))
 	# f_4315
     merger.hookbl(0x080286B0, sapplet.getadr("f_4315_hook"))
     merger.hookbl(0x080286E6, sapplet.getadr("f_4315_hook"))
 	
     merger.hookbl(0x0803D24C, sapplet.getadr("f_4225_hook"), 0)
     merger.hookbl(0x0806313E, sapplet.getadr("f_4225_hook"), 0)
+	
+    merger.hookbl(0x0801A5BC, sapplet.getadr("sub_801AC40"), 0)
+    
 	
     print("Merging %s into %s at %08x" % (
         sys.argv[2],
