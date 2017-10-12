@@ -156,13 +156,13 @@ char small[MAX_BUF];
 static void con_draw1()
 {
 	// save old values first.
-#if defined(FW_2017_nonGPS)
-	uint16_t fg_color = 0, bg_color = 0;
-	void *old = gfx_select_font(gfx_font_small);
-#else
+//#if defined(FW_2017_nonGPS)
+//	uint16_t fg_color = 0, bg_color = 0;
+//	void *old = gfx_select_font(gfx_font_small);
+//#else
 	uint16_t fg_color = fgcolor, bg_color = bgcolor;
 	void *old = gfx_select_font(gfx_font_small);
-#endif
+//#endif
 	//#if defined(FW_D13_020) || defined(FW_S13_020)
 	//#else 
 	//    // slow?
