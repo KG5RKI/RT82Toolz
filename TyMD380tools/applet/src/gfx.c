@@ -187,10 +187,10 @@ void rx_screen_blue_hook(unsigned int bg_color)
 	int y_index = RX_POPUP_Y_START;
 
 	if (grp) {
-		gfx_printf_pos(RX_POPUP_X_START, y_index, "%d->TG %d %s", src, dst);
+		gfx_printf_pos(RX_POPUP_X_START, y_index, "%d->TG %d", src, dst);
 	}
 	else {
-		gfx_printf_pos(RX_POPUP_X_START, y_index, "%d->%d %s", src, dst);
+		gfx_printf_pos(RX_POPUP_X_START, y_index, "%d->%d", src, dst);
 	}
 	y_index += GFX_FONT_SMALL_HEIGHT;
 
@@ -773,23 +773,21 @@ void draw_alt_statusline()
 												// 2017-02-18 otherwise show lastheard in status line
 
 			if (usr_find_by_dmrid(&usr, src) == 0) {
-				gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "Failed.");
-				/*if (usr_find_by_dmrid(&usr2, rst_dst) == 0) {
+				if (usr_find_by_dmrid(&usr2, rst_dst) == 0) {
 					gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%d->%d %c", src, rst_dst, mode);
 				}
 				else {
 					gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%d->%s %c", src, usr2.callsign, mode);
-				}*/
+				}
 			}
 			else {
 
-				//if (usr_find_by_dmrid(&usr2, rst_dst) == 0) {
+				if (usr_find_by_dmrid(&usr2, rst_dst) == 0) {
 					gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%s->%d %c", usr.callsign, rst_dst, mode);
-				//gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "Success~!");
-				//}
-				//else {
-				//	gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%s->%s %c", usr.callsign, usr2.callsign, mode);
-				//}
+				}
+				else {
+					gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%s->%s %c", usr.callsign, usr2.callsign, mode);
+				}
 			}
 		
 	}
