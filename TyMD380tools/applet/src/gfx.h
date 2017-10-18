@@ -35,7 +35,7 @@ void gfx_drawbmp(char *bmp, int x, int y);
 void gfx_set_bg_color(int color);
 void gfx_set_fg_color(int color);
 
-
+void checkAdHocTG();
 /**
  * 
  * @param x_from 0...159

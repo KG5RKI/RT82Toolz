@@ -210,6 +210,22 @@ if __name__ == '__main__':
     #merger.hookbl(0x0800E4B8, sapplet.getadr("print_date_hook"), 0)
    # merger.hookbl(0x08029844, sapplet.getadr("draw_statusline_hook"))
 	
+    dmr_before_squelch_list = [
+        0x804b446,
+        0x804b48e,
+        0x804b4ce,
+        0x804b524,
+        0x804b5bc,
+        0x804b69e,
+        0x804b72a,
+        0x804b782,
+        0x804b7fe,
+    ]
+    for adr in dmr_before_squelch_list:
+        merger.hookbl(adr, sapplet.getadr("dmr_before_squelch_hook"))
+	
+	
+	
     draw_datetime_row_list = [
         0x8029278,
         0x80297f0,
@@ -736,6 +752,17 @@ if __name__ == '__main__':
     ]
     for adr in rxscrn_hooks:
         merger.hookbl(adr, sapplet.getadr("rx_screen_blue_hook"))
+		
+		
+    GetContactIDFromIndex_hooks = [
+        0x802bf5c,
+        0x802bf8c,
+        0x802bfb8,
+        0x802e0ee,
+    ]
+    #for adr in GetContactIDFromIndex_hooks:
+        #merger.hookbl(adr, sapplet.getadr("read_contact_hook"))
+    
 	# f_4315
     merger.hookbl(0x080286B0, sapplet.getadr("f_4315_hook"))
     merger.hookbl(0x080286E6, sapplet.getadr("f_4315_hook"))
@@ -745,6 +772,107 @@ if __name__ == '__main__':
 	
     merger.hookbl(0x0801A5BC, sapplet.getadr("sub_801AC40"), 0)
     
+	
+    
+    spiflashreadhooks = [
+        0x801348c,
+        0x8015188,
+        0x801a2f0,
+        0x8025088,
+        0x80252ea,
+        0x802bbd2,
+        0x802bbe4,
+        0x802bbf6,
+        0x802bc08,
+        0x802bc44,
+        0x802beb0,
+        0x802bed0,
+        0x802bef6,
+        0x802bf3a,
+        0x802bff0,
+        0x802bffa,
+        0x802c070,
+        0x802c09c,
+        0x802c0d0,
+        0x802cafe,
+        0x802cb22,
+        0x802cbfc,
+        0x802cd02,
+        0x802ce16,
+        0x802cf16,
+        0x802d170,
+        0x802d276,
+        0x802d38a,
+        0x802d496,
+        0x802d76a,
+        0x802d7f8,
+        0x802d90a,
+        0x802d924,
+        0x802d952,
+        0x802d9dc,
+        0x802d9fa,
+        0x802da1e,
+        0x802da30,
+        0x802da66,
+        0x802da9c,
+        0x802dac4,
+        0x802dafa,
+        0x802db52,
+        0x802dba8,
+        0x802dbde,
+        0x802dc32,
+        0x802dcd4,
+        0x802dce2,
+        0x802dd02,
+        0x802dd20,
+        0x802dd40,
+        0x802dd7e,
+        0x802ddfc,
+        0x802de2a,
+        0x802de46,
+        0x802de82,
+        0x802dee8,
+        0x802df72,
+        0x802dfd8,
+        0x802e054,
+        0x802e09c,
+        0x802e11a,
+        0x802e184,
+        0x802e200,
+        0x802e256,
+        0x802e2ba,
+        0x802e310,
+        0x802e3d4,
+        0x802e418,
+        0x802e440,
+        0x802e48a,
+        0x802e4c8,
+        0x802e53a,
+        0x802e550,
+        0x802ef70,
+        0x8031100,
+        0x803113c,
+        0x80311b6,
+        0x803123a,
+        0x80328fc,
+        0x803293a,
+        0x80329ec,
+        0x8032a2a,
+        0x80407ee,
+        0x80408c6,
+        0x8042c5e,
+        0x8042cc0,
+        0x8042d14,
+        0x8042d5a,
+        0x8042d98,
+        0x8042e1c,
+        0x8042e92,
+        0x8045eea,
+        0x8054ca4,
+        0x8054e94, 
+    ]
+    for adr in spiflashreadhooks:
+        merger.hookbl(adr, sapplet.getadr("spiflash_read_hook"))
 	
     print("Merging %s into %s at %08x" % (
         sys.argv[2],

@@ -51,7 +51,7 @@ extern "C" {
 
 	// The first entry in the 'Digital Contacts' lists (e.g. first entry '-All Call-')
 	// was as 0x00005F84 in SPI flash, but 0x000061A9 in an RDT file (delta=549 bytes): 
-#define CODEPLUG_SPIFLASH_ADDR_DIGITAL_CONTACT_LIST   0x00005F80 
+#define CODEPLUG_SPIFLASH_ADDR_DIGITAL_CONTACT_LIST   0x00140000
 //#define CODEPLUG_SPIFLASH_ADDR_DIGITAL_CONTACT_LIST   0x0000EC20    
 #define CODEPLUG_SIZEOF_DIGITAL_CONTACT_ENTRY  36
 #define CODEPLUG_MAX_DIGITAL_CONTACT_ENTIES  1000
@@ -132,7 +132,6 @@ extern "C" {
 #endif
 
 	extern contact_t contact;
-	extern contact_t contact2;
 
 
 	// from pc = 0x080134dc 

@@ -26,6 +26,15 @@ inline uint32_t get_adr(adr_t in)
     return in.b0 | (in.b8 << 8) | (in.b16 << 16);
 }
 
+inline adr_t set_adr(uint32_t id)
+{
+	adr_t ret;
+	ret.b0 = id & 0xFF;
+	ret.b8 = (id >> 8) & 0xFF;
+	ret.b16 = (id >> 16) & 0xFF;
+	return ret;
+}
+
 //////////////
 // data
 

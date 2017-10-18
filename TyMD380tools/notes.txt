@@ -1,0 +1,7 @@
+
+
+
+
+0x6D84 = start of DWORD array of talkgroup numbers in current zone
+
+0x2001C8A0 = last tg heard/used

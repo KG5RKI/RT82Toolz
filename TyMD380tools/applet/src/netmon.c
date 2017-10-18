@@ -122,29 +122,71 @@ void print_smeter()
 
 }
 
+//int hexScrollWindowIndex = 0x2001C19C;
+//int hexScrollWindowIndex = 0x2001BBEC;
+//int hexScrollWindowIndex = 0x2001BE30; //GOOD
+int hexScrollWindowIndex = 0x2001C1C0;
+
 void netmon1_update()
 {
-    progress++ ;
-    progress %= sizeof( progress_info ) - 1 ;
-    
-    int progress2 = progress ; // sample (thread safe) 
+	progress++;
+	progress %= sizeof(progress_info) - 1;
 
-    progress2 %=  sizeof( progress_info ) - 1 ;
-    char c = progress_info[progress2];
-    
-    con_clrscr();
-    
-    con_printf("%c|%02d|%2d|%2d|%4d\n", c, gui_opmode1 & 0x7F, gui_opmode2, gui_opmode3, m_cntr2 ); 
-    
-	/*
+	int progress2 = progress; // sample (thread safe) 
+
+	progress2 %= sizeof(progress_info) - 1;
+	char c = progress_info[progress2];
+
+	con_clrscr();
+
+	//con_printf("%c|%02d|%2d|%2d|%4d\n", c, gui_opmode1 & 0x7F, gui_opmode2, gui_opmode3, m_cntr2);
+
+	char* pp = (char*)&contact;
+
+	//con_printf("con:%S\n", contact2.name);
+	//for (int i = 0; i < sizeof(contact_t); i+=4)
+	//{
+	//	con_printf("%02X%02X%02X%02X%c", pp[i], pp[i+1], pp[i+2], pp[i+3], ((i!=0) && i % 12 == 0 ? '\n' : '.'));
+	//}
+	con_printf("Addr:%08X\n", hexScrollWindowIndex);
+	char* hexa = (char*)hexScrollWindowIndex;
+	for (int i = 0; i < sizeof(contact_t); i+=4)
+	{
+		con_printf("%02X%02X%02X%02X%c", hexa[i], hexa[i+1], hexa[i+2], hexa[i+3], ((i!=0) && i % 12 == 0 ? '\n' : '.'));
+	}
+	
+	//pp = (char*)&contact2;
+	//pp = (char*)0x2001A7A0;
+	//for (int i = 0; i < 0x30; i += 4)
+	//{
+	//	con_printf("%02X%02X%02X%02X%c", pp[i], pp[i + 1], pp[i + 2], pp[i + 3], ((i != 0) && i % 12 == 0 ? '\n' : '.'));
+	//}
+	/*int idd = (*(int*)0x2001C88C);
+
+	con_printf("\n2001C88C: %08X", idd);
+
+	idd = (*(int*)0x2001C8A0);
+
+	con_printf("\nOldsrc: %d", idd);
+	idd = (*(int*)0x2001C898);
+
+	con_printf("\nmaybeID: %d", idd);*/
+
+	//idd = (*(int*)0x2001C89C); //this one is fast updating
+
+	//con_printf("\nCB2: %d", idd);
+
+
     extern uint8_t channel_num ;
-    con_printf("ch:%d ", channel_num ); 
+    //con_printf("ch:%d ", channel_num ); 
     
-    con_printf("zn:%S\n",zone_name);
-    con_printf("con:%S\n",contact.name);
+    //con_printf("zn:%S\n",zone_name);
+	//con_printf("con:%S\n", contact.name);
     
-    extern wchar_t channel_name[] ;
-    con_printf("cn:%S\n",channel_name); 
+    
+
+   // extern wchar_t channel_name[] ;
+   // con_printf("cn:%S\n",channel_name); 
 
     {
         char *str = "?" ;
@@ -183,11 +225,11 @@ void netmon1_update()
                 str = "Wait_TX_Resp" ;
                 break ;
         }
-        con_printf("radio: %s\n", str);
+        //con_printf("radio: %s\n", str);
     }
     {
-        con_printf("re:%02x be:%02x e3:%02x e4:%02x\ne5:%02x ", last_radio_event, last_event2, last_event3, last_event4, last_event5 );
-    }*/
+        //con_printf("re:%02x be:%02x e3:%02x e4:%02x\ne5:%02x ", last_radio_event, last_event2, last_event3, last_event4, last_event5 );
+    }
     print_smeter();
 #if defined(FW_D13_020) || defined(FW_S13_020)
     {
@@ -496,6 +538,8 @@ extern void f_4315_hook()
 
 //extern void rx_screen_blue_hook(char *bmp, int x, int y);
 
+extern void checkAdHocTG();
+
 static char fCntAGC = 0;
 void f_4225_hook()
 {
@@ -510,10 +554,12 @@ void f_4225_hook()
 				
 				// reset.
 				gui_opmode1 = SCR_MODE_MENU;
+				checkAdHocTG();
 			}
 		}
 		else {
 			old = new;
+			checkAdHocTG();
 		}
 	}
 

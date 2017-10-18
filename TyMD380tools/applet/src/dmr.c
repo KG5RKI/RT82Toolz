@@ -25,6 +25,8 @@
 #include "tooldfu.h"
 #include "config.h"
 #include "radiostate.h"
+#include "amenu_set_tg.h"
+#include "codeplug.h"
 
 #define PRINT
 #define PRINTHEX
@@ -149,7 +151,8 @@ void dumpraw_lc(uint8_t *pkt)
 
     uint8_t flco = get_flco(lc);
     
-    if( flco != 0 && flco != 3 ) {
+	//if not a group call or private call type
+    if( flco != 0 && flco != 3 ) { 
         PRINTHEX(pkt,14);        
         PRINT("\n");
     }
@@ -244,6 +247,7 @@ void *dmr_call_start_hook(uint8_t *pkt)
 
     {
         lc_t *data = (void*)(pkt + 2);
+
         rst_voice_lc_header( data );
     }
 
@@ -313,6 +317,22 @@ void dmr_apply_privsquelch_hook(OS_EVENT *event, char *mode)
    
     md380_OSMboxPost(event, mode);
 #endif
+}
+
+void dmr_before_squelch_hook(uint8_t *pkt, uint8_t unk)
+{
+	if (ad_hoc_tg_channel == channel_num) {
+		if (ad_hoc_talkgroup) {
+
+			store_dst = ad_hoc_talkgroup;
+
+			contact.id_l = ad_hoc_talkgroup & 0xFF;
+			contact.id_m = (ad_hoc_talkgroup >> 8) & 0xFF;
+			contact.id_h = (ad_hoc_talkgroup >> 16) & 0xFF;
+			contact.type = CONTACT_GROUP;
+		}
+	}
+	return dmr_before_squelch();
 }
 
 void *dmr_handle_data_hook(char *pkt, int len)

@@ -716,7 +716,19 @@ void draw_statusline_hook(uint32_t r0)
 	draw_statusline(r0);
 }
 
-int adhocTG = 0;
+extern int ad_hoc_talkgroup;
+
+void checkAdHocTG() {
+	channel_t* channelCache = (channel_t*)0x2001BCF0;
+	for (int i = 0; i < 7; i++) {
+		*((uint16_t*)&(((uint8_t*)(&channelCache[i]))[6])) = 1;
+	}
+
+	contact.id_l = ad_hoc_talkgroup & 0xFF;
+	contact.id_m = (ad_hoc_talkgroup >> 8) & 0xFF;
+	contact.id_h = (ad_hoc_talkgroup >> 16) & 0xFF;
+	contact.type = CONTACT_GROUP;
+}
 
 void draw_alt_statusline()
 {
@@ -745,23 +757,16 @@ void draw_alt_statusline()
 	//gfx_printf_pos(RX_POPUP_X_START, 96, "%s - %s", usr.callsign, usr.name);
 
 	
-	if (adhocTG != 0) {
+	if (ad_hoc_talkgroup != 0) {
 		int curTG = (((int)contact.id_h << 16) | ((int)contact.id_m << 8) | (int)contact.id_l);
-		int curTG2 = (((int)contact2.id_h << 16) | ((int)contact2.id_m << 8) | (int)contact2.id_l);
-		if (adhocTG != curTG) {
-			contact.id_l = adhocTG & 0xFF;
-			contact.id_m = (adhocTG >> 8) & 0xFF;
-			contact.id_h = (adhocTG >> 16) & 0xFF;
-			snprintfw(contact.name, 16, "%s %d*", (contact.type == CONTACT_GROUP ? "TG" : "P"), adhocTG);
-		}
-		if (adhocTG != curTG2) {
-			contact2.id_l = adhocTG & 0xFF;
-			contact2.id_m = (adhocTG >> 8) & 0xFF;
-			contact2.id_h = (adhocTG >> 16) & 0xFF;
-			snprintfw(contact2.name, 16, "%s %d*", (contact.type == CONTACT_GROUP ? "TG" : "P"), adhocTG);
+		if (ad_hoc_talkgroup != curTG) {
+			contact.id_l = ad_hoc_talkgroup & 0xFF;
+			contact.id_m = (ad_hoc_talkgroup >> 8) & 0xFF;
+			contact.id_h = (ad_hoc_talkgroup >> 16) & 0xFF;
+			snprintfw(contact.name, 16, "%s %d*", (contact.type == CONTACT_GROUP ? "TG" : "P"), ad_hoc_talkgroup);
 		}
 
-		gfx_printf_pos2(RX_POPUP_X_START, 80, 157, "TG: %d", adhocTG);
+		gfx_printf_pos2(RX_POPUP_X_START, 80, 157, "TG: %d", ad_hoc_talkgroup);
 	}
 	
 	if (src == 0) {

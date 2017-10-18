@@ -190,6 +190,8 @@ void md380_copy_spiflash_security_bank2_to_ram(void);
 // menu no exit ....
 uint8_t gui_opmode1;
 
+extern uint32_t store_dst;
+
 
 // debug and training stuff
 void md380_f_4137();

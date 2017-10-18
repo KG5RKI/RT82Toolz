@@ -25,7 +25,7 @@
 #include "spiflash.h"
 #include "keyb.h"
 #include "etsi.h"
-
+#include "usersdb.h"
 
 
 uint8_t kb_backlight=0; // flag to disable backlight via sidekey.
@@ -60,65 +60,52 @@ void reset_backlight()
 	enable_backlight(0x40021000, 0x10);
 }
 
-void copy_dst_to_contact_fst()
-{
-	int dst = rst_dst;
-	extern wchar_t channel_name[];
-
-	extern int adhocTG;
-
-	contact.id_l = dst & 0xFF;
-	contact.id_m = (dst >> 8) & 0xFF;
-	contact.id_h = (dst >> 16) & 0xFF;
-
-	contact2.id_l = dst & 0xFF;
-	contact2.id_m = (dst >> 8) & 0xFF;
-	contact2.id_h = (dst >> 16) & 0xFF;
-
-	adhocTG = dst;
-	
-	if (rst_grp) {
-		contact.type = CONTACT_GROUP;
-		contact2.type = CONTACT_GROUP;
-	}
-	else {
-		contact.type = CONTACT_USER;
-		contact2.type = CONTACT_USER;
-	}
-}
 
 void copy_dst_to_contact()
 {
 
 	int dst = rst_dst;
+	//int dst = 3148;
 	extern wchar_t channel_name[];
+	extern int ad_hoc_talkgroup;
 
-	extern int adhocTG;
+	ad_hoc_talkgroup = dst;
+	checkAdHocTG();
+	
 
-	contact.id_l = dst & 0xFF;
-	contact.id_m = (dst >> 8) & 0xFF;
-	contact.id_h = (dst >> 16) & 0xFF;
+	//contact2.id_l = dst & 0xFF;
+	//contact2.id_m = (dst >> 8) & 0xFF;
+	//contact2.id_h = (dst >> 16) & 0xFF;
+	//*(uint16_t*)0x200001C0 = 0x0002;
 
-	contact2.id_l = dst & 0xFF;
-	contact2.id_m = (dst >> 8) & 0xFF;
-	contact2.id_h = (dst >> 16) & 0xFF;
+	{
+		contact_t selContact;
+		selContact.id_l = ad_hoc_talkgroup & 0xFF;
+		selContact.id_m = (ad_hoc_talkgroup >> 8) & 0xFF;
+		selContact.id_h = (ad_hoc_talkgroup >> 16) & 0xFF;
+		selContact.type = CONTACT_GROUP;
 
-	adhocTG = dst;
-	syslog_printf("Set AdhocTG: %d\r\n", adhocTG);
+		md380_spiflash_write(&selContact, 0x13FFDC, 3);
+	}
+	
+	syslog_printf("Set AdhocTG: %d\r\n", ad_hoc_talkgroup);
+
+	//memcpy(&adhocUser, &contact, sizeof(contact2));
+	//memcpy(&adhocUser2, &contact2, sizeof(contact2));
 
 	//wchar_t *p = (void*)0x2001e1f4 ;
 	wchar_t *p = (void*)channel_name;
 
-	if (rst_grp) {
-		contact.type = CONTACT_GROUP;
+	/*if (rst_grp) {
+		//contact.type = CONTACT_GROUP;
 		contact2.type = CONTACT_GROUP;
 		snprintfw(p, 16, "TG %d", dst);
 	}
 	else {
 		snprintfw(p, 16, "U %d", dst);
-		contact.type = CONTACT_USER;
+		//contact.type = CONTACT_USER;
 		contact2.type = CONTACT_USER;
-	}
+	}*/
 }
 
 int beep_event_probe = 0 ;
@@ -132,7 +119,7 @@ void switch_to_screen( int scr )
     gui_opmode1 = SCR_MODE_IDLE | 0x80 ;
 }
 
-
+extern int hexScrollWindowIndex;
 
 //#if defined(FW_D13_020) || defined(FW_S13_020)
 #if defined(FW_S13_020)
@@ -161,15 +148,22 @@ static long getfirstnumber2(const char * p) {
 	return retid;
 }
 
+
+
+static int Flashsize = 0x1000;
+uint32_t Flashadr = 0x203C03;
+
+uint32_t ptrrr = 0x20018000;
+
 void handle_hotkey( int keycode )
 {
 	char lat[23] = { 0 };
 	char lng[23] = { 0 };
     reset_backlight();
-	char buffer[64];
 	long idd;
 
-
+	int i = 0;
+	
 
 	if (nm_screen) {
 		switch (keycode) {
@@ -188,23 +182,86 @@ void handle_hotkey( int keycode )
 			// memcpy(buffer, buffer + ((long)p - pRnd), ((long)p - pRnd));
 			//}
 			//else {
+			/*syslog_printf("\nDumpin...");
+			for (i = 0; i < 0x20; i += 1) {
+				md380_spiflash_write((void*)(ptrrr +(i* 1024)), Flashadr + (i * 1024), 1024);
+				syslog_printf("\n %x ...", i* 1024);
+			}
+			ptrrr += 0x10 * 1024;
+			Flashadr += 0x10 * 1024;
+			syslog_printf("\n %x ...", 0x10 * 1024);*/
+			//{
+			
 
+			//	syslog_printf("FLASHWRITE %x %d\n", Flashadr, Flashsize);
+			//	// enable write
+
+			//	for (i = 0; i<Flashsize; i = i + 256) {
+			//		int page_adr;
+			//		page_adr = Flashadr + i;
+			//		//syslog_printf("%d %x\n", i, page_adr);
+			//		//md380_spiflash_wait();
+
+			//		md380_spiflash_enable();
+			//		md380_spi_sendrecv(0x6);
+			//		md380_spiflash_disable();
+
+			//		md380_spiflash_enable();
+			//		md380_spi_sendrecv(0x2);
+			//		//syslog_printf("%x ", ((page_adr >> 16) & 0xff));
+			//		md380_spi_sendrecv((page_adr >> 16) & 0xff);
+			//		//syslog_printf("%x ", ((page_adr >> 8) & 0xff));
+			//		md380_spi_sendrecv((page_adr >> 8) & 0xff);
+			//		//syslog_printf("%x ", (page_adr & 0xff));
+			//		md380_spi_sendrecv(page_adr & 0xff);
+			//		for (int ii = 0; ii < 256; ii++) {
+			//			md380_spi_sendrecv(((char*)0x20010000)[ii + (i* 256)]);
+			//		}
+			//		md380_spiflash_disable();
+			//		md380_spiflash_wait();
+			//		
+			//	}
+			//	syslog_printf("Done\n");
+			//}
+			//Flashadr += Flashsize;
 			//idd = getfirstnumber2((char*)dumpOffset);
-
-			idd = get_main_mode();
+			
+			//idd = get_main_mode();
 
 			//}
-			syslog_printf("\nmain_mode: %d", idd);
-			syslog_printf("\ngui_opmode2: %d", gui_opmode2);
-			syslog_printf("\ngui_opmode3: %d", gui_opmode3);
+			//syslog_printf("\nmain_mode: %d", idd);
+			//syslog_printf("\ngui_opmode2: %d", gui_opmode2);
+			//syslog_printf("\ngui_opmode3: %d", gui_opmode3);
 			break;
 
 		case 2:
-			slog_redraw();
-			switch_to_screen(5);
+			//slog_redraw();
+			//switch_to_screen(5);
+			
+		//{
+		//	syslog_printf("FLASHERASE %08X \n", Flashadr);
+		//	//      spiflash_wait();     
+		//	//      spiflash_block_erase64k(adr);
+
+
+		//	md380_spiflash_enable();
+		//	md380_spi_sendrecv(0x6);
+		//	md380_spiflash_disable();
+
+		//	md380_spiflash_enable();
+		//	md380_spi_sendrecv(0xd8);
+		//	md380_spi_sendrecv((Flashadr >> 16) & 0xff);
+		//	md380_spi_sendrecv((Flashadr >> 8) & 0xff);
+		//	md380_spi_sendrecv(Flashadr & 0xff);
+		//	md380_spiflash_disable();
+		//	syslog_printf("\n");
+		//}
+			
+			//hexScrollWindowIndex += 4;
 			break;
 		case 3:
 			copy_dst_to_contact();
+
 			//switch_to_screen(9);
 			break;
 		case 4:
@@ -224,7 +281,9 @@ void handle_hotkey( int keycode )
 		case 6:
 		{
 			static int cnt = 0;
-			syslog_printf("=dump %d=\n", cnt++);
+			*(uint32_t*)0x2001C898 = 4000;
+			*(uint32_t*)0x2001C8A0 = 4000;
+			syslog_printf("=POKED 4000! %d=\n", cnt++);
 		}
 		syslog_dump_dmesg();
 		break;
@@ -264,8 +323,9 @@ void handle_hotkey( int keycode )
 			break;
 		case 9:
 			//bp_send_beep(BEEP_TEST_3);
-			syslog_redraw();
-			switch_to_screen(3);
+			//syslog_redraw();
+			//switch_to_screen(3);
+			hexScrollWindowIndex -= 4;
 			//switch_to_screen(2);
 			break;
 		case 11:

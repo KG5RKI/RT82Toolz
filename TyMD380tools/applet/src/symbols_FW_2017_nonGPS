@@ -90,8 +90,7 @@ draw_statusline                          = 0x080463DD ;
 
 gfx_clear3                               = 0x08025821 ;
 
-contact2                                 = 0x2001C1C0 ;
-contact                                  = 0x2001C898 ;
+contact                                  = 0x2001C1C0 ;
 channel_name                             = 0x2001C208 ;
 
 F_4315                                   = 0x08031D0D ;
@@ -108,3 +107,16 @@ md380_menu_id                            = 0x2001CB0C ;
 f_1444                                   = 0x0803C98D ;
 
 enable_backlight                         = 0x08038D9B ;
+
+store_dst                                = 0x2001C8A0 ;
+store_src                                = 0x2001C89C ;
+
+TG_cacheA                               = 0x20006D88 ;
+TG_cacheB                               = 0x20006D8C ;
+ 
+testTG                                   = 0x2001C1C0 ;
+read_contact                             = 0x0802BEDD ;
+
+channelA                                 = 0x2001BDF0 ; 
+channelB                                 = 0x2001BE70 ;
+channelC                                 = 0x2001BE30 ;

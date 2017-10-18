@@ -17,6 +17,8 @@
 #include "debug.h"
 #include "codeplug.h"
 
+extern int     ad_hoc_talkgroup;
+
 void spiflash_read_hook(void *dst, long adr, long len)
 {
 #ifdef DEBUG    
@@ -44,7 +46,33 @@ void spiflash_read_hook(void *dst, long adr, long len)
     PRINTRET();    
     PRINT("0x%06x:%4d 0x%08x (%s)\n", adr, len, dst, hint);
 #endif    
-    md380_spiflash_read(dst, adr, len);
+
+	
+	
+	if(ad_hoc_talkgroup && len == sizeof(channel_t)){
+		md380_spiflash_read(dst, adr, len);
+		for (int i = 0; i < 10; i++) {
+			if (dst == (void*)(0x2001BCF0 + (i * sizeof(channel_t)))) {
+				*((uint16_t*)&(((channel_t*)dst)->settings[6])) = 50;
+				snprintfw(((channel_t*)dst)->name, 16, "TG %d*", ad_hoc_talkgroup);
+				//syslog_printf("Set channel index\n");
+			}
+		}
+		return;
+	}
+	else if ((adr >= (void*)(0x13FFDC)) && ad_hoc_talkgroup) {
+		contact_t* nContact = (contact_t*)dst;
+		nContact->id_l = ad_hoc_talkgroup & 0xFF;
+		nContact->id_m = (ad_hoc_talkgroup >> 8) & 0xFF;
+		nContact->id_h = (ad_hoc_talkgroup >> 16) & 0xFF;
+		nContact->type = CONTACT_GROUP;
+		//snprintfw(nContact->name, 16, "TG %d*", ad_hoc_talkgroup);
+		//syslog_printf("Set contact TG\n");
+	}
+	
+	else {
+		md380_spiflash_read(dst, adr, len);
+	}
 }
 
 uint32_t get_spi_flash_type(uint8_t *data) {

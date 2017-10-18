@@ -21,9 +21,9 @@
 #include "printf.h"       // Kustaa Nyholm's tinyprintf (printf.c, snprintfw)
 #include "amenu_set_tg.h" // header for THIS module (to check prototypes,etc)
 
-int     ad_hoc_talkgroup = 0; // "temporarily wanted" talkgroup, entered by user in the alternative menu
-uint8_t ad_hoc_tg_channel= 0; // current channel number when the above TG had been set
-int     ad_hoc_call_type = 0;
+//int     ad_hoc_talkgroup = 0; // "temporarily wanted" talkgroup, entered by user in the alternative menu
+//uint8_t ad_hoc_tg_channel= 0; // current channel number when the above TG had been set
+//int     ad_hoc_call_type = 0;
 //---------------------------------------------------------------------------
 int am_cbk_SetTalkgroup(app_menu_t *pMenu, menu_item_t *pItem, int event, int param )
   // Callback function, invoked from the "app menu" framework

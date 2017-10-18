@@ -16,12 +16,16 @@
 #include "version.h"
 #include "usersdb.h"
 #include "radiostate.h"
+#include "codeplug.h"
 						  
 GPIO_InitTypeDef  GPIO_InitStructure;
 
 void Delay(__IO uint32_t nCount);
 
-
+int     ad_hoc_talkgroup = 0; // "temporarily wanted" talkgroup, entered by user in the alternative menu
+uint8_t ad_hoc_tg_channel= 0; // current channel number when the above TG had been set
+int     ad_hoc_call_type = 0;
+uint8_t channel_num;
 
 /**
   * @brief  Delay Function.
@@ -41,6 +45,29 @@ void sleep(__IO uint32_t ms){
 }
 
 
+
+extern int read_contact(char *buffer, int Index);
+
+
+//int md380_spiflash_write_hook(int a1, int a2, __int16 a3, int a4) {
+//}
+
+void read_contact_hook(char* buffer, int index) {
+	if (ad_hoc_talkgroup || index == 50) {
+		//*(uint16_t*)0x2001C1C0 = ad_hoc_talkgroup;
+		//memcpy(buffer, &adhocUser2, sizeof(contact_t));
+		memset(buffer, 0, sizeof(contact_t));
+		contact_t* contacta = (contact_t*)buffer;
+		contacta->id_l = ad_hoc_talkgroup & 0xFF;
+		contacta->id_m = (ad_hoc_talkgroup >> 8) & 0xFF;
+		contacta->id_h = (ad_hoc_talkgroup >> 16) & 0xFF;
+		contacta->type = CONTACT_GROUP;
+		return;
+	}
+	else {
+		read_contact(buffer, index);
+	}
+}
 
 
 static void do_jump(uint32_t stacktop, uint32_t entrypoint);
