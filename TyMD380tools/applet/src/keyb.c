@@ -28,6 +28,8 @@
 #include "usersdb.h"
 
 
+extern int     ad_hoc_talkgroup;
+
 uint8_t kb_backlight=0; // flag to disable backlight via sidekey.
 // Other keyboard-related variables belong to the original firmware,
 // e.g. kb_keypressed, address defined in symbols_d13.020 (etc).
@@ -72,13 +74,7 @@ void copy_dst_to_contact()
 	ad_hoc_talkgroup = dst;
 	checkAdHocTG();
 	
-
-	//contact2.id_l = dst & 0xFF;
-	//contact2.id_m = (dst >> 8) & 0xFF;
-	//contact2.id_h = (dst >> 16) & 0xFF;
-	//*(uint16_t*)0x200001C0 = 0x0002;
-
-	{
+	/*{
 		contact_t selContact;
 		selContact.id_l = ad_hoc_talkgroup & 0xFF;
 		selContact.id_m = (ad_hoc_talkgroup >> 8) & 0xFF;
@@ -86,13 +82,11 @@ void copy_dst_to_contact()
 		selContact.type = CONTACT_GROUP;
 
 		md380_spiflash_write(&selContact, 0x13FFDC, 3);
-	}
+	}*/
 	
 	syslog_printf("Set AdhocTG: %d\r\n", ad_hoc_talkgroup);
 
-	//memcpy(&adhocUser, &contact, sizeof(contact2));
-	//memcpy(&adhocUser2, &contact2, sizeof(contact2));
-
+	
 	//wchar_t *p = (void*)0x2001e1f4 ;
 	wchar_t *p = (void*)channel_name;
 
@@ -148,7 +142,7 @@ static long getfirstnumber2(const char * p) {
 	return retid;
 }
 
-
+extern void rx_screen_blue_hook(unsigned int bg_color);
 
 static int Flashsize = 0x1000;
 uint32_t Flashadr = 0x203C03;
@@ -235,8 +229,8 @@ void handle_hotkey( int keycode )
 			break;
 
 		case 2:
-			//slog_redraw();
-			//switch_to_screen(5);
+			slog_redraw();
+			switch_to_screen(2);
 			
 		//{
 		//	syslog_printf("FLASHERASE %08X \n", Flashadr);
@@ -260,8 +254,12 @@ void handle_hotkey( int keycode )
 			//hexScrollWindowIndex += 4;
 			break;
 		case 3:
-			copy_dst_to_contact();
-
+			if(!ad_hoc_talkgroup)
+				copy_dst_to_contact();
+			else {
+				ad_hoc_talkgroup = 0;
+				syslog_printf("Cleared AdHocTG\r\n");
+			}
 			//switch_to_screen(9);
 			break;
 		case 4:
@@ -281,9 +279,9 @@ void handle_hotkey( int keycode )
 		case 6:
 		{
 			static int cnt = 0;
-			*(uint32_t*)0x2001C898 = 4000;
-			*(uint32_t*)0x2001C8A0 = 4000;
-			syslog_printf("=POKED 4000! %d=\n", cnt++);
+			//*(uint32_t*)0x2001C898 = 4000;
+			//*(uint32_t*)0x2001C8A0 = 4000;
+			//syslog_printf("=POKED 4000! %d=\n", cnt++);
 		}
 		syslog_dump_dmesg();
 		break;
@@ -301,6 +299,8 @@ void handle_hotkey( int keycode )
 				switch_to_screen(0);
 			}
 			break;
+
+		case 10:
 		case 7:
 			//Let 7 disable ad-hoc tg mode;
 			if (!nm_screen && !Menu_IsVisible()) {
@@ -325,7 +325,7 @@ void handle_hotkey( int keycode )
 			//bp_send_beep(BEEP_TEST_3);
 			//syslog_redraw();
 			//switch_to_screen(3);
-			hexScrollWindowIndex -= 4;
+			//hexScrollWindowIndex -= 4;
 			//switch_to_screen(2);
 			break;
 		case 11:
@@ -342,11 +342,7 @@ void handle_hotkey( int keycode )
 			//sms_test2(beep_event_probe);
 			//mb_send_beep(beep_event_probe);
 			break;
-		case 14:
-			switch_to_screen(9);
-			//channel_num=0;
-			//draw_rx_screen(0xff8032);
-			break;
+		
 
 			// key '#'
 		case 15:
@@ -359,12 +355,23 @@ void handle_hotkey( int keycode )
 		}
 	}
 	else {
-		if (keycode == 15) {
+		if (keycode == 15 ) {
 			if (!Menu_IsVisible()) {
 				syslog_redraw();
 				switch_to_screen(3);
 			}
 		}
+		else if (keycode == 14 && !nm_screen) {
+			switch_to_screen(9);
+			//channel_num=0;
+			rx_screen_blue_hook(0xff8032);
+		}
+		else if (keycode == 10 && !nm_screen) {
+
+			switch_to_screen(9);
+			switch_to_screen(0);
+		}
+		
 	}
 }
 
@@ -423,10 +430,11 @@ int is_intercepted_keycode( int kc )
         case 7 :
         case 8 :
         case 9 :
+		case 10:
         //case 11 :
         //case 12 :
 		//case 13 : //end call
-		//case 14 : // *
+		case 14 : // *
         case 15 :
             return 1 ;
         default:
