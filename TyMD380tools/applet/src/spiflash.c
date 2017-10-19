@@ -53,20 +53,20 @@ void spiflash_read_hook(void *dst, long adr, long len)
 		md380_spiflash_read(dst, adr, len);
 		for (int i = 0; i < 10; i++) {
 			if (dst == (void*)(0x2001BCF0 + (i * sizeof(channel_t)))) {
-				*((uint16_t*)&(((channel_t*)dst)->settings[6])) = 50;
-				snprintfw(((channel_t*)dst)->name, 16, "TG %d*", ad_hoc_talkgroup);
+				*((uint16_t*)&(((channel_t*)dst)->settings[6])) = 1;
+				snprintfw(((channel_t*)dst)->name, 16, "TG %d", ad_hoc_talkgroup);
 				//syslog_printf("Set channel index\n");
 			}
 		}
 		return;
 	}
-	else if ((adr >= (void*)(0x13FFDC)) && ad_hoc_talkgroup) {
+	else if (((adr >= (void*)(0x13FFDC)) && (adr < (void*)(0x13FFDC + (0x24 * 10000)))) && ad_hoc_talkgroup) {
 		contact_t* nContact = (contact_t*)dst;
 		nContact->id_l = ad_hoc_talkgroup & 0xFF;
 		nContact->id_m = (ad_hoc_talkgroup >> 8) & 0xFF;
 		nContact->id_h = (ad_hoc_talkgroup >> 16) & 0xFF;
 		nContact->type = CONTACT_GROUP;
-		//snprintfw(nContact->name, 16, "TG %d*", ad_hoc_talkgroup);
+		snprintfw(nContact->name, 16, "TG %d", ad_hoc_talkgroup);
 		//syslog_printf("Set contact TG\n");
 	}
 	
