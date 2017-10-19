@@ -102,7 +102,6 @@ draw_zone_channel                        = 0x0800F2A1 ;
 backlight_timer                          = 0x2001CA9A ;
 
 zone_name                                = 0x2001AA28 ;
-md380_menu_id                            = 0x2001CB0C ;
 
 f_1444                                   = 0x0803C98D ;
 
@@ -111,8 +110,8 @@ enable_backlight                         = 0x08038D9B ;
 store_dst                                = 0x2001C8A0 ;
 store_src                                = 0x2001C89C ;
 
-TG_cacheA                               = 0x20006D88 ;
-TG_cacheB                               = 0x20006D8C ;
+TG_cacheA                                = 0x20006D88 ;
+TG_cacheB                                = 0x20006D8C ;
  
 testTG                                   = 0x2001C1C0 ;
 read_contact                             = 0x0802BEDD ;
@@ -120,3 +119,32 @@ read_contact                             = 0x0802BEDD ;
 channelA                                 = 0x2001BDF0 ; 
 channelB                                 = 0x2001BE70 ;
 channelC                                 = 0x2001BE30 ;
+
+main_menu                                = 0x0805616D ;
+
+md380_menu_0x200011e4                    = 0x20001514 ;
+md380_menu_depth                         = 0x20001514 ;
+md380_menu_id                            = 0x2001CB0C ;
+
+md380_menu_entry_back                    = 0x0801162B ;
+
+md380_menu_memory                        = 0x2001d5cc ; 
+toplinetext                              = 0x2001C84C ;
+botlinetext                              = 0x2001C47C ;
+q_status_4                               = 0x2001e604 ;
+md380_create_main_menu_entry             = 0x0800c189 ;
+md380_create_menu_entry                  = 0x0800C93D ;
+md380_menu_entry_selected                = 0x2001CAFA ;
+
+md380_menu_0x2001d3c1                    = 0x20001514 ;
+
+
+md380_menu_0x2001d3f4                    = 0x2001CB43 ;
+
+md380_menu_0x2001d3ed                    = 0x20001104 ;
+md380_menu_0x2001d3ee                    = 0x2001CB3C ;
+md380_menu_0x2001d3ef                    = 0x2001CB3D ;
+md380_menu_0x2001d3f0                    = 0x2001CB40 ;
+md380_menu_0x2001d3f1                    = 0x2001CB3E ;
+
+md380_menu_edit_buf                      = 0x20001104 ;
