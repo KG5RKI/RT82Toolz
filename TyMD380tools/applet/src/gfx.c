@@ -204,7 +204,17 @@ void rx_screen_blue_hook(unsigned int bg_color)
 		}
 	}
 
-	gfx_printf_pos2(RX_POPUP_X_START, y_index, 10, "%s %s", usr.callsign, firstnamebuf);
+	//If user is admin/cool
+	if (usr.fUserType) {
+		gfx_set_fg_color(0x0808b2);
+		gfx_select_font(gfx_font_norm); // switch to large font
+		gfx_printf_pos2(RX_POPUP_X_START, y_index, 10, "[ %s ] ", usr.callsign);
+		gfx_set_fg_color(0x000000);
+	}
+	else {
+		gfx_select_font(gfx_font_norm); // switch to large font
+		gfx_printf_pos2(RX_POPUP_X_START, y_index, 10, "%s %s", usr.callsign, firstnamebuf);
+	}
 	y_index += GFX_FONT_NORML_HEIGHT;
 
 	
@@ -719,15 +729,17 @@ void draw_statusline_hook(uint32_t r0)
 extern int ad_hoc_talkgroup;
 
 void checkAdHocTG() {
-	channel_t* channelCache = (channel_t*)0x2001BCF0;
-	for (int i = 0; i < 7; i++) {
-		*((uint16_t*)&(((uint8_t*)(&channelCache[i]))[6])) = 1;
-	}
+	if (ad_hoc_talkgroup) {
+		channel_t* channelCache = (channel_t*)0x2001BCF0;
+		for (int i = 0; i < 7; i++) {
+			*((uint16_t*)&(((uint8_t*)(&channelCache[i]))[6])) = 1;
+		}
 
-	contact.id_l = ad_hoc_talkgroup & 0xFF;
-	contact.id_m = (ad_hoc_talkgroup >> 8) & 0xFF;
-	contact.id_h = (ad_hoc_talkgroup >> 16) & 0xFF;
-	contact.type = CONTACT_GROUP;
+		contact.id_l = ad_hoc_talkgroup & 0xFF;
+		contact.id_m = (ad_hoc_talkgroup >> 8) & 0xFF;
+		contact.id_h = (ad_hoc_talkgroup >> 16) & 0xFF;
+		contact.type = CONTACT_GROUP;
+	}
 }
 
 void draw_alt_statusline()

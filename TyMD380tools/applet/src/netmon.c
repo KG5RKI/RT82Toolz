@@ -23,6 +23,7 @@
 #include "usersdb.h"
 #include "etsi.h"
 #include <wchar.h>
+#include "keyb.h"
 
 #if (CONFIG_APP_MENU)
 //# include "app_menu.h"     // alternative menu, with faster text display
@@ -271,6 +272,11 @@ void printfreq( void *p2 )
 
 void netmon2_update()
 {
+	con_clrscr();
+	con_printf("kb_keycode: %d\n", kb_keycode);
+	con_printf("kb_keypressed: %d\n", kb_keypressed);
+	con_printf("kb_row_col_pressed: %d\n", kb_row_col_pressed);
+	
 	/*
     con_clrscr();
 
@@ -484,7 +490,7 @@ void netmon6_update()
 
 void netmon_update()
 {
-    if( !is_netmon_visible() ) {
+    if( !is_netmon_visible() || nm_screen == 9) {
         netmon6_update();
         netmon4_update();
         netmon5_update();
@@ -517,6 +523,8 @@ void netmon_update()
             //netmon5_update();
             netmon6_update();
             return ;
+		default:
+			return;
     }
 }
 
