@@ -165,6 +165,13 @@ void usr_splitbuffer(user_t *up)
     char *start = cp ;
 
 	up->callsign = (char*)&up->buffer + 0x4;
+	if (up->callsign[0] == '|') {
+		up->callsign = up->callsign + 1;
+		up->fUserType = 1;
+	}
+	else {
+		up->fUserType = 0;
+	}
 
 	*((char*)(&up->buffer + 0x68)) = '\0';
 

@@ -19,6 +19,7 @@ typedef struct {
     char *place ;
     char *state ;
     char *country ;
+	char fUserType;
 } user_t ;
 
 /**
