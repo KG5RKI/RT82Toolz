@@ -748,10 +748,11 @@ if __name__ == '__main__':
     rxscrn_hooks = [
         0x80287e2,
         0x80322ac,
-        #0x803a4f6,
     ]
     for adr in rxscrn_hooks:
         merger.hookbl(adr, sapplet.getadr("rx_screen_blue_hook"))
+		
+    merger.hookbl(0x803a4f6, sapplet.getadr("rx_screen_gray_hook"))
 		
 		
     GetContactIDFromIndex_hooks = [
@@ -772,6 +773,10 @@ if __name__ == '__main__':
 	
     merger.hookbl(0x0801A5BC, sapplet.getadr("sub_801AC40"), 0)
     
+	
+    #merger.hookbl(0x0800C46E, sapplet.getadr("create_menu_utilies_hook"), 0)
+    #merger.hookbl(0x0800C8CC, sapplet.getadr("create_menu_utilies_hook"), 0)
+    merger.hookbl(0x08015416, sapplet.getadr("create_menu_utilies_hook"), 0)
 	
     
     spiflashreadhooks = [
