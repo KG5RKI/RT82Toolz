@@ -127,10 +127,10 @@ uint8_t   md380_menu_depth;
 uint8_t   md380_menu_entry_selected;
 uint8_t   md380_menu_id;
 
-extern wchar_t	  	md380_wt_programradio[];  // menutext <- menu_entry_programradio
+//extern wchar_t	  	md380_wt_programradio[];  // menutext <- menu_entry_programradio
 
 //! program_radio_unprohibited (menu entry) ... bulding site is an struct
-extern uint8_t md380_program_radio_unprohibited[];
+//extern uint8_t md380_program_radio_unprohibited[];
 
 //! This points to the byte of the current channel.
 extern char  channelnum[];

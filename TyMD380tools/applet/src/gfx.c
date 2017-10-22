@@ -264,6 +264,112 @@ void rx_screen_blue_hook(unsigned int bg_color)
 	gfx_set_bg_color(0xff000000);
 }
 
+void rx_screen_gray_hook(unsigned int bg_color)
+{
+	static int dst;
+	int src;
+	int grp;
+	int nameLen;
+	//char *timeSlot[3];
+	//int primask = OS_ENTER_CRITICAL(); // for form sake
+
+	//channel_info_t *ci = &current_channel_info;
+
+	dst = rst_dst;
+	src = rst_src;
+	grp = rst_grp;
+
+	//OS_EXIT_CRITICAL(primask);
+
+	// clear screen
+	gfx_set_fg_color(bg_color);
+	gfx_blockfill(0, 16, MAX_X, MAX_Y);
+
+	gfx_set_bg_color(bg_color);
+	gfx_set_fg_color(0x000000);
+	gfx_select_font(gfx_font_small);
+
+	user_t usr;
+
+	if (usr_find_by_dmrid(&usr, src) == 0) {
+		usr.callsign = "ID unknown";
+		usr.firstname = "";
+		usr.name = "No entry in";
+		usr.place = "your user.bin";
+		usr.state = "see README.md";
+		usr.country = "on Github";
+	}
+
+	gfx_select_font(gfx_font_small);
+
+	//int ts1 = (ci->cc_slot_flags >> 2) & 0x1;
+	//int ts2 = (ci->cc_slot_flags >> 3) & 0x1;
+
+	int y_index = RX_POPUP_Y_START;
+
+	if (grp) {
+		gfx_printf_pos(RX_POPUP_X_START, y_index, "%d->TG %d", src, dst);
+	}
+	else {
+		gfx_printf_pos(RX_POPUP_X_START, y_index, "%d->%d", src, dst);
+	}
+	y_index += GFX_FONT_SMALL_HEIGHT*4;
+
+	gfx_select_font(gfx_font_norm); // switch to large font
+
+	char firstnamebuf[12] = { 0 };
+	for (int i = 0; i < 12; i++) {
+		if (usr.name[i] == ' ')
+		{
+			memcpy(firstnamebuf, usr.name, i);
+		}
+	}
+
+	//If user is admin/cool
+	if (usr.fUserType) {
+		gfx_set_fg_color(0x0808b2);
+		gfx_select_font(gfx_font_norm); // switch to large font
+		gfx_printf_pos2(RX_POPUP_X_START, y_index, 10, "[ %s ] ", usr.callsign);
+		gfx_set_fg_color(0x000000);
+	}
+	else {
+		gfx_select_font(gfx_font_norm); // switch to large font
+		gfx_printf_pos2(RX_POPUP_X_START, y_index, 10, "%s %s", usr.callsign, firstnamebuf);
+	}
+	y_index += GFX_FONT_NORML_HEIGHT;
+
+
+	{
+		// user.bin or codeplug or talkerAlias length=0
+		nameLen = strlen(usr.name);
+		if (nameLen > 16) {  // print in smaller font
+			gfx_select_font(gfx_font_small);
+			gfx_puts_pos(RX_POPUP_X_START, y_index, usr.name);
+			y_index += GFX_FONT_SMALL_HEIGHT; // previous line was in small font
+		}
+		else {  // print in larger font if it will fit
+			gfx_puts_pos(RX_POPUP_X_START, y_index, usr.name);
+			y_index += GFX_FONT_NORML_HEIGHT;
+		}
+	}
+
+	y_index += 3;
+	//if (global_addl_config.userscsv > 1) {
+	gfx_set_fg_color(0x00FF00);
+	//}
+	//else {
+	//	gfx_set_fg_color(0x0000FF);
+	//}
+	gfx_blockfill(1, y_index, 156, y_index);
+	gfx_set_fg_color(0x000000);
+	y_index += 2;
+
+
+	gfx_select_font(gfx_font_norm);
+	//gfx_set_fg_color(0xff8032);
+	//gfx_set_bg_color(0xff000000);
+}
+
 
 void red_led(int on) {
   /* The RED LED is supposed to be on pin A0 by the schematic, but in

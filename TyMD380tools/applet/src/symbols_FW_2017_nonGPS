@@ -138,6 +138,8 @@ md380_menu_entry_selected                = 0x2001CAFA ;
 
 md380_menu_0x2001d3c1                    = 0x20001514 ;
 
+md380_menu_entry_programradio            = 0x08015470 ;
+md380_menu_numerical_input               = 0x0802008D ;
 
 md380_menu_0x2001d3f4                    = 0x2001CB43 ;
 
@@ -148,3 +150,14 @@ md380_menu_0x2001d3f0                    = 0x2001CB40 ;
 md380_menu_0x2001d3f1                    = 0x2001CB3E ;
 
 md380_menu_edit_buf                      = 0x20001104 ;
+mn_editbuffer_poi                        = 0x2001A7A4 ;
+
+kb_top_side_key_press_time               = 0x2001CB67 ;
+kb_bot_side_key_press_time               = 0x2001CB69 ;
+kb_side_key_max_time                     = 0x2001CB6B ;
+kb_row_col_pressed                       = 0x2001CB6D ;
+kb_key_press_time                        = 0x2001CB6F ;
+
+md380_wt_programradio                    = 0x080DDDF4 ;
+
+md380_menu_mem_base                      = 0x20014D88 ;

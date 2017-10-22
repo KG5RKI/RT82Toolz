@@ -311,10 +311,10 @@ void handle_hotkey( int keycode )
 				switch_to_screen(0);
 				//channel_num = 0;
 			}
-			else if (!Menu_IsVisible()) {
+			/*else if (!Menu_IsVisible()) {
 				switch_to_screen(9);
 				switch_to_screen(0);
-			}
+			}*/
 
 			break;
 		case 8:
