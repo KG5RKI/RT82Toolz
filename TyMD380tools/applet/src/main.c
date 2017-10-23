@@ -61,7 +61,7 @@ void read_contact_hook(char* buffer, int index) {
 		contacta->id_l = ad_hoc_talkgroup & 0xFF;
 		contacta->id_m = (ad_hoc_talkgroup >> 8) & 0xFF;
 		contacta->id_h = (ad_hoc_talkgroup >> 16) & 0xFF;
-		contacta->type = CONTACT_GROUP;
+		contacta->type = ad_hoc_call_type;
 		return;
 	}
 	else {

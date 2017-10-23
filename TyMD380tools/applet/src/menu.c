@@ -797,10 +797,11 @@ void create_menu_entry_set_tg_screen_store(void)
     contact.type = CONTACT_GROUP ;*/
 
 	extern int ad_hoc_talkgroup;
+	extern int ad_hoc_call_type;
 
 	//ad_hoc_tg_channel = channel_num;
 	ad_hoc_talkgroup = new_tx_id;
-	//ad_hoc_call_type = CONTACT_GROUP;
+	ad_hoc_call_type = CONTACT_GROUP;
 
     wchar_t *p = (void*)contact.name; // write entered tg to the contact name 
                              // so that it is dislayed on the monitor1 screen
@@ -820,43 +821,44 @@ void create_menu_entry_set_tg_screen_store(void)
 
 void create_menu_entry_set_priv_screen_store(void)
 {
-    uint32_t new_tx_id = 0;
-    wchar_t *bf;
+	uint32_t new_tx_id = 0;
+	wchar_t *bf;
 
 
+	bf = md380_menu_edit_buf;
+	while (*bf != 0) {
+		new_tx_id *= 10;
+		new_tx_id += (*bf++) - '0';
+	}
 
-    bf = md380_menu_edit_buf;
-    while (*bf != 0) {
-        new_tx_id *= 10;
-        new_tx_id += (*bf++) - '0';
-    }
-
-    if ( new_tx_id > 0xffffff ) {
-        return;
-    }
-
+	if (new_tx_id > 0xffffff) {
+		return;
+	}
 
 
-    contact.id_l = new_tx_id & 0xFF ;
-    contact.id_m = (new_tx_id>>8) & 0xFF ;
-    contact.id_h = (new_tx_id>>16) & 0xFF ;
-    contact.type = CONTACT_USER;
+	/*contact.id_l = new_tx_id & 0xFF ;
+	contact.id_m = (new_tx_id>>8) & 0xFF ;
+	contact.id_h = (new_tx_id>>16) & 0xFF ;
+	contact.type = CONTACT_GROUP ;*/
 
-	ad_hoc_tg_channel = channel_num;
+	extern int ad_hoc_talkgroup;
+	extern int ad_hoc_call_type;
+
+	//ad_hoc_tg_channel = channel_num;
 	ad_hoc_talkgroup = new_tx_id;
 	ad_hoc_call_type = CONTACT_USER;
 
-    wchar_t *p = (void*)contact.name; // write entered tg to the contact name 
-                             // so that it is dislayed on the monitor1 screen
-    snprintfw( p, 16, "P: %d*", new_tx_id ); // (#708)
+	wchar_t *p = (void*)contact.name; // write entered tg to the contact name 
+									  // so that it is dislayed on the monitor1 screen
+	snprintfw(p, 16, "TG %d*", new_tx_id); // (#708)
 
-    extern void draw_zone_channel(); // TODO.
-    draw_zone_channel();
+										   //extern void draw_zone_channel(); // TODO.
+										   //draw_zone_channel();
 
 	checkAdHocTG(); // ad_hoc_talkgroup -> contact.xyz
 
-    md380_menu_id = md380_menu_id - 1; // exit menu to the proper level (#708) 
-    md380_menu_depth = md380_menu_depth - 1;
+	md380_menu_id = md380_menu_id - 1; // exit menu to the proper level (#708) 
+	md380_menu_depth = md380_menu_depth - 1;
 
     md380_create_menu_entry(md380_menu_id, md380_menu_edit_buf, MKTHUMB(md380_menu_entry_back), MKTHUMB(md380_menu_entry_back), 6, 1, 1);
 

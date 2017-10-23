@@ -25,6 +25,13 @@ if __name__ == '__main__':
     #patcher.nopout((0x08011444))
     #patcher.nopout((0x08011444) + 0x2)
 	
+    #patcher.nopout((0x080643E8))
+    #patcher.nopout((0x080643E8) + 0x2)
+    #patcher.nopout((0x0802BF5C))
+    #patcher.nopout((0x0802BF5C) + 0x2)
+	
+	
+	
 	#test manual dial group callable
     #patcher.sethword(0x08023170, 0x2204)
     #patcher.sethword(0x08012912, 0x2804)

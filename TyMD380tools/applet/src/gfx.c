@@ -833,6 +833,7 @@ void draw_statusline_hook(uint32_t r0)
 }
 
 extern int ad_hoc_talkgroup;
+extern int ad_hoc_call_type;
 
 void checkAdHocTG() {
 	if (ad_hoc_talkgroup) {
@@ -844,7 +845,7 @@ void checkAdHocTG() {
 		contact.id_l = ad_hoc_talkgroup & 0xFF;
 		contact.id_m = (ad_hoc_talkgroup >> 8) & 0xFF;
 		contact.id_h = (ad_hoc_talkgroup >> 16) & 0xFF;
-		contact.type = CONTACT_GROUP;
+		contact.type = ad_hoc_call_type;
 	}
 }
 
@@ -877,14 +878,15 @@ void draw_alt_statusline()
 	
 	if (ad_hoc_talkgroup != 0) {
 		int curTG = (((int)contact.id_h << 16) | ((int)contact.id_m << 8) | (int)contact.id_l);
-		if (ad_hoc_talkgroup != curTG) {
+		//if (ad_hoc_talkgroup != curTG) 
+		{
 			contact.id_l = ad_hoc_talkgroup & 0xFF;
 			contact.id_m = (ad_hoc_talkgroup >> 8) & 0xFF;
 			contact.id_h = (ad_hoc_talkgroup >> 16) & 0xFF;
+			contact.type = ad_hoc_call_type;
 			snprintfw(contact.name, 16, "%s %d*", (contact.type == CONTACT_GROUP ? "TG" : "P"), ad_hoc_talkgroup);
+			gfx_printf_pos2(RX_POPUP_X_START, 80, 157, "%S", contact.name);
 		}
-
-		gfx_printf_pos2(RX_POPUP_X_START, 80, 157, "TG: %d", ad_hoc_talkgroup);
 	}
 	
 	if (src == 0) {

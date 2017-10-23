@@ -329,7 +329,7 @@ void dmr_before_squelch_hook(uint8_t *pkt, uint8_t unk)
 			contact.id_l = ad_hoc_talkgroup & 0xFF;
 			contact.id_m = (ad_hoc_talkgroup >> 8) & 0xFF;
 			contact.id_h = (ad_hoc_talkgroup >> 16) & 0xFF;
-			contact.type = CONTACT_GROUP;
+			contact.type = ad_hoc_call_type;
 		}
 	}
 	return dmr_before_squelch();
