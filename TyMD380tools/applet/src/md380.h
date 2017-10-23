@@ -37,6 +37,9 @@ extern char dmr_squelch_mode[];
 //! Unknown function involved in squelching.
 extern char* const dmr_squelch_firstthing[];
 
+extern uint32_t* md380_lastheard_dmrid;
+extern uint32_t* md380_current_TG;
+extern uint32_t* md380_lastheard_dest;
 
 //Pointer to the buffer that stores the top and bottom line of the boot screen text.
 extern wchar_t toplinetext[10]; // 0-term

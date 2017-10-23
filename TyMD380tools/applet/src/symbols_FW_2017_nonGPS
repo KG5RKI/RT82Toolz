@@ -128,7 +128,7 @@ md380_menu_id                            = 0x2001CB0C ;
 
 md380_menu_entry_back                    = 0x0801162B ;
 
-md380_menu_memory                        = 0x2001d5cc ; 
+md380_menu_memory                        = 0x2001AE88 ; 
 toplinetext                              = 0x2001C84C ;
 botlinetext                              = 0x2001C47C ;
 q_status_4                               = 0x2001e604 ;
@@ -136,21 +136,21 @@ md380_create_main_menu_entry             = 0x0800c189 ;
 md380_create_menu_entry                  = 0x0800C93D ;
 md380_menu_entry_selected                = 0x2001CAFA ;
 
-md380_menu_0x2001d3c1                    = 0x20001514 ;
+md380_menu_0x2001d3c1                    = 0x2001CB0B ;
 
-md380_menu_entry_programradio            = 0x08015470 ;
+md380_menu_entry_programradio            = 0x08015471 ;
 md380_menu_numerical_input               = 0x0802008D ;
 
 md380_menu_0x2001d3f4                    = 0x2001CB43 ;
 
-md380_menu_0x2001d3ed                    = 0x20001104 ;
-md380_menu_0x2001d3ee                    = 0x2001CB3C ;
-md380_menu_0x2001d3ef                    = 0x2001CB3D ;
-md380_menu_0x2001d3f0                    = 0x2001CB40 ;
-md380_menu_0x2001d3f1                    = 0x2001CB3E ;
+md380_menu_0x2001d3ed                    = 0x2001CB3C ;
+md380_menu_0x2001d3ee                    = 0x2001CB3D ;
+md380_menu_0x2001d3ef                    = 0x2001CB3E ;
+md380_menu_0x2001d3f0                    = 0x2001CB3F ;
+md380_menu_0x2001d3f1                    = 0x2001CB40 ;
 
-md380_menu_edit_buf                      = 0x20001104 ;
-mn_editbuffer_poi                        = 0x2001A7A4 ;
+md380_menu_edit_buf                      = 0x2001A7E6 ;
+mn_editbuffer_poi                        = 0x20001104 ;
 
 kb_top_side_key_press_time               = 0x2001CB67 ;
 kb_bot_side_key_press_time               = 0x2001CB69 ;
@@ -161,3 +161,7 @@ kb_key_press_time                        = 0x2001CB6F ;
 md380_wt_programradio                    = 0x080DDDF4 ;
 
 md380_menu_mem_base                      = 0x20014D88 ;
+
+md380_lastheard_dmrid                    = 0x2001C89C ;
+md380_lastheard_dest                     = 0x2001C8A0 ;
+md380_current_TG                         = 0x2001C898 ;

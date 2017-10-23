@@ -53,62 +53,63 @@ uint8_t calc_crc( void *buf, int size)
 int cfg_load()
 {
     memset( &global_addl_config, 0, sizeof(addl_config_t) );
-    
-    addl_config_t tmp ;    
-    cfg_read_struct( &tmp );
-    
-    // the config in flash is bigger than mine.
-    if( tmp.length > sizeof(addl_config_t) ) {
-        // we cannot crc what we have not read. (for now).
-        LOGB("cfg oversized\n");
-        return 0;        
-    }
-    
-    if( calc_crc(&tmp,tmp.length) != 0 ) {
-        // corrupted.
-        LOGB("cfg crc fail\n");
-        return 0;
-    }
+	return;
 
-    // copy the smaller config into our bigger config.
-    // leaving the rest 0.
-    memcpy(&global_addl_config,&tmp,tmp.length);
-    
-    // range limit
-    R(global_addl_config.userscsv,3);			// 2017-02-19	0-disable 1-userscsv 2-talkeralias 3-both
-    R(global_addl_config.micbargraph,4);
-    R(global_addl_config.debug,1);
-    R(global_addl_config.rbeep,1);
-    R(global_addl_config.promtg,1);
-    R(global_addl_config.boot_demo,1);
-//    R(global_addl_config.boot_splash,0); // unused
-    R(global_addl_config.netmon,3);
-    R(global_addl_config.datef,6);
-	R(global_addl_config.mic_gain,2);
-	R(global_addl_config.alt_text, 1);
-
-    // restore dmrid
-    if( ( global_addl_config.cp_override & CPO_DMR ) == CPO_DMR ) {
-        md380_radio_config.dmrid = global_addl_config.dmrid ;
-    }
-
-//    // restore radio name
-//    if (global_addl_config.userscsv == 1) {
-//        cfg_fix_radioname();
+//    addl_config_t tmp ;    
+//    cfg_read_struct( &tmp );
+//    
+//    // the config in flash is bigger than mine.
+//    if( tmp.length > sizeof(addl_config_t) ) {
+//        // we cannot crc what we have not read. (for now).
+//        LOGB("cfg oversized\n");
+//        return 0;        
 //    }
-
-    // global_addl_config.experimental is intentionally not permanent
-    global_addl_config.experimental = 0;
-
-#if defined(FW_D13_020) || defined(FW_S13_020)
-#else
-    global_addl_config.netmon = 0 ;
-#endif
-
-	if(tmp.length != sizeof(addl_config_t)){
-		global_addl_config.mic_gain = 0;
-		return 0;
-	}
+//    
+//    if( calc_crc(&tmp,tmp.length) != 0 ) {
+//        // corrupted.
+//        LOGB("cfg crc fail\n");
+//        return 0;
+//    }
+//
+//    // copy the smaller config into our bigger config.
+//    // leaving the rest 0.
+//    memcpy(&global_addl_config,&tmp,tmp.length);
+//    
+//    // range limit
+//    R(global_addl_config.userscsv,3);			// 2017-02-19	0-disable 1-userscsv 2-talkeralias 3-both
+//    R(global_addl_config.micbargraph,4);
+//    R(global_addl_config.debug,1);
+//    R(global_addl_config.rbeep,1);
+//    R(global_addl_config.promtg,1);
+//    R(global_addl_config.boot_demo,1);
+////    R(global_addl_config.boot_splash,0); // unused
+//    R(global_addl_config.netmon,3);
+//    R(global_addl_config.datef,6);
+//	R(global_addl_config.mic_gain,2);
+//	R(global_addl_config.alt_text, 1);
+//
+//    // restore dmrid
+//    if( ( global_addl_config.cp_override & CPO_DMR ) == CPO_DMR ) {
+//        md380_radio_config.dmrid = global_addl_config.dmrid ;
+//    }
+//
+////    // restore radio name
+////    if (global_addl_config.userscsv == 1) {
+////        cfg_fix_radioname();
+////    }
+//
+//    // global_addl_config.experimental is intentionally not permanent
+//    global_addl_config.experimental = 0;
+//
+//#if defined(FW_D13_020) || defined(FW_S13_020)
+//#else
+//    global_addl_config.netmon = 0 ;
+//#endif
+//
+//	if(tmp.length != sizeof(addl_config_t)){
+//		global_addl_config.mic_gain = 0;
+//		return 0;
+//	}
 
 	return 1;
 }
@@ -120,7 +121,7 @@ void cfg_save()
     
     global_addl_config.crc = calc_crc(&global_addl_config,sizeof(addl_config_t));
     
-    cfg_write_struct( &global_addl_config );
+    //cfg_write_struct( &global_addl_config );
 }
 
 void cfg_set_radio_name()

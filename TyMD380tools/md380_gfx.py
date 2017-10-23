@@ -10,8 +10,8 @@ import os
 import struct
 import sys
 
-FontGFX_CN_START = 0x809c714
-FontGFX_CN_END = 0x80d0f80
+FontGFX_CN_START = 0x805c714
+FontGFX_CN_END = 0x080FEA30
 
 
 class Memory(object):
@@ -494,42 +494,7 @@ class MD380Fonts(Memory):
         return t
 
 
-# with open('prom-private.img', 'rb') as f:
-#    mdgfx = MD380Graphics(f.read(), 0x800c000)
-# with open('patched.bin', 'rb') as f:
-#     mdgfx = MD380Graphics(f.read(), 0x8000000)
-#
-# gfx = mdgfx.gfxparse(0x80f9cf8)
-# mdgfx.gfxprint(gfx)
-# glyph = mdgfx.glyphparse(0x807bfc8)
-# mdgfx.gfxprint(glyph)
-# glyph = mdgfx.glyphparse(0x8063918)
-# mdgfx.gfxprint(glyph)
-#
-# if not os.path.exists('rawimg'):
-#   os.mkdir('rawimg')
-# for gfx in mdgfx.gfxscan():
-#   # mdgfx.gfxprint(gfx)
-#   if gfx['palette'] is None:
-#       img = mdgfx.pbm(gfx)
-#       name = '%s.pbm' % hex(gfx['address'])
-#   else:
-#       img = mdgfx.ppm(gfx)
-#       name = '%s.ppm' % hex(gfx['address'])
-#   with open('rawimg/%s' % name, 'wb') as f:
-#       f.write(img)
-#
-# gfx = mdgfx.gfxparse(0x080f9ca8)
-# img = mdgfx.ppm(gfx)
-# with open('0x080f9ca8.ppm', 'wb') as f:
-#     f.write(img)
-#
-# with open(sys.argv[1], 'rb') as f:
-#     img = f.read()
-#
-# gfx = mdgfx.ppmparse(img)
-# print(gfx)
-# mdgfx.gfxprint(gfx)
+
 
 
 # 0x807bfc8
@@ -615,9 +580,9 @@ def main():
             target_checksum = args.checksum
         elif 'oldchecksum' in gfx and gfx['oldchecksum'] is not None:
             target_checksum = gfx['oldchecksum']
-        else:
-            sys.stderr.write('ERROR: Checksum required in --checksum or PPM header.\n')
-            sys.exit(5)
+        #else:
+        #    sys.stderr.write('ERROR: Checksum required in --checksum or PPM header.\n')
+        #    sys.exit(5)
         sys.stderr.write("DEBUG: Looking for graphics checksum %d...\n" % target_checksum)
         candidates = md.gfxfind(target_checksum)
         if len(candidates) > 0:
@@ -705,6 +670,43 @@ def main():
         yes = '是'
         from IPython import embed
         embed()
+    elif cmd == 'swappa':
+        with open('patched.img', 'rb') as f:
+            mdgfx_patched = MD380Graphics(f.read(), 0x800c000)
+        with open('D013.020.img', 'rb') as f:
+            mdgfx = MD380Graphics(f.read(), 0x800C000)
+#
+# gfx = mdgfx.gfxparse(0x80f9cf8)
+# mdgfx.gfxprint(gfx)
+# glyph = mdgfx.glyphparse(0x807bfc8)
+# mdgfx.gfxprint(glyph)
+# glyph = mdgfx.glyphparse(0x8063918)
+# mdgfx.gfxprint(glyph)
+#
+# if not os.path.exists('rawimg'):
+#   os.mkdir('rawimg')
+# for gfx in mdgfx.gfxscan():
+#   # mdgfx.gfxprint(gfx)
+#   if gfx['palette'] is None:
+#       img = mdgfx.pbm(gfx)
+#       name = '%s.pbm' % hex(gfx['address'])
+#   else:
+#       img = mdgfx.ppm(gfx)
+#       name = '%s.ppm' % hex(gfx['address'])
+#   with open('rawimg/%s' % name, 'wb') as f:
+#       f.write(img)
+#
+# gfx = mdgfx.gfxparse(0x080f9ca8)
+# img = mdgfx.ppm(gfx)
+        with open('replacement-font-big-latin.pbm', 'rb') as f:
+            img = f.read()
+#
+# with open(sys.argv[1], 'rb') as f:
+#     img = f.read()
+#
+        gfx = mdgfx.ppmparse(img)
+        print(gfx)
+        mdgfx.gfxprint(gfx)
     else:
         sys.stderr.write('ERROR: Use extract, restore, write, fontreplace or relocate as command. %s\n' % cmd)
         sys.exit(5)

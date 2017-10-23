@@ -26,6 +26,7 @@
 #include "keyb.h"
 #include "etsi.h"
 #include "usersdb.h"
+#include "menu.h"
 
 
 extern int     ad_hoc_talkgroup;
@@ -147,7 +148,9 @@ extern void rx_screen_blue_hook(unsigned int bg_color);
 static int Flashsize = 0x1000;
 uint32_t Flashadr = 0x203C03;
 
-uint32_t ptrrr = 0x20018000;
+uint32_t ptrrr = 0x20014D88;
+
+extern void md380_Flash_Log();
 
 void handle_hotkey( int keycode )
 {
@@ -176,6 +179,9 @@ void handle_hotkey( int keycode )
 			// memcpy(buffer, buffer + ((long)p - pRnd), ((long)p - pRnd));
 			//}
 			//else {
+
+
+			//WORKS!!
 			/*syslog_printf("\nDumpin...");
 			for (i = 0; i < 0x20; i += 1) {
 				md380_spiflash_write((void*)(ptrrr +(i* 1024)), Flashadr + (i * 1024), 1024);
@@ -183,7 +189,13 @@ void handle_hotkey( int keycode )
 			}
 			ptrrr += 0x10 * 1024;
 			Flashadr += 0x10 * 1024;
-			syslog_printf("\n %x ...", 0x10 * 1024);*/
+			syslog_printf("\n %x ...", 0x10 * 1024);
+			*/
+			clog_redraw();
+			syslog_printf("\nmain_mode: %d", idd);
+			//menu_t *menu_mem;
+			//md380_Flash_Log();
+
 			//{
 			
 
@@ -230,7 +242,7 @@ void handle_hotkey( int keycode )
 
 		case 2:
 			slog_redraw();
-			switch_to_screen(2);
+			switch_to_screen(1);
 			
 		//{
 		//	syslog_printf("FLASHERASE %08X \n", Flashadr);
@@ -251,7 +263,7 @@ void handle_hotkey( int keycode )
 		//	syslog_printf("\n");
 		//}
 			
-			//hexScrollWindowIndex += 4;
+			hexScrollWindowIndex += 4;
 			break;
 		case 3:
 			if(!ad_hoc_talkgroup)
@@ -323,9 +335,9 @@ void handle_hotkey( int keycode )
 			break;
 		case 9:
 			//bp_send_beep(BEEP_TEST_3);
-			//syslog_redraw();
+			syslog_redraw();
 			//switch_to_screen(3);
-			//hexScrollWindowIndex -= 4;
+			hexScrollWindowIndex -= 4;
 			//switch_to_screen(2);
 			break;
 		case 11:

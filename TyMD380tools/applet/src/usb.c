@@ -27,20 +27,8 @@ an audio transmission or reception.
 #include "tooldfu.h"
 #include "spiflash.h"
 #include "string.h"
+#include "util.h"
 
-//const 
-char hexes[] = "0123456789abcdef"; //Needs to be const for problems.
-
-
-void strhex(char *string, long value)
-{
-	char b;
-	for (int i = 0; i < 4; i++) {
-		b = value >> (24 - i * 8);
-		string[2 * i] = hexes[(b >> 4) & 0xF];
-		string[2 * i + 1] = hexes[b & 0xF];
-	}
-}
 
 //int usb_upld_hook(void* iface, char *packet, int bRequest, int something) {
 int usb_upld_hook(void* iface, void* packet, void* bRequest, void* something) {

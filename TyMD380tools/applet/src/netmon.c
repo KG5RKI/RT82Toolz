@@ -126,7 +126,7 @@ void print_smeter()
 //int hexScrollWindowIndex = 0x2001C19C;
 //int hexScrollWindowIndex = 0x2001BBEC;
 //int hexScrollWindowIndex = 0x2001BE30; //GOOD
-int hexScrollWindowIndex = 0x2001C1C0;
+int hexScrollWindowIndex = 0x20014D80;
 
 void netmon1_update()
 {
@@ -272,11 +272,11 @@ void printfreq( void *p2 )
 
 void netmon2_update()
 {
-	con_clrscr();
+	/*con_clrscr();
 	con_printf("kb_keycode: %d\n", kb_keycode);
 	con_printf("kb_keypressed: %d\n", kb_keypressed);
 	con_printf("kb_row_col_pressed: %d\n", kb_row_col_pressed);
-	
+	*/
 	/*
     con_clrscr();
 

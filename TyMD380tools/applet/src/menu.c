@@ -10,10 +10,12 @@
 #include "menu.h"
 
 #include <string.h>
+#include <assert.h>
 
 #include "debug.h"
 #include "dmesg.h"
 #include "md380.h"
+#include "util.h"
 #include "version.h"
 #include "config.h"
 #include "os.h"
@@ -24,7 +26,7 @@
 #include "util.h"
 #include "printf.h"
 #include "keyb.h"
-#include "app_menu.h"     // 'simple' alternative menu activated by red BACK-button
+//#include "app_menu.h"     // 'simple' alternative menu activated by red BACK-button
 #include "codeplug.h"
 #include "amenu_set_tg.h"
 #include "radiostate.h"
@@ -33,7 +35,10 @@
             // whichever was opened FIRST (via red or green button) 
             // will gain control over the framebuffer and thus disable "the other" menu.
 
-const static wchar_t wt_addl_func[]         = L"MD380Toolz";
+
+extern addl_config_t global_addl_config;
+extern void checkAdHocTG();
+const static wchar_t wt_addl_func[]         = L"TyToolz";
 const static wchar_t wt_datef[]             = L"Date format";
 const static wchar_t wt_debug[]             = L"USB logging";
 //const static wchar_t wt_netmon[]            = L"NetMon";
@@ -168,32 +173,7 @@ const static uint8_t button_functions[]     = {0x00, 0x01, 0x02, 0x03, 0x04, 0x0
 uint8_t button_selected = 0;
 uint8_t button_function = 0;
 
-typedef struct {
-    const wchar_t* label ;  // [0]
-    void* green ;           // [4]
-    void* red ;             // [8]
-    uint8_t off12 ;         // [12]  
-    uint8_t off13 ;         // [13]
-    uint16_t item_count ;   // [14]
-    uint8_t off16 ;         // [16]
-    uint8_t off17 ;         // [17]
-    uint16_t unknown2 ;     // [18]
-    // sizeof() == 20 (0x14)
-} menu_entry_t ;
 
-
-typedef struct {
-  const wchar_t  *menu_title; // [0]
-  menu_entry_t *entries; // [4]
-  uint8_t numberof_menu_entries; // [8]
-  uint8_t unknown_00;
-  uint8_t unknown_01;
-  uint8_t filler ;
-} menu_t ; // sizeof() == 12
-
-extern menu_t md380_menu_memory[];
-
-extern menu_entry_t md380_menu_mem_base[];
 
 //Old macro, schedule for deletion.
 //#define MKTHUMB(adr) ((void(*))(((uint32_t)adr) | 0x1))
@@ -203,16 +183,14 @@ extern menu_entry_t md380_menu_mem_base[];
 
 void create_menu_entry_rev(int menuid, const wchar_t * label , void (*green_key)(), void  (*red_key)(), int e, int f ,int item_count) 
 {
-    //PRINT("create_menu_entry_rev %x %S %x %x %x\n", menuid, label, e, f, item_count );
+   syslog_printf("create_menu_entry_rev %x %S %x %x %x\n", menuid, label, e, f, item_count );
     //PRINT("%x\n", green_key);
     
 //    green_key = MKTHUMB(green_key);
 //    PRINT("%x\n", green_key);
     
 //    red_key = MKTHUMB(red_key);
-    
-#ifdef TRACE_MENU
-#ifdef DEBUG    
+     
     char lbl2[10];
     char *lp = (void*)label ;
     for(int i=0;i<10;i++) {
@@ -228,19 +206,14 @@ void create_menu_entry_rev(int menuid, const wchar_t * label , void (*green_key)
     lbl2[9] = 0 ;
 
     void *gp = ((uint8_t*)green_key) - 1 ;
-    PRINT("f menugreen.%s.%x 0 0x%x\n", lbl2, gp, gp );
-#endif
-    
-#if 0    
+    syslog_printf("f menugreen.%s.%x 0 0x%x\n", lbl2, gp, gp );
+
     register uint32_t *sp asm("sp");   
     for(int i=15;i<20;i++) {
-        printf( "%d : 0x%x\n", i, sp[i] );        
+		syslog_printf( "%d : 0x%x\n", i, sp[i] );
     }
-    printf( "f menucall.%s 0 0x%x\n", lbl2, (sp[15] - 1 - 4) );
-	
-#endif    
-    
-#endif    
+	syslog_printf( "f menucall.%s 0 0x%x\n", lbl2, (sp[15] - 1 - 4) );
+  
     
     // e f
     // 6,2 confirmation popup misc.
@@ -281,14 +254,11 @@ void create_menu_entry_rev(int menuid, const wchar_t * label , void (*green_key)
     poi->off13 = f ;
     poi->item_count = item_count ;
     
-#ifdef FW_D13_020
     // supress language menu.
-    if( green_key == (void*)(0x801ab84 + 1) ) {
+    if( green_key == (void*)(0x801FA9C + 1) ) {
         poi->item_count = 0 ;
     }
-#else
-#warning TODO find language menu on this firmware version    
-#endif
+	
 
 }
 
@@ -346,6 +316,7 @@ void mn_submenu_init(const wchar_t *title)
     menu_mem->numberof_menu_entries = 0;
     menu_mem->unknown_00 = 0;
     menu_mem->unknown_01 = 0;    
+	
 }
 
 void mn_submenu_add(const wchar_t * label, void (*func)())
@@ -401,189 +372,10 @@ void mn_submenu_finalize2()
     }    
 }
 
-void create_menu_entry_promtg_enable_screen(void)
-{
-    mn_create_single_timed_ack(wt_promtg,wt_enable);
-    
-    global_addl_config.promtg = 1;
-    
-    cfg_save();
-}
-
-void create_menu_entry_promtg_disable_screen(void)
-{
-    mn_create_single_timed_ack(wt_promtg,wt_disable);
-    
-    global_addl_config.promtg = 0;
-
-    cfg_save();
-}
-
-void create_menu_entry_micbargraph_vert_screen(void)
-{
-    mn_create_single_timed_ack(wt_micbargraph,wt_micbargraph_vert);
-
-    global_addl_config.micbargraph = 2;
-
-    cfg_save();
-}
-void create_menu_entry_micbargraph_vert_lh_screen(void)
-{
-    mn_create_single_timed_ack(wt_micbargraph,wt_micbargraph_vert_lh);
-
-    global_addl_config.micbargraph = 3;
-
-    cfg_save();
-}
-
-void create_menu_entry_micbargraph_lh_screen(void)
-{
-	mn_create_single_timed_ack(wt_micbargraph, wt_micbargraph_lh);
-
-	global_addl_config.micbargraph = 4;
-
-	cfg_save();
-}
-
-void create_menu_entry_micbargraph_horz_screen(void)
-{
-    mn_create_single_timed_ack(wt_micbargraph,wt_micbargraph_horz);
-
-    global_addl_config.micbargraph = 1;
-
-    cfg_save();
-}
-
-void create_menu_entry_micbargraph_disable_screen(void)
-{
-    mn_create_single_timed_ack(wt_micbargraph,wt_disable);
-
-    global_addl_config.micbargraph = 0;
-
-    cfg_save();
-}
-
-void create_menu_entry_rbeep_enable_screen(void)
-{
-    mn_create_single_timed_ack(wt_rbeep,wt_enable);
-
-    global_addl_config.rbeep = 1;
-
-    cfg_save();
-}
-
-void create_menu_entry_rbeep_disable_screen(void)
-{
-    mn_create_single_timed_ack(wt_rbeep,wt_disable);
-
-    global_addl_config.rbeep = 0;
-
-    cfg_save();
-}
-
-void create_menu_entry_alt_text_disable_screen(void)
-{
-	mn_create_single_timed_ack(wt_button_alt_text, wt_disable);
-
-	global_addl_config.alt_text = 0;
-
-	cfg_save();
-}
-
-void create_menu_entry_alt_text_enable_screen(void)
-{
-	mn_create_single_timed_ack(wt_button_alt_text, wt_enable);
-
-	global_addl_config.alt_text = 1;
-
-	cfg_save();
-}
 
 
 
 
-void create_menu_entry_demo_enable_screen(void)
-{
-    mn_create_single_timed_ack(wt_demoscr, wt_enable);
-
-    global_addl_config.boot_demo = 0;
-
-    cfg_save();
-}
-
-void create_menu_entry_demo_disable_screen(void)
-{
-    mn_create_single_timed_ack(wt_demoscr, wt_disable);
-
-    global_addl_config.boot_demo = 1;
-
-    cfg_save();
-}
-
-void create_menu_entry_demo_screen(void)
-{
-    mn_submenu_init(wt_demoscr);
-
-    md380_menu_entry_selected = global_addl_config.boot_demo;
-
-    mn_submenu_add(wt_demoscr_enable, create_menu_entry_demo_enable_screen);
-    mn_submenu_add(wt_demoscr_disable, create_menu_entry_demo_disable_screen);
-
-    mn_submenu_finalize();
-}
-
-void create_menu_entry_alt_text_screen(void)
-{
-	mn_submenu_init(wt_button_alt_text);
-
-	md380_menu_entry_selected = global_addl_config.alt_text;
-
-	mn_submenu_add(wt_demoscr_disable, create_menu_entry_alt_text_disable_screen);
-	mn_submenu_add(wt_demoscr_enable, create_menu_entry_alt_text_enable_screen);
-
-	mn_submenu_finalize();
-}
-
-void create_menu_entry_agc_6db_screen(void)
-{
-    mn_create_single_timed_ack(wt_agc, wt_agc_6db);
-
-    global_addl_config.mic_gain = 2;
-
-    cfg_save();
-}
-
-void create_menu_entry_agc_3db_screen(void)
-{
-    mn_create_single_timed_ack(wt_agc, wt_agc_3db);
-
-    global_addl_config.mic_gain = 1;
-
-    cfg_save();
-}
-
-void create_menu_entry_agc_disable_screen(void)
-{
-    mn_create_single_timed_ack(wt_agc, wt_disable);
-
-    global_addl_config.mic_gain = 0;
-
-    cfg_save();
-}
-
-void create_menu_entry_agc_screen(void)
-{
-    mn_submenu_init(wt_agc);
-
-    md380_menu_entry_selected = global_addl_config.mic_gain;
-
-	mn_submenu_add(wt_demoscr_disable, create_menu_entry_agc_disable_screen);
-    mn_submenu_add(wt_agc_3db, create_menu_entry_agc_3db_screen);
-	mn_submenu_add(wt_agc_6db, create_menu_entry_agc_6db_screen);
-    
-
-    mn_submenu_finalize();
-}
 
 void mn_cp_override_off(void)
 {
@@ -699,614 +491,6 @@ void mn_cp_override(void)
     mn_submenu_finalize();
 }
 
-void create_menu_entry_bootopts_screen(void)
-{
-    mn_submenu_init(wt_bootopts);
-
-    mn_submenu_add_98(wt_demoscr, create_menu_entry_demo_screen);
-//    mn_submenu_add_98(wt_splash, create_menu_entry_splash_screen);
-
-    mn_submenu_finalize2();
-}
-
-void create_menu_entry_datef_original_screen(void)
-{
-    mn_create_single_timed_ack(wt_datef,wt_datef_original);
-
-    global_addl_config.datef = 0;
-
-    cfg_save();
-}
-
-void create_menu_entry_datef_germany_screen(void)
-{
-    mn_create_single_timed_ack(wt_datef,wt_datef_germany);
-
-    global_addl_config.datef = 1;
-
-    cfg_save();
-}
-
-void create_menu_entry_datef_italy_screen(void)
-{
-    mn_create_single_timed_ack(wt_datef,wt_datef_italy);
-
-    global_addl_config.datef = 2;
-
-    cfg_save();
-}
-
-void create_menu_entry_datef_american_screen(void)
-{
-    mn_create_single_timed_ack(wt_datef,wt_datef_american);
-
-    global_addl_config.datef = 3;
-
-    cfg_save();
-}
-
-void create_menu_entry_datef_iso_screen(void)
-{
-    mn_create_single_timed_ack(wt_datef,wt_datef_iso);
-    
-    global_addl_config.datef = 4;
-
-    cfg_save();
-}
-
-void create_menu_entry_datef_alt_screen(void)
-{
-    mn_create_single_timed_ack(wt_datef,wt_datef_alt);
-    
-    global_addl_config.datef = 5;
-
-    cfg_save();
-}
-
-void create_menu_entry_datef_talias_screen(void)
-{
-    mn_create_single_timed_ack(wt_datef,wt_datef_talias);
-    
-    global_addl_config.datef = 6;
-
-    cfg_save();
-}
-
-//==========================================================================================================//
-// submenu: showcall - select options 0-3 callsign display method
-//==========================================================================================================//
-
-void create_menu_entry_showcall_disable_screen(void)
-{
-    mn_create_single_timed_ack(wt_showcall,wt_fromcps);
-    global_addl_config.userscsv = 0;
-    cfg_save();
-}
-
-void create_menu_entry_showcall_userscsv_screen(void)
-{
-    mn_create_single_timed_ack(wt_showcall,wt_usercsv);
-    global_addl_config.userscsv = 1;
-    cfg_save();
-}
-
-void create_menu_entry_showcall_talkalias_screen(void)
-{
-    mn_create_single_timed_ack(wt_showcall,wt_talkalias);
-    global_addl_config.userscsv = 2;
-    cfg_save();
-}
-
-void create_menu_entry_showcall_ta_user_screen(void)
-{
-    mn_create_single_timed_ack(wt_showcall,wt_ta_user);
-    global_addl_config.userscsv = 3;
-    cfg_save();
-}
-
-//==========================================================================================================//
-
-void create_menu_entry_experimental_enable_screen(void)
-{
-    mn_create_single_timed_ack(wt_experimental,wt_enable);
-    
-    global_addl_config.experimental = 1;
-}
-
-void create_menu_entry_experimental_disable_screen(void)
-{
-    mn_create_single_timed_ack(wt_experimental,wt_disable);
-    
-    global_addl_config.experimental = 0;
-}
-
-void create_menu_entry_debug_enable_screen(void)
-{
-    mn_create_single_timed_ack(wt_debug,wt_enable);
-    
-    global_addl_config.debug = 1;
-
-    cfg_save();
-}
-
-void create_menu_entry_debug_disable_screen(void)
-{
-    mn_create_single_timed_ack(wt_debug,wt_disable);
-    
-    global_addl_config.debug = 0;
-
-    cfg_save();
-}
-
-void create_menu_entry_promtg_screen(void)
-{
-    mn_submenu_init(wt_promtg);
-
-    if( global_addl_config.promtg == 1 ) {
-        md380_menu_entry_selected = 0;
-    } else {
-        md380_menu_entry_selected = 1;
-    }
-
-    mn_submenu_add(wt_enable, create_menu_entry_promtg_enable_screen);
-    mn_submenu_add(wt_disable, create_menu_entry_promtg_disable_screen);
-
-    mn_submenu_finalize();
-}
-
-void create_menu_entry_micbargraph_screen(void)
-{
-    mn_submenu_init(wt_micbargraph);
-
-    if( global_addl_config.micbargraph <= 3 ) {
-        md380_menu_entry_selected = global_addl_config.micbargraph;
-    } else {
-        md380_menu_entry_selected = 0;
-    }
-
-	mn_submenu_add(wt_disable, create_menu_entry_micbargraph_disable_screen);
-    mn_submenu_add(wt_micbargraph_horz, create_menu_entry_micbargraph_horz_screen);
-    mn_submenu_add(wt_micbargraph_vert, create_menu_entry_micbargraph_vert_screen);
-	mn_submenu_add(wt_micbargraph_vert_lh, create_menu_entry_micbargraph_vert_lh_screen);
-	mn_submenu_add(wt_micbargraph_lh, create_menu_entry_micbargraph_lh_screen);
-
-	
-	
-    
-    mn_submenu_finalize();
-}
-
-void create_menu_entry_rbeep_screen(void)
-{
-    mn_submenu_init(wt_rbeep);
-
-    if( global_addl_config.rbeep == 1 ) {
-        md380_menu_entry_selected = 0;
-    } else {
-        md380_menu_entry_selected = 1;
-    }
-
-    mn_submenu_add(wt_enable, create_menu_entry_rbeep_enable_screen);
-    mn_submenu_add(wt_disable, create_menu_entry_rbeep_disable_screen);
-
-    mn_submenu_finalize();
-}
-
-void create_menu_entry_datef_screen(void)
-{
-    mn_submenu_init(wt_datef);
-
-    md380_menu_entry_selected = global_addl_config.datef;
-
-    mn_submenu_add(wt_datef_original, create_menu_entry_datef_original_screen);
-    mn_submenu_add(wt_datef_germany, create_menu_entry_datef_germany_screen);
-    mn_submenu_add(wt_datef_italy, create_menu_entry_datef_italy_screen);
-    mn_submenu_add(wt_datef_american, create_menu_entry_datef_american_screen);
-    mn_submenu_add(wt_datef_iso, create_menu_entry_datef_iso_screen);
-    mn_submenu_add(wt_datef_alt, create_menu_entry_datef_alt_screen);
-    mn_submenu_add(wt_datef_talias, create_menu_entry_datef_talias_screen);
-   
-    mn_submenu_finalize();
-}
-
-
-//==========================================================================================================//
-// main(?) menu: showcall - select callsign display method
-//==========================================================================================================//
-
-void create_menu_entry_showcall_screen(void)
-{
-    mn_submenu_init(wt_showcall);
-
-    md380_menu_entry_selected = global_addl_config.userscsv;
-
-    mn_submenu_add(wt_fromcps, create_menu_entry_showcall_disable_screen);
-    mn_submenu_add(wt_usercsv, create_menu_entry_showcall_userscsv_screen);
-    mn_submenu_add(wt_talkalias, create_menu_entry_showcall_talkalias_screen);
-    mn_submenu_add(wt_ta_user, create_menu_entry_showcall_ta_user_screen);
-    
-    mn_submenu_finalize();
-}
-
-void create_menu_entry_debug_screen(void)
-{
-    mn_submenu_init(wt_debug);
-
-    if( global_addl_config.debug == 1 ) {
-        md380_menu_entry_selected = 0;
-    } else {
-        md380_menu_entry_selected = 1;
-    }
-
-    mn_submenu_add(wt_enable, create_menu_entry_debug_enable_screen);
-    mn_submenu_add(wt_disable, create_menu_entry_debug_disable_screen);
-
-    mn_submenu_finalize();
-}
-
-void create_menu_entry_netmon_disable_screen(void)
-{
-    mn_create_single_timed_ack(wt_netmon,wt_disable);
-    
-    global_addl_config.netmon = 0;
-
-    cfg_save();
-}
-
-void create_menu_entry_netmon_enable_screen(void)
-{
-    mn_create_single_timed_ack(wt_netmon,wt_enable);
-    
-    global_addl_config.netmon = 1;
-
-    cfg_save();
-}
-
-#if defined(FW_D13_020) || defined(FW_S13_020)
-int enabled = 1;
-#else
-int enabled = 0;
-#endif
-
-void create_menu_entry_netmon_screen(void)
-{
-    if( !enabled ) {
-        return;
-    }
-
-    mn_submenu_init(wt_netmon);
-
-    md380_menu_entry_selected = global_addl_config.netmon;
-
-    mn_submenu_add(wt_disable, create_menu_entry_netmon_disable_screen);
-    mn_submenu_add(wt_enable, create_menu_entry_netmon_enable_screen);
-
-    mn_submenu_finalize();
-}
-
-void create_menu_entry_experimental_screen(void)
-{
-    mn_submenu_init(wt_experimental);
-
-    if( global_addl_config.experimental == 1 ) {
-        md380_menu_entry_selected = 0;
-    } else {
-        md380_menu_entry_selected = 1;
-    }
-
-    mn_submenu_add(wt_enable, create_menu_entry_experimental_enable_screen);
-    mn_submenu_add(wt_disable, create_menu_entry_experimental_disable_screen);
-
-    mn_submenu_finalize();
-}
-
-
-//-------------------------------------------------------------
-// Backlight configuration: Timer adjustable 5, 30, 60 seconds,
-//    besides those in the original firmware.
-//    Please don't remove the 5 second option,
-//    it's the preferred one in combination with DIMMING .
-//-------------------------------------------------------------
-
-void mn_backlight_set(int sec5, const wchar_t *label)
-{
-    mn_create_single_timed_ack(wt_backlight,label);
-    
-    md380_radio_config.backlight_time = sec5 ; // in 5 sec incr.
-
-    rc_write_radio_config_to_flash();    
-}
-
-void mn_backlight_unchanged()
-{
-}
-
-
-void mn_backlight_5sec()
-{
-    mn_backlight_set(1,wt_bl5);     
-}
-
-void mn_backlight_30sec()
-{
-    mn_backlight_set(6,wt_bl30);     
-}
-
-void mn_backlight_60sec()
-{
-    mn_backlight_set(12,wt_bl60);     
-}
-
-void mn_backlight(void)  // menu for the backlight-TIME (longer than Tytera's, but sets the same parameter)
-{
-    mn_submenu_init(wt_backlight);
-
-    switch( md380_radio_config.backlight_time ) // inspired by stargo0's fix #674 
-     { // (fixes the selection of the current backlight-time in the menu)
-       case 1 /* times 5sec */ : md380_menu_entry_selected = 1; break;
-       case 6 /* times 5sec */ : md380_menu_entry_selected = 2; break;
-       case 12/* times 5sec */ : md380_menu_entry_selected = 3; break;
-       default/* unchanged  */ : md380_menu_entry_selected = 0; break;
-     }
-    mn_submenu_add(wt_blunchanged, mn_backlight_unchanged);
-    mn_submenu_add(wt_bl5,  mn_backlight_5sec );
-
-    mn_submenu_add(wt_bl30, mn_backlight_30sec);
-    mn_submenu_add(wt_bl60, mn_backlight_60sec);
-
-    mn_submenu_finalize();
-}
-
-
-#if( CONFIG_DIMMED_LIGHT ) // Setup for pulse-width modulated backlight ? (DL4YHF 2017-01-08)
-typedef void(*tMenuFunctionPtr)(void);
-static uint8_t bIntensityMenuIndex; // 0 = modifying "backlight intensity low" (used during idle time),
-                                    // 1 = modifying "backlight intensity high" (used when 'radio active').
-
-void mn_backlight_intens( int intensity ) // common 'menu handler' for all <NUM_BACKLIGHT_INTENSITIES> intensity steps
-{ // Caller: create_menu_entry_addl_functions_screen() -> mn_backlight_hi() + mn_backlight_lo()
-  //          -> mn_submenu_add() -> ?.. 
-  //              -> mn_backlight_intens_0/1/../9() -> mn_backlight_intens( intensity=0..9 )
-  // 
-  switch( bIntensityMenuIndex ) // what's being edited, "low" (idle) or "high" (active) backlight intensity ?
-   { case 0 : // selected a new LOW backlight intensity ...
-     default:
-        mn_create_single_timed_ack( wt_bl_intensity_lo, wt_bl_intensity[intensity]/*label*/ );
-        global_addl_config.backlight_intensities &= 0xF0;  // strip old nibble (lower 4 bits for "lower" intensity)
-        global_addl_config.backlight_intensities |= (uint8_t)intensity; 
-        break;
-     case 1 : // selected a new HIGH backlight intensity :
-        mn_create_single_timed_ack( wt_bl_intensity_hi, wt_bl_intensity[intensity]/*label*/ );
-        global_addl_config.backlight_intensities &= 0x0F;  // strip old nibble (upper 4 bits for "high" intensity)
-        global_addl_config.backlight_intensities |= ((uint8_t)intensity << 4);
-        break;
-   }
-  // The upper 4 bits must never be ZERO, to avoid 'complete darkness' of the display when ACTIVE .
-  // Because in some radios, the PWM caused audible hum, use max brightness per default:
-  // 2017-04-17 : Put this important note back in. Please don't remove this !
-  if( !(global_addl_config.backlight_intensities & 0xF0) )
-   {    global_addl_config.backlight_intensities |= 0xF0;
-   }
-  cfg_save();
-  
-} // end mn_backlight_intens()
-
-// 'menu callback' for backlight intensity steps 0 .. 9 
-//  (kludge required because the callback doesn't pass the item-index)
-void mn_backlight_intens_0(void) {  mn_backlight_intens(0); }
-void mn_backlight_intens_1(void) {  mn_backlight_intens(1); }
-void mn_backlight_intens_2(void) {  mn_backlight_intens(2); }
-void mn_backlight_intens_3(void) {  mn_backlight_intens(3); }
-void mn_backlight_intens_4(void) {  mn_backlight_intens(4); }
-void mn_backlight_intens_5(void) {  mn_backlight_intens(5); }
-void mn_backlight_intens_6(void) {  mn_backlight_intens(6); }
-void mn_backlight_intens_7(void) {  mn_backlight_intens(7); }
-void mn_backlight_intens_8(void) {  mn_backlight_intens(8); }
-void mn_backlight_intens_9(void) {  mn_backlight_intens(9); }
-
-tMenuFunctionPtr mn_backlight_intensity_funcs[ NUM_BACKLIGHT_INTENSITIES ] =
- { mn_backlight_intens_0, mn_backlight_intens_1, mn_backlight_intens_2, mn_backlight_intens_3, mn_backlight_intens_4,
-   mn_backlight_intens_5, mn_backlight_intens_6, mn_backlight_intens_7, mn_backlight_intens_8, mn_backlight_intens_9 
- };
- 
-void mn_backlight_lo(void)  // configure LOW backlight intensity (used when "idle")
-{
-  int i;
-  bIntensityMenuIndex = 0;  // "now selecting the LOW backlight intensity" ...
-  i = (global_addl_config.backlight_intensities & 15) % NUM_BACKLIGHT_INTENSITIES;
-  if( i>= NUM_BACKLIGHT_INTENSITIES )
-   {  i = NUM_BACKLIGHT_INTENSITIES-1; // valid ITEM indices: 0..9 (with NUM_BACKLIGHT_INTENSITIES=10)
-   }
-  md380_menu_entry_selected = i;       // <- always a zero-based item index
-  mn_submenu_init(wt_bl_intensity_lo);
-  for(i=0; i<NUM_BACKLIGHT_INTENSITIES; ++i)
-   { mn_submenu_add(wt_bl_intensity[i], mn_backlight_intensity_funcs[i] );
-   }
-  mn_submenu_finalize();
-}
-
-void mn_backlight_hi(void)  // configure HIGH backlight intensity (used when "active")
-{
-  int i;
-  bIntensityMenuIndex = 1;  // "now selecting the HIGH backlight intensity" ...
-  // intensity value '0' (off) NOT ALLOWED for the 'HIGH' setting, thus SUBTRACT ONE below:
-  i = ( (global_addl_config.backlight_intensities>>4) & 15) - 1;
-  if( i>= (NUM_BACKLIGHT_INTENSITIES-1) )
-   {  i = NUM_BACKLIGHT_INTENSITIES-2; // valid ITEM indices: 0..8 (with NUM_BACKLIGHT_INTENSITIES=10)
-   }
-  if( i<0 )
-   {  i=0;
-   }
-  md380_menu_entry_selected = i;       // <- always a zero-based item index
-  mn_submenu_init(wt_bl_intensity_hi);
-  for(i=1/*!!*/; i<NUM_BACKLIGHT_INTENSITIES; ++i)
-   { mn_submenu_add(wt_bl_intensity[i], mn_backlight_intensity_funcs[i] );
-   }
-  mn_submenu_finalize();
-}
-#endif // CONFIG_DIMMED_LIGHT ?
-
-
-#if defined(FW_D13_020) || defined(FW_S13_020)
-void set_sidebutton_function(const wchar_t *label)
-{
-   button_function = button_functions[currently_selected_menu_entry];
-
-   switch ( button_selected ) {
-      case 0:
-         top_side_button_pressed_function = button_function;
-         md380_spiflash_write(&button_function, 0x2102, 1);
-         mn_create_single_timed_ack(wt_button_top_press,label);
-         break;
-      case 1:
-         bottom_side_button_pressed_function = button_function;
-         md380_spiflash_write(&button_function, 0x2104, 1);
-         mn_create_single_timed_ack(wt_button_bot_press,label);
-         break;
-      case 2:
-         top_side_button_held_function = button_function;
-         md380_spiflash_write(&button_function, 0x2103, 1);
-         mn_create_single_timed_ack(wt_button_top_held,label);
-         break;
-      case 3:
-         bottom_side_button_held_function = button_function;
-         md380_spiflash_write(&button_function, 0x2105, 1);
-         mn_create_single_timed_ack(wt_button_bot_held,label);
-         break;
-   }
-}
-
-void nm_button_unassigned() { set_sidebutton_function(wt_button_unassigned); }
-void nm_button_alert_tone() { set_sidebutton_function(wt_button_alert_tone); }
-void nm_button_emerg_on() { set_sidebutton_function(wt_button_emerg_on); }
-void nm_button_emerg_off() { set_sidebutton_function(wt_button_emerg_off); }
-void nm_button_power() { set_sidebutton_function(wt_button_power); }
-void nm_button_monitor() { set_sidebutton_function(wt_button_monitor); }
-void nm_button_nuisance() { set_sidebutton_function(wt_button_nuisance); }
-void nm_button_ot1() { set_sidebutton_function(wt_button_ot1); }
-void nm_button_ot2() { set_sidebutton_function(wt_button_ot2); }
-void nm_button_ot3() { set_sidebutton_function(wt_button_ot3); }
-void nm_button_ot4() { set_sidebutton_function(wt_button_ot4); }
-void nm_button_ot5() { set_sidebutton_function(wt_button_ot5); }
-void nm_button_ot6() { set_sidebutton_function(wt_button_ot6); }
-void nm_button_rep_talk() { set_sidebutton_function(wt_button_rep_talk); }
-void nm_button_scan() { set_sidebutton_function(wt_button_scan); }
-void nm_button_squelch() { set_sidebutton_function(wt_button_squelch); }
-void nm_button_privacy() { set_sidebutton_function(wt_button_privacy); }
-void nm_button_vox() { set_sidebutton_function(wt_button_vox); }
-void nm_button_zone() { set_sidebutton_function(wt_button_zone); }
-void nm_button_zone_tog() { set_sidebutton_function(wt_button_zone_tog); }
-void nm_button_bat_ind() { set_sidebutton_function(wt_button_bat_ind); }
-void nm_button_man_dial() { set_sidebutton_function(wt_button_man_dial); }
-void nm_button_lone_work() { set_sidebutton_function(wt_button_lone_work); }
-void nm_button_1750_hz() { set_sidebutton_function(wt_button_1750_hz); }
-void nm_button_bklt_en() { set_sidebutton_function(wt_button_bklt_en); }
-void nm_button_set_tg()  { set_sidebutton_function(wt_button_set_tg);  }
-#if( CONFIG_MORSE_OUTPUT )
- void nm_button_narrator() { set_sidebutton_function(wt_button_narrator); }
- void nm_button_cw_repeat(){ set_sidebutton_function(wt_button_cw_repeat); }
-#endif
-void nm_button_toggle_prom(){ set_sidebutton_function(wt_button_toggle_prom); }
-void nm_button_adhoc_priv() { set_sidebutton_function(wt_button_adhoc_priv); }
-
-void select_sidebutton_function_screen(void)
-{
-   button_selected = currently_selected_menu_entry;
-
-   switch ( button_selected ) {
-      case 0:
-         md380_menu_entry_selected = index_of(top_side_button_pressed_function, (uint8_t*)button_functions,  sizeof(button_functions));
-         // cast to (uint8_t*) to eliminate a dirty dozen of 'const' warnings
-         mn_submenu_init(wt_button_top_press);
-         break;
-      case 1:
-         md380_menu_entry_selected = index_of(bottom_side_button_pressed_function, (uint8_t*)button_functions, sizeof(button_functions));
-         mn_submenu_init(wt_button_bot_press);
-         break;
-      case 2:
-         md380_menu_entry_selected = index_of(top_side_button_held_function, (uint8_t*)button_functions, sizeof(button_functions));
-         mn_submenu_init(wt_button_top_held);
-         break;
-      case 3:
-         md380_menu_entry_selected = index_of(bottom_side_button_held_function, (uint8_t*)button_functions, sizeof(button_functions));
-         mn_submenu_init(wt_button_bot_held);
-         break;
-   }
-
-
-   mn_submenu_add(wt_button_unassigned, nm_button_unassigned);
-   mn_submenu_add(wt_button_alert_tone, nm_button_alert_tone);
-   mn_submenu_add(wt_button_emerg_on, nm_button_emerg_on);
-   mn_submenu_add(wt_button_emerg_off, nm_button_emerg_off);
-   mn_submenu_add(wt_button_power, nm_button_power);
-   mn_submenu_add(wt_button_monitor, nm_button_monitor);
-   mn_submenu_add(wt_button_nuisance, nm_button_nuisance);
-   mn_submenu_add(wt_button_ot1, nm_button_ot1);
-   mn_submenu_add(wt_button_ot2, nm_button_ot2);
-   mn_submenu_add(wt_button_ot3, nm_button_ot3);
-   mn_submenu_add(wt_button_ot4, nm_button_ot4);
-   mn_submenu_add(wt_button_ot5, nm_button_ot5);
-   mn_submenu_add(wt_button_ot6, nm_button_ot6);
-   mn_submenu_add(wt_button_rep_talk, nm_button_rep_talk);
-   mn_submenu_add(wt_button_scan, nm_button_scan);
-   mn_submenu_add(wt_button_squelch, nm_button_squelch);
-   mn_submenu_add(wt_button_privacy, nm_button_privacy);
-   mn_submenu_add(wt_button_vox, nm_button_vox);
-   mn_submenu_add(wt_button_zone, nm_button_zone);
-   mn_submenu_add(wt_button_zone_tog, nm_button_zone_tog);
-   mn_submenu_add(wt_button_bat_ind, nm_button_bat_ind);
-   mn_submenu_add(wt_button_man_dial, nm_button_man_dial);
-   mn_submenu_add(wt_button_lone_work, nm_button_lone_work);
-   mn_submenu_add(wt_button_1750_hz, nm_button_1750_hz);
-   mn_submenu_add(wt_button_bklt_en, nm_button_bklt_en);
-   mn_submenu_add(wt_button_set_tg,  nm_button_set_tg );
-# if( CONFIG_MORSE_OUTPUT )
-   mn_submenu_add(wt_button_narrator,nm_button_narrator);
-   mn_submenu_add(wt_button_cw_repeat,nm_button_cw_repeat);
-# endif
-   mn_submenu_add(wt_button_toggle_prom,nm_button_toggle_prom);
-   mn_submenu_add(wt_button_adhoc_priv, nm_button_adhoc_priv);
-   
-
-
-   mn_submenu_finalize();
-}
-#else
-#warning Side Buttons not supported on D02 firmware
-#endif
-
-void create_menu_entry_sidebutton_screen(void)
-{
-#if defined(FW_D13_020) || defined(FW_S13_020)
-
-   md380_menu_entry_selected = 0;
-    mn_submenu_init(wt_sidebutton_menu);
-
-    mn_submenu_add_98(wt_button_top_press, select_sidebutton_function_screen);
-    mn_submenu_add_98(wt_button_bot_press, select_sidebutton_function_screen);
-    mn_submenu_add_98(wt_button_top_held, select_sidebutton_function_screen);
-    mn_submenu_add_98(wt_button_bot_held, select_sidebutton_function_screen);
-
-    mn_submenu_finalize2();
-#endif
-}
-
-
-void create_menu_entry_backlight_screen(void)
-{
-#if defined(FW_D13_020) || defined(FW_S13_020)
-   md380_menu_entry_selected = 0;
-   mn_submenu_init(wt_backlight_menu);
-
-
-#  if( CONFIG_DIMMED_LIGHT )    // *optional* feature since 2017-01-08 - see config.h
-    mn_submenu_add_98(wt_bl_intensity_lo/*item text*/, mn_backlight_lo/*menu handler*/ ); // backlight intensity "low" (used when idle)
-    mn_submenu_add_98(wt_bl_intensity_hi/*item text*/, mn_backlight_hi/*menu handler*/ ); // backlight intensity "high" (used when active)
-#  endif   
-    mn_submenu_add_98(wt_backlight, mn_backlight); // backlight TIMER (longer than Tytera's 5/10/15 seconds)
-    mn_submenu_finalize2();
-#endif
-}
 
 #if( CONFIG_MORSE_OUTPUT )  // *optional* feature since 2017 - see config.h
 //-------------------------------------------------------------
@@ -1588,178 +772,13 @@ void mn_config_reset(void)
     mn_submenu_finalize();
 }
 
-void create_menu_entry_edit_screen_store(void)
-{
-#if 0
-    printf("your enter: ");
-    printhex2((char *) md380_menu_edit_buf, 14);
-    printf("\n");
-#endif
-    md380_menu_id = md380_menu_id - 1;
-    md380_menu_depth = md380_menu_depth - 1;
 
-#ifdef CONFIG_MENU
-    md380_create_menu_entry(md380_menu_id, md380_menu_edit_buf, MKTHUMB(md380_menu_entry_back), MKTHUMB(md380_menu_entry_back), 6, 1, 1);
-#endif
-}
-
-void create_menu_entry_edit_screen(void)
-{
-    menu_t *menu_mem;
-    uint8_t i;
-    uint8_t *p;
-
-    md380_menu_0x2001d3c1 = md380_menu_0x200011e4;
-    mn_editbuffer_poi = md380_menu_edit_buf;
-
-
-    /*
-      0x08012a8e      dff8200b       ldr.w r0, [pc, 0xb20]       ; [0x80135b0:4]=0x20001114
-      0x08012a92      dff8201b       ldr.w r1, [pc, 0xb20]       ; [0x80135b4:4]=0x2001b716
-      0x08012a96      0160           str r1, [r0]
-      0x08012a98      0020           movs r0, 0
-      0x08012a9a      07e0           b 0x8012aac
-      0x08012a9c      c0b2           uxtb r0, r0
-      0x08012a9e      dff8101b       ldr.w r1, [pc, 0xb10]       ; [0x80135b0:4]=0x20001114
-      0x08012aa2      0968           ldr r1, [r1]
-      0x08012aa4      0022           movs r2, 0
-      0x08012aa6      21f81020       strh.w r2, [r1, r0, lsl 1]
-      0x08012aaa      401c           adds r0, r0, 1
-      0x08012aac      c0b2           uxtb r0, r0
-      0x08012aae      1128           cmp r0, 0x11
-      0x08012ab0      f4d3           blo 0x8012a9c
-     */
-
-    // clear return buffer //  see 0x08012a98
-    // TODO: is wchar_t (16 bits))
-    for (i = 0; i < 0x11; i++) {
-        p = (uint8_t *) mn_editbuffer_poi;
-        p = p + i;
-        *p = 0;
-    }
-
-
-    md380_menu_0x2001d3ed = 8;
-    md380_menu_0x2001d3ee = 0;
-    md380_menu_0x2001d3ef = 0;
-    md380_menu_0x2001d3f0 = 3;
-    md380_menu_0x2001d3f1 = 0;
-    md380_menu_0x2001d3f4 = 0;
-
-    menu_mem = get_menu_stackpoi();
-    menu_mem->menu_title = wt_edit;
-    menu_mem->entries = &md380_menu_mem_base[md380_menu_id];
-    menu_mem->numberof_menu_entries = 1;
-    menu_mem->unknown_00 = 0;
-    menu_mem->unknown_01 = 0;
-
-#ifdef CONFIG_MENU
-    md380_create_menu_entry(md380_menu_id, wt_edit, MKTHUMB(create_menu_entry_edit_screen_store), MKTHUMB(md380_menu_numerical_input), 0x81, 0, 1);
-#endif
-}
-
-void create_menu_entry_edit_dmr_id_screen_store(void)
-{
-    uint32_t new_dmr_id = 0;
-    wchar_t *bf;
-
-#if 0
-    printf("your enter: ");
-    printhex2((char *) md380_menu_edit_buf, 14);
-    printf("\n");
-#endif
-
-    bf = md380_menu_edit_buf;
-    while (*bf != 0) {
-        new_dmr_id *= 10;
-        new_dmr_id += (*bf++) - '0';
-    }
-    
-    if ( new_dmr_id > 0xffffff ) {
-        return;
-    }
-    
-#if 0
-    printf("\n%d\n", new_dmr_id);
-#endif
-    
-    // save in addl cfg.
-    global_addl_config.dmrid = new_dmr_id ;
-    cfg_save();
-
-    // save in codeplug.
-    md380_radio_config.dmrid = new_dmr_id ;
-    md380_spiflash_write(&new_dmr_id, FLASH_OFFSET_DMRID, 4);
-    
-    md380_menu_id = md380_menu_id - 1;
-    md380_menu_depth = md380_menu_depth - 1;
-
-    if (global_addl_config.userscsv == 1) {
-        cfg_set_radio_name();
-    }
-
-#ifdef CONFIG_MENU
-    md380_create_menu_entry(md380_menu_id, md380_menu_edit_buf, MKTHUMB(md380_menu_entry_back), MKTHUMB(md380_menu_entry_back), 6, 1, 1);
-#endif
-}
-
-void create_menu_entry_edit_dmr_id_screen(void)
-{
-    menu_t *menu_mem;
-    uint8_t i;
-    uint8_t *p;
-    uint32_t nchars;
-
-    md380_menu_0x2001d3c1 = md380_menu_0x200011e4;
-    mn_editbuffer_poi = md380_menu_edit_buf;
-
-
-
-    // clear return buffer //  see 0x08012a98
-    // TODO: is wchar_t (16 bits))
-    for (i = 0; i < 0x11; i++) {
-        p = (uint8_t *) mn_editbuffer_poi;
-        p = p + i;
-        *p = 0;
-    }
-
-    nchars = uli2w(md380_radio_config.dmrid, md380_menu_edit_buf);
-
-#if 0
-    printf("\ncreate_menu_entry_edit_dmr_id_screen %x %d \n", md380_menu_edit_buf, nchars);
-    printhex2((char *) md380_menu_edit_buf, 14);
-    printf("\n");
-#endif
-
-    md380_menu_0x2001d3ed = 8; // max char
-    md380_menu_0x2001d3ee = nchars; //  startpos cursor
-    md380_menu_0x2001d3ef = nchars; //  startpos cursor
-    md380_menu_0x2001d3f0 = 3; // 3 = numerical input
-    md380_menu_0x2001d3f1 = 0;
-    md380_menu_0x2001d3f4 = 0;
-    menu_mem = get_menu_stackpoi();
-    menu_mem->menu_title = wt_edit_dmr_id;
-    menu_mem->entries = &md380_menu_mem_base[md380_menu_id];
-    menu_mem->numberof_menu_entries = 1;
-    menu_mem->unknown_00 = 0;
-    menu_mem->unknown_01 = 0;
-
-#ifdef CONFIG_MENU
-    md380_create_menu_entry(md380_menu_id, wt_edit_dmr_id, MKTHUMB(create_menu_entry_edit_dmr_id_screen_store), MKTHUMB(md380_menu_numerical_input), 0x81, 0, 1);
-#endif
-}
 
 void create_menu_entry_set_tg_screen_store(void)
 {
-#if defined(FW_D13_020) || defined(FW_S13_020)
     uint32_t new_tx_id = 0;
     wchar_t *bf;
 
-#if 0
-    printf("your enter: ");
-    printhex2((char *) md380_menu_edit_buf, 14);
-    printf("\n");
-#endif
 
     bf = md380_menu_edit_buf;
     while (*bf != 0) {
@@ -1771,50 +790,40 @@ void create_menu_entry_set_tg_screen_store(void)
         return;
     }
 
-#if 0
-    printf("\n%d\n", new_tx_id);
-#endif
 
-    contact.id_l = new_tx_id & 0xFF ;
+    /*contact.id_l = new_tx_id & 0xFF ;
     contact.id_m = (new_tx_id>>8) & 0xFF ;
     contact.id_h = (new_tx_id>>16) & 0xFF ;
-    contact.type = CONTACT_GROUP ;
+    contact.type = CONTACT_GROUP ;*/
 
-	
+	extern int ad_hoc_talkgroup;
 
-	ad_hoc_tg_channel = channel_num;
+	//ad_hoc_tg_channel = channel_num;
 	ad_hoc_talkgroup = new_tx_id;
-	ad_hoc_call_type = CONTACT_GROUP;
+	//ad_hoc_call_type = CONTACT_GROUP;
 
     wchar_t *p = (void*)contact.name; // write entered tg to the contact name 
                              // so that it is dislayed on the monitor1 screen
     snprintfw( p, 16, "TG %d*", new_tx_id ); // (#708)
 
-    extern void draw_zone_channel(); // TODO.
-    draw_zone_channel();
+    //extern void draw_zone_channel(); // TODO.
+    //draw_zone_channel();
 
-	CheckTalkgroupAfterChannelSwitch(); // ad_hoc_talkgroup -> contact.xyz
+	checkAdHocTG(); // ad_hoc_talkgroup -> contact.xyz
 
     md380_menu_id = md380_menu_id - 1; // exit menu to the proper level (#708) 
     md380_menu_depth = md380_menu_depth - 1;
 
-#ifdef CONFIG_MENU
     md380_create_menu_entry(md380_menu_id, md380_menu_edit_buf, MKTHUMB(md380_menu_entry_back), MKTHUMB(md380_menu_entry_back), 6, 1, 1);
-#endif
-#endif
+
 }
 
 void create_menu_entry_set_priv_screen_store(void)
 {
-#if defined(FW_D13_020) || defined(FW_S13_020)
     uint32_t new_tx_id = 0;
     wchar_t *bf;
 
-#if 0
-    printf("your enter: ");
-    printhex2((char *) md380_menu_edit_buf, 14);
-    printf("\n");
-#endif
+
 
     bf = md380_menu_edit_buf;
     while (*bf != 0) {
@@ -1826,9 +835,7 @@ void create_menu_entry_set_priv_screen_store(void)
         return;
     }
 
-#if 0
-    printf("\n%d\n", new_tx_id);
-#endif
+
 
     contact.id_l = new_tx_id & 0xFF ;
     contact.id_m = (new_tx_id>>8) & 0xFF ;
@@ -1846,25 +853,22 @@ void create_menu_entry_set_priv_screen_store(void)
     extern void draw_zone_channel(); // TODO.
     draw_zone_channel();
 
-	CheckTalkgroupAfterChannelSwitch(); // ad_hoc_talkgroup -> contact.xyz
+	checkAdHocTG(); // ad_hoc_talkgroup -> contact.xyz
 
     md380_menu_id = md380_menu_id - 1; // exit menu to the proper level (#708) 
     md380_menu_depth = md380_menu_depth - 1;
 
-#ifdef CONFIG_MENU
     md380_create_menu_entry(md380_menu_id, md380_menu_edit_buf, MKTHUMB(md380_menu_entry_back), MKTHUMB(md380_menu_entry_back), 6, 1, 1);
-#endif
-#endif
+
 }
 
 void create_menu_entry_set_tg_screen(void)
 {
-#if defined(FW_D13_020) || defined(FW_S13_020)
    menu_t *menu_mem;
    uint8_t i;
    uint8_t *p;
    uint32_t nchars;
-   int current_tg = 0;
+   int current_tg = *md380_lastheard_dest;
 
    md380_menu_0x2001d3c1 = md380_menu_0x200011e4;
    mn_editbuffer_poi = md380_menu_edit_buf;
@@ -1881,14 +885,11 @@ void create_menu_entry_set_tg_screen(void)
    //current_tg = (int) contact.id_h ;
    //current_tg = (current_tg<<8) + (int) contact.id_m;
    //current_tg = (current_tg<<8) + (int) contact.id_l;
-   current_tg = rst_dst;
+   //current_tg = rst_dst;
 
    nchars = uli2w(current_tg, md380_menu_edit_buf);
-#if 0
-    printf("\ncreate_menu_entry_set_tg_screen %x %d \n", md380_menu_edit_buf, nchars);
-    printhex2((char *) md380_menu_edit_buf, 14);
-    printf("\n");
-#endif
+   //nchars = 0;
+
 
     md380_menu_0x2001d3ed = 8; // max char
     md380_menu_0x2001d3ee = nchars; //  startpos cursor
@@ -1903,15 +904,12 @@ void create_menu_entry_set_tg_screen(void)
     menu_mem->unknown_00 = 0;
     menu_mem->unknown_01 = 0;
 
-#ifdef CONFIG_MENU
     md380_create_menu_entry(md380_menu_id, wt_set_tg_id, MKTHUMB(create_menu_entry_set_tg_screen_store), MKTHUMB(md380_menu_numerical_input), 0x81, 0, 1);
-#endif
-#endif
+
 }
 
 void create_menu_entry_set_priv_screen(void)
 {
-#if defined(FW_D13_020) || defined(FW_S13_020)
    menu_t *menu_mem;
    uint8_t i;
    uint8_t *p;
@@ -1930,15 +928,13 @@ void create_menu_entry_set_priv_screen(void)
    }
 
    // load current tg into edit buffer (#708) :
-   current_tg = (int)rst_src;
+   //current_tg = (int)rst_src;
+   current_tg = *md380_lastheard_dmrid;
+
 
    nchars = uli2w(current_tg, md380_menu_edit_buf);
    //nchars = 0;
-#if 0
-    printf("\ncreate_menu_entry_set_tg_screen %x %d \n", md380_menu_edit_buf, nchars);
-    printhex2((char *) md380_menu_edit_buf, 14);
-    printf("\n");
-#endif
+
 
     md380_menu_0x2001d3ed = 16; // max char
     md380_menu_0x2001d3ee = nchars; //  startpos cursor
@@ -1953,10 +949,28 @@ void create_menu_entry_set_priv_screen(void)
     menu_mem->unknown_00 = 0;
     menu_mem->unknown_01 = 0;
 
-#ifdef CONFIG_MENU
     md380_create_menu_entry(md380_menu_id, wt_set_priv_id, MKTHUMB(create_menu_entry_set_priv_screen_store), MKTHUMB(md380_menu_numerical_input), 0x81, 0, 1);
-#endif
-#endif
+
+}
+
+wchar_t* wcBanner = L"TyIsBeast";
+wchar_t* wcBanner2 = L"DMRTrack";
+
+void create_menu_entry_addl_functions_screen_temp(void)
+{
+	menu_t *menu_mem;
+
+	//md380_menu_0x2001d3c1 = md380_menu_0x200011e4;
+	//mn_editbuffer_poi = md380_menu_edit_buf;
+
+	menu_mem = get_menu_stackpoi();
+	menu_mem->menu_title = wcBanner2;
+	menu_mem->entries = &md380_menu_mem_base[24 * md380_menu_id];
+	menu_mem->numberof_menu_entries = 1;
+	menu_mem->unknown_00 = 0;
+	menu_mem->unknown_01 = 0;
+
+	md380_create_menu_entry(md380_menu_id, wcBanner, MKTHUMB(md380_menu_entry_back), MKTHUMB(md380_menu_entry_back), 9, 0, 1);
 }
 
 void create_menu_entry_addl_functions_screen(void)
@@ -1970,78 +984,117 @@ void create_menu_entry_addl_functions_screen(void)
     }
     //printf( "f menucall.%s 0 0x%x\n", lbl2, (sp[15] - 1 - 4) );
 #endif    
-    PRINTRET();
-    PRINT("create_menu_entry_addl_functions_screen\n");
+    //PRINTRET();
+    //PRINT("create_menu_entry_addl_functions_screen\n");
 
-    mn_submenu_add_98(wt_rbeep, create_menu_entry_rbeep_screen);
-    mn_submenu_add(wt_bootopts, create_menu_entry_bootopts_screen);
-    mn_submenu_add_98(wt_datef, create_menu_entry_datef_screen);
-    mn_submenu_add_98(wt_showcall, create_menu_entry_showcall_screen);
-    mn_submenu_add_98(wt_debug, create_menu_entry_debug_screen);
-    mn_submenu_add_98(wt_promtg, create_menu_entry_promtg_screen);
-    mn_submenu_add_8a(wt_edit, create_menu_entry_edit_screen, 0); // disable this menu entry - no function jet
-    mn_submenu_add_8a(wt_edit_dmr_id, create_menu_entry_edit_dmr_id_screen, 1);
-    mn_submenu_add_8a(wt_set_tg_id, create_menu_entry_set_tg_screen, 0); // Brad's PR#708 already in use here (DL4YHF, since 2017-03)
-    mn_submenu_add_98(wt_micbargraph, create_menu_entry_micbargraph_screen);
-	mn_submenu_add_98(wt_agc, create_menu_entry_agc_screen);
+    //mn_submenu_add_98(wt_rbeep, create_menu_entry_rbeep_screen);
+    //mn_submenu_add(wt_bootopts, create_menu_entry_bootopts_screen);
+    //mn_submenu_add_98(wt_datef, create_menu_entry_datef_screen);
+    //mn_submenu_add_98(wt_showcall, create_menu_entry_showcall_screen);
+    //mn_submenu_add_98(wt_debug, create_menu_entry_debug_screen);
+    //mn_submenu_add_98(wt_promtg, create_menu_entry_promtg_screen);
+    //mn_submenu_add_8a(wt_edit, create_menu_entry_edit_screen, 0); // disable this menu entry - no function jet
+    //mn_submenu_add_8a(wt_edit_dmr_id, create_menu_entry_edit_dmr_id_screen, 1);
+    mn_submenu_add_8a(wt_set_tg_id, create_menu_entry_set_tg_screen, 1); // Brad's PR#708 already in use here (DL4YHF, since 2017-03)
+    //mn_submenu_add_98(wt_micbargraph, create_menu_entry_micbargraph_screen);
+	//mn_submenu_add_98(wt_agc, create_menu_entry_agc_screen);
 	
     //mn_submenu_add_8a(wt_experimental, create_menu_entry_experimental_screen, 1);
-    mn_submenu_add(wt_sidebutton_menu, create_menu_entry_sidebutton_screen);
+    //mn_submenu_add(wt_sidebutton_menu, create_menu_entry_sidebutton_screen);
     
     mn_submenu_add_98(wt_config_reset, mn_config_reset);
 
-    mn_submenu_add(wt_backlight_menu, create_menu_entry_backlight_screen);
+    //mn_submenu_add(wt_backlight_menu, create_menu_entry_backlight_screen);
 #if( CONFIG_MORSE_OUTPUT )
-    mn_submenu_add(wt_morse_menu, create_menu_entry_morse_screen);
+    //mn_submenu_add(wt_morse_menu, create_menu_entry_morse_screen);
 #endif   
-    mn_submenu_add_98(wt_cp_override, mn_cp_override);    
-    mn_submenu_add_98(wt_netmon, create_menu_entry_netmon_screen);
-	mn_submenu_add_98(wt_button_alt_text, create_menu_entry_alt_text_screen);
+    //mn_submenu_add_98(wt_cp_override, mn_cp_override);    
+    //mn_submenu_add_98(wt_netmon, create_menu_entry_netmon_screen);
+	//mn_submenu_add_98(wt_button_alt_text, create_menu_entry_alt_text_screen);
 	
     
     mn_submenu_finalize2();
 }
 
-void create_menu_utilies_hook(void)
+extern wchar_t	  	md380_wt_programradio[];  // menutext <- menu_entry_programradio
+
+
+void create_menu_utilies_hook()
 {
     menu_t *menu_mem;
-    int enabled;
-
-    if( (md380_program_radio_unprohibited[4] & 0x4) == 0x4 ) {
-        enabled = 0;
-    } else {
-        enabled = 1;
-    }
-
+ 
     menu_mem = get_menu_stackpoi();
     menu_mem->entries = &md380_menu_mem_base[md380_menu_id];
-    //  menu_mem->numberof_menu_entries++;
-    menu_mem->numberof_menu_entries = 8;
+    //menu_mem->numberof_menu_entries;
+    menu_mem->numberof_menu_entries = 6;
 
+	syslog_printf("UTILS %S - %d \n", menu_mem->menu_title, menu_mem->numberof_menu_entries);
 
-#ifdef CONFIG_MENU
-    md380_create_menu_entry(8, md380_wt_programradio, MKTHUMB(md380_menu_entry_programradio), MKTHUMB(md380_menu_entry_back), 0x8a, 0, enabled);
+	md380_create_menu_entry(md380_menu_id+2, md380_wt_programradio, MKTHUMB(md380_menu_entry_programradio), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
 
-#ifdef FW_D13_020
     
-	md380_create_menu_entry(11, wt_set_tg_id, MKTHUMB(create_menu_entry_set_tg_screen), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
-	md380_create_menu_entry(12, wt_set_priv_id, MKTHUMB(create_menu_entry_set_priv_screen), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
-    md380_create_menu_entry(13, wt_addl_func, MKTHUMB(create_menu_entry_addl_functions_screen), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
-#else
-    if( menu_mem->numberof_menu_entries == 8 ) { // d13.020 has hidden gps entrys on this menu
+	//}
+	/*if (menu_mem->numberof_menu_entries == 8) { // d13.020 has hidden gps entrys on this menu
 		md380_create_menu_entry(11, wt_set_tg_id, MKTHUMB(create_menu_entry_set_tg_screen), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
 		md380_create_menu_entry(12, wt_set_priv_id, MKTHUMB(create_menu_entry_set_priv_screen), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
-        md380_create_menu_entry(13, wt_addl_func, MKTHUMB(create_menu_entry_addl_functions_screen), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
-    } else {
+		md380_create_menu_entry(13, wt_addl_func, MKTHUMB(create_menu_entry_addl_functions_screen), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
+	}
+	else {
 		md380_create_menu_entry(9, wt_set_tg_id, MKTHUMB(create_menu_entry_set_tg_screen), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
 		md380_create_menu_entry(10, wt_set_priv_id, MKTHUMB(create_menu_entry_set_priv_screen), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
-        md380_create_menu_entry(11, wt_addl_func, MKTHUMB(create_menu_entry_addl_functions_screen), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
-    }
-#endif
-
-#endif
+		md380_create_menu_entry(11, wt_addl_func, MKTHUMB(create_menu_entry_addl_functions_screen), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
+	}*/
+		//if (menu_mem->numberof_menu_entries == 8) { // d13.020 has hidden gps entrys on this menu
+			md380_create_menu_entry(md380_menu_id + 3, wt_set_tg_id, MKTHUMB(create_menu_entry_set_tg_screen), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
+			md380_create_menu_entry(md380_menu_id + 4, wt_set_priv_id, MKTHUMB(create_menu_entry_set_priv_screen), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
+			md380_create_menu_entry(md380_menu_id + 5, wt_addl_func, MKTHUMB(create_menu_entry_addl_functions_screen_temp), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
+		//}
+		//else {
+		//	md380_create_menu_entry(9, wt_set_tg_id, MKTHUMB(create_menu_entry_set_tg_screen), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
+		//	md380_create_menu_entry(10, wt_set_priv_id, MKTHUMB(create_menu_entry_set_priv_screen), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
+		//	md380_create_menu_entry(11, wt_addl_func, MKTHUMB(create_menu_entry_addl_functions_screen), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
+		//}
 
 }
+
+uint32_t Flashadr2 = 0x203C03;
+char logBuffa[1024] = { 0 };
+char* logPtr = NULL;
+
+void md380_Flash_Log() 
+{
+	
+	{
+		md380_spiflash_write((void*)(logBuffa), Flashadr2, 1024);
+		Flashadr2 += 1024;
+		logPtr = logBuffa;
+	}
+}
+
+void md380_create_menu_entry_hook(int menu_id, const wchar_t *name, void* green_key, void* red_key, int mType, int unk1, int enabled) {
+	
+
+	
+
+
+	
+	//if (mType == 0x8A || mType == 0x81 || mType == 0x8B) 
+	{
+		//syslog_printf("%d %S %d 0x%X %X %x %d %d\r\n", menu_id, name, md380_menu_depth, green_key, red_key, mType, unk1, enabled);
+		sprintf(logPtr, "%d %S %d 0x%X %X %x %d %d\r\n", menu_id, name, md380_menu_depth, green_key, red_key, mType, unk1, enabled);
+		logPtr = logBuffa + strlen((char*)&logBuffa);
+	}
+	
+	if (logPtr - logBuffa >= 1024)
+		md380_Flash_Log();
+
+	//  printhex2((char *) label,14);
+	//  printf("\n");
+	//#endif
+	md380_create_menu_entry(menu_id, name,green_key,red_key, mType, unk1,enabled);
+}
+
+
 
 /* This hooks a function that is called a lot during menu processing.
    Its exact purpose is unknown, but I'm working on that.
