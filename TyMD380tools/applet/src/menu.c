@@ -868,7 +868,7 @@ void create_menu_entry_set_tg_screen(void)
    uint8_t i;
    uint8_t *p;
    uint32_t nchars;
-   int current_tg = *md380_lastheard_dest;
+   int current_tg = rst_dst;
 
    md380_menu_0x2001d3c1 = md380_menu_0x200011e4;
    mn_editbuffer_poi = md380_menu_edit_buf;
@@ -914,7 +914,7 @@ void create_menu_entry_set_priv_screen(void)
    uint8_t i;
    uint8_t *p;
    uint32_t nchars;
-   int current_tg = 0;
+   int current_tg = rst_src;
 
    md380_menu_0x2001d3c1 = md380_menu_0x200011e4;
    mn_editbuffer_poi = md380_menu_edit_buf;
@@ -927,16 +927,12 @@ void create_menu_entry_set_priv_screen(void)
       *p = 0;
    }
 
-   // load current tg into edit buffer (#708) :
-   //current_tg = (int)rst_src;
-   current_tg = *md380_lastheard_dmrid;
-
 
    nchars = uli2w(current_tg, md380_menu_edit_buf);
    //nchars = 0;
 
 
-    md380_menu_0x2001d3ed = 16; // max char
+    md380_menu_0x2001d3ed = 8; // max char
     md380_menu_0x2001d3ee = nchars; //  startpos cursor
     md380_menu_0x2001d3ef = nchars; //  startpos cursor
     md380_menu_0x2001d3f0 = 3; // 3 = numerical input
@@ -963,12 +959,13 @@ void create_menu_entry_addl_functions_screen_temp(void)
 	//md380_menu_0x2001d3c1 = md380_menu_0x200011e4;
 	//mn_editbuffer_poi = md380_menu_edit_buf;
 
-	menu_mem = get_menu_stackpoi();
+	menu_mem = (menu_t *)&md380_menu_memory[16 * (uint8_t)md380_menu_depth + 16]; 
 	menu_mem->menu_title = wcBanner2;
-	menu_mem->entries = &md380_menu_mem_base[24 * md380_menu_id];
+	menu_mem->entries = &md380_menu_mem_base[24 * (uint8_t)md380_menu_id];
 	menu_mem->numberof_menu_entries = 1;
 	menu_mem->unknown_00 = 0;
 	menu_mem->unknown_01 = 0;
+	menu_mem->unk3 = 0;
 
 	md380_create_menu_entry(md380_menu_id, wcBanner, MKTHUMB(md380_menu_entry_back), MKTHUMB(md380_menu_entry_back), 9, 0, 1);
 }
@@ -1028,7 +1025,6 @@ void create_menu_utilies_hook()
     //menu_mem->numberof_menu_entries;
     menu_mem->numberof_menu_entries = 6;
 
-	syslog_printf("UTILS %S - %d \n", menu_mem->menu_title, menu_mem->numberof_menu_entries);
 
 	md380_create_menu_entry(md380_menu_id+2, md380_wt_programradio, MKTHUMB(md380_menu_entry_programradio), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
 
