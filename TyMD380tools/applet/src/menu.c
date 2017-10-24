@@ -962,7 +962,7 @@ void create_menu_entry_addl_functions_screen_temp(void)
 	menu_mem->menu_title = wcBanner2;
 	menu_mem->entries = &md380_menu_mem_base[(uint8_t)md380_menu_id];
 
-	md380_create_menu_entry(md380_menu_id, wcBanner, MKTHUMB(md380_menu_entry_back), MKTHUMB(md380_menu_entry_back), 6, 1, 1);
+	md380_create_menu_entry(md380_menu_id, wcBanner, MKTHUMB(md380_menu_entry_back), MKTHUMB(md380_menu_entry_back), 6, 2, 1);
 
 	//mn_submenu_finalize();
 }
@@ -1048,7 +1048,7 @@ void create_menu_utilies_hook()
 		//	md380_create_menu_entry(10, wt_set_priv_id, MKTHUMB(create_menu_entry_set_priv_screen), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
 		//	md380_create_menu_entry(11, wt_addl_func, MKTHUMB(create_menu_entry_addl_functions_screen), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
 		//}
-			//mn_submenu_finalize2();
+			mn_submenu_finalize2();
 }
 
 uint32_t Flashadr2 = 0x203C03;
