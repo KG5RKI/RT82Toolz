@@ -18,6 +18,7 @@
 #include "codeplug.h"
 
 extern int     ad_hoc_talkgroup;
+extern int     ad_hoc_call_type;
 
 void spiflash_read_hook(void *dst, long adr, long len)
 {
@@ -60,12 +61,12 @@ void spiflash_read_hook(void *dst, long adr, long len)
 		}
 		return;
 	}
-	else if (((adr >= (void*)(0x13FFDC)) && (adr < (void*)(0x13FFDC + (0x24 * 10000)))) && ad_hoc_talkgroup) {
+	else if (((adr >= (void*)(0x13FFDC+ 0x24)) && (adr < (void*)(0x13FFDC + (0x24 * 10000)))) && ad_hoc_talkgroup) {
 		contact_t* nContact = (contact_t*)dst;
 		nContact->id_l = ad_hoc_talkgroup & 0xFF;
 		nContact->id_m = (ad_hoc_talkgroup >> 8) & 0xFF;
 		nContact->id_h = (ad_hoc_talkgroup >> 16) & 0xFF;
-		nContact->type = CONTACT_GROUP;
+		nContact->type = ad_hoc_call_type;
 		snprintfw(nContact->name, 16, "TG %d", ad_hoc_talkgroup);
 		//syslog_printf("Set contact TG\n");
 	}

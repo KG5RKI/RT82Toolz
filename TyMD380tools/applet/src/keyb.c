@@ -152,7 +152,7 @@ uint32_t ptrrr = 0x20014D88;
 
 extern void md380_Flash_Log();
 
-void handle_hotkey( int keycode )
+int handle_hotkey( int keycode )
 {
 	char lat[23] = { 0 };
 	char lng[23] = { 0 };
@@ -378,13 +378,14 @@ void handle_hotkey( int keycode )
 			//channel_num=0;
 			rx_screen_blue_hook(0xff8032);
 		}
-		else if (keycode == 10 && !nm_screen) {
+		//else if (keycode == 10 && !nm_screen) {
 
-			switch_to_screen(9);
-			switch_to_screen(0);
-		}
+			//switch_to_screen(9);
+			//switch_to_screen(0);
+		//}
 		
 	}
+	return 1;
 }
 
 
@@ -405,6 +406,7 @@ int is_intercept_allowed()
    // if( !is_netmon_enabled() || Menu_IsVisible()) {
     //    return 0 ;
     //}
+	
 
 	switch (gui_opmode2) {
 		case OPM2_MENU:

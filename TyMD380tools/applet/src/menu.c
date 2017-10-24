@@ -253,6 +253,7 @@ void create_menu_entry_rev(int menuid, const wchar_t * label , void (*green_key)
     poi->off12 = e ;
     poi->off13 = f ;
     poi->item_count = item_count ;
+	poi->unk3 = 0;
     
     // supress language menu.
     if( green_key == (void*)(0x801FA9C + 1) ) {
@@ -303,6 +304,7 @@ void mn_create_single_timed_ack( const wchar_t *title, const wchar_t *label )
     menu_mem->numberof_menu_entries = 1;
     menu_mem->unknown_00 = 0;
     menu_mem->unknown_01 = 0;
+	menu_mem->unk3 = 0;
     
     md380_create_menu_entry(md380_menu_id, label, MKTHUMB(md380_menu_entry_back), MKTHUMB(md380_menu_entry_back), 6, 2, 1);
 }
@@ -316,7 +318,7 @@ void mn_submenu_init(const wchar_t *title)
     menu_mem->numberof_menu_entries = 0;
     menu_mem->unknown_00 = 0;
     menu_mem->unknown_01 = 0;    
-	
+	menu_mem->unk3 = 0;
 }
 
 void mn_submenu_add(const wchar_t * label, void (*func)())
@@ -359,7 +361,7 @@ void mn_submenu_finalize()
     for (int i = 0; i < menu_mem->numberof_menu_entries; i++) { 
         // conflicts with 'selected' icon.
         // no icons.
-        md380_menu_mem_base[md380_menu_id + i].off16 = 0;
+        md380_menu_mem_base[md380_menu_id + i].unk3 = 0;
     }    
 }
 
@@ -368,7 +370,7 @@ void mn_submenu_finalize2()
     menu_t *menu_mem = get_menu_stackpoi();
     
     for (int i = 0; i < menu_mem->numberof_menu_entries; i++) { 
-        md380_menu_mem_base[md380_menu_id + i].off16 = 2; // numbered icons
+        md380_menu_mem_base[md380_menu_id + i].unk3 = 2; // numbered icons
     }    
 }
 
@@ -848,9 +850,9 @@ void create_menu_entry_set_priv_screen_store(void)
 	ad_hoc_talkgroup = new_tx_id;
 	ad_hoc_call_type = CONTACT_USER;
 
-	wchar_t *p = (void*)contact.name; // write entered tg to the contact name 
+	//wchar_t *p = (void*)contact.name; // write entered tg to the contact name 
 									  // so that it is dislayed on the monitor1 screen
-	snprintfw(p, 16, "TG %d*", new_tx_id); // (#708)
+	//snprintfw(p, 16, "TG %d*", new_tx_id); // (#708)
 
 										   //extern void draw_zone_channel(); // TODO.
 										   //draw_zone_channel();
@@ -905,6 +907,7 @@ void create_menu_entry_set_tg_screen(void)
     menu_mem->numberof_menu_entries = 1;
     menu_mem->unknown_00 = 0;
     menu_mem->unknown_01 = 0;
+	menu_mem->unk3 = 0;
 
     md380_create_menu_entry(md380_menu_id, wt_set_tg_id, MKTHUMB(create_menu_entry_set_tg_screen_store), MKTHUMB(md380_menu_numerical_input), 0x81, 0, 1);
 
@@ -946,13 +949,14 @@ void create_menu_entry_set_priv_screen(void)
     menu_mem->numberof_menu_entries = 1;
     menu_mem->unknown_00 = 0;
     menu_mem->unknown_01 = 0;
+	menu_mem->unk3 = 0;
 
     md380_create_menu_entry(md380_menu_id, wt_set_priv_id, MKTHUMB(create_menu_entry_set_priv_screen_store), MKTHUMB(md380_menu_numerical_input), 0x81, 0, 1);
 
 }
 
-wchar_t* wcBanner = L"TyIsBeast";
-wchar_t* wcBanner2 = L"DMRTrack";
+const static wchar_t wcBanner[] = L"TyIsBeast";
+const static wchar_t wcBanner2[] = L"DMRTrack";
 
 void create_menu_entry_addl_functions_screen_temp(void)
 {
@@ -961,15 +965,16 @@ void create_menu_entry_addl_functions_screen_temp(void)
 	//md380_menu_0x2001d3c1 = md380_menu_0x200011e4;
 	//mn_editbuffer_poi = md380_menu_edit_buf;
 
-	menu_mem = (menu_t *)&md380_menu_memory[16 * (uint8_t)md380_menu_depth + 16]; 
+	menu_mem = get_menu_stackpoi();
 	menu_mem->menu_title = wcBanner2;
-	menu_mem->entries = &md380_menu_mem_base[24 * (uint8_t)md380_menu_id];
+	//menu_mem->entries = &md380_menu_mem_base[24 * (uint8_t)md380_menu_id];
+	menu_mem->entries = &md380_menu_mem_base[md380_menu_id];
 	menu_mem->numberof_menu_entries = 1;
 	menu_mem->unknown_00 = 0;
 	menu_mem->unknown_01 = 0;
 	menu_mem->unk3 = 0;
 
-	md380_create_menu_entry(md380_menu_id, wcBanner, MKTHUMB(md380_menu_entry_back), MKTHUMB(md380_menu_entry_back), 9, 0, 1);
+	md380_create_menu_entry(md380_menu_id, &wcBanner, MKTHUMB(md380_menu_entry_back), MKTHUMB(md380_menu_entry_back), 9, 0, 1);
 }
 
 void create_menu_entry_addl_functions_screen(void)
@@ -1026,7 +1031,8 @@ void create_menu_utilies_hook()
     menu_mem->entries = &md380_menu_mem_base[md380_menu_id];
     //menu_mem->numberof_menu_entries;
     menu_mem->numberof_menu_entries = 6;
-
+	menu_mem->unknown_00 = 0;
+	menu_mem->unk3 = 0;
 
 	md380_create_menu_entry(md380_menu_id+2, md380_wt_programradio, MKTHUMB(md380_menu_entry_programradio), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
 
@@ -1045,7 +1051,7 @@ void create_menu_utilies_hook()
 		//if (menu_mem->numberof_menu_entries == 8) { // d13.020 has hidden gps entrys on this menu
 			md380_create_menu_entry(md380_menu_id + 3, wt_set_tg_id, MKTHUMB(create_menu_entry_set_tg_screen), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
 			md380_create_menu_entry(md380_menu_id + 4, wt_set_priv_id, MKTHUMB(create_menu_entry_set_priv_screen), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
-			md380_create_menu_entry(md380_menu_id + 5, wt_addl_func, MKTHUMB(create_menu_entry_addl_functions_screen_temp), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
+			//md380_create_menu_entry(md380_menu_id + 4, wt_addl_func, MKTHUMB(create_menu_entry_addl_functions_screen_temp), MKTHUMB(md380_menu_entry_back), 0x9, 0, 1);
 		//}
 		//else {
 		//	md380_create_menu_entry(9, wt_set_tg_id, MKTHUMB(create_menu_entry_set_tg_screen), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
