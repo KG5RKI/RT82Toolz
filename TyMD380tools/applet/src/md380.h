@@ -41,6 +41,8 @@ extern uint32_t* md380_lastheard_dmrid;
 extern uint32_t* md380_current_TG;
 extern uint32_t* md380_lastheard_dest;
 
+extern uint8_t md380_CPS_version[4];
+
 //Pointer to the buffer that stores the top and bottom line of the boot screen text.
 extern wchar_t toplinetext[10]; // 0-term
 extern wchar_t botlinetext[10]; // 0-term

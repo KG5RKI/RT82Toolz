@@ -660,6 +660,8 @@ void gfx_drawbmp_hook( void *bmp, int x, int y )
     }
 }
 
+const wchar_t TyToolzStr[11] = L"TyToolz Ver";
+
 // r0 = str, r1 = x, r2 = y, r3 = xlen
 void gfx_drawtext2_hook(wchar_t *str, int x, int y, int xlen)
 {
@@ -669,6 +671,10 @@ void gfx_drawtext2_hook(wchar_t *str, int x, int y, int xlen)
   //  }
 # endif
 
+	//Replace CPS Ver text
+	if (x == 2 && y == 65 && xlen == 159) {
+		str = &TyToolzStr;
+	}
 
 
     // filter datetime (y=96)
