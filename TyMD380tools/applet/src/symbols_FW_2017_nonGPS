@@ -167,3 +167,5 @@ md380_lastheard_dest                     = 0x2001C8A0 ;
 md380_current_TG                         = 0x2001C898 ;
 
 md380_CPS_version                        = 0x2001C84C ;
+
+get_menu_id_for_depth                    = 0x080115F7 ;

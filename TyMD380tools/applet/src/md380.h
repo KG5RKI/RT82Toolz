@@ -132,6 +132,8 @@ uint8_t   md380_menu_depth;
 uint8_t   md380_menu_entry_selected;
 uint8_t   md380_menu_id;
 
+extern uint8_t get_menu_id_for_depth(uint8_t index);
+
 //extern wchar_t	  	md380_wt_programradio[];  // menutext <- menu_entry_programradio
 
 //! program_radio_unprohibited (menu entry) ... bulding site is an struct

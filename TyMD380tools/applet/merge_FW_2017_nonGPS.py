@@ -764,6 +764,8 @@ if __name__ == '__main__':
     #for adr in GetContactIDFromIndex_hooks:
         #merger.hookbl(adr, sapplet.getadr("read_contact_hook"))
     
+    merger.hookstub2(0x0800C93C, sapplet.getadr("create_menu_entry_rev"))
+	
 	# f_4315
     merger.hookbl(0x080286B0, sapplet.getadr("f_4315_hook"))
     merger.hookbl(0x080286E6, sapplet.getadr("f_4315_hook"))

@@ -241,8 +241,8 @@ int handle_hotkey( int keycode )
 			break;
 
 		case 2:
-			slog_redraw();
-			switch_to_screen(1);
+			//slog_redraw();
+			//switch_to_screen(1);
 			
 		//{
 		//	syslog_printf("FLASHERASE %08X \n", Flashadr);
@@ -263,7 +263,7 @@ int handle_hotkey( int keycode )
 		//	syslog_printf("\n");
 		//}
 			
-			hexScrollWindowIndex += 4;
+			//hexScrollWindowIndex += 4;
 			break;
 		case 3:
 			if(!ad_hoc_talkgroup)
@@ -316,7 +316,8 @@ int handle_hotkey( int keycode )
 		case 7:
 			//Let 7 disable ad-hoc tg mode;
 			if (!nm_screen && !Menu_IsVisible()) {
-				//ad_hoc_tg_channel = 0;
+				ad_hoc_talkgroup = 0;
+				
 			}
 			if (nm_screen) {
 				//bp_send_beep(BEEP_TEST_1);
@@ -378,11 +379,12 @@ int handle_hotkey( int keycode )
 			//channel_num=0;
 			rx_screen_blue_hook(0xff8032);
 		}
-		//else if (keycode == 10 && !nm_screen) {
+		else if (keycode == 10 && !nm_screen) {
 
 			//switch_to_screen(9);
-			//switch_to_screen(0);
-		//}
+			switch_to_screen(0);
+			return 0;
+		}
 		
 	}
 	return 1;
@@ -534,8 +536,8 @@ void kb_handler_hook()
         if( is_intercepted_keycode(kc) ) {
 			if ((kp & 2) == 2) {
 
-				handle_hotkey(kc);
-				if (nm_screen)
+				int kf = handle_hotkey(kc);
+				if (nm_screen && kf)
 				{
 					kb_keypressed = 8;
 				}

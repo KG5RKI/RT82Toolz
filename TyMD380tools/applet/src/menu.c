@@ -181,86 +181,58 @@ uint8_t button_function = 0;
 #define MKTHUMB(adr) (printf(((int)adr)&1?"":"Warning, 0x%08x function pointer is even.\n",adr),(void(*))(((uint32_t)adr) | 0x1))
 
 
-void create_menu_entry_rev(int menuid, const wchar_t * label , void (*green_key)(), void  (*red_key)(), int e, int f ,int item_count) 
+int create_menu_entry_rev(int menuid, uint16_t *label, void *green_key, void *red_key, int mType, int unk1, int enabled)
 {
-   syslog_printf("create_menu_entry_rev %x %S %x %x %x\n", menuid, label, e, f, item_count );
-    //PRINT("%x\n", green_key);
-    
-//    green_key = MKTHUMB(green_key);
-//    PRINT("%x\n", green_key);
-    
-//    red_key = MKTHUMB(red_key);
-     
-    char lbl2[10];
-    char *lp = (void*)label ;
-    for(int i=0;i<10;i++) {
-        char c = lp[(i*2)];
-        if( c == ' ' ) {
-            c = '_' ;
-        }
-        lbl2[i] = c ;
-        if( c == 0 ) {
-            break ;
-        }
-    }
-    lbl2[9] = 0 ;
+	// e f
+	// 6,2 confirmation popup misc.
+	// 6,f confirmation popup scanlist.
+	// 6,f confirmation popup zone.
+	// 6,1 invalid number popup.
+	// a,0 ctcss (only editable in FM)
+	// 9,0 fullscr msg without timeout (my num,versions)
+	// 81,0 enter radio number (new contact,manual dial,edit dmrid,rxf,txf)
+	// 85,0 msgbox without timeout (rxf,txf)
+	// 8a,0 utilities menu items
+	// 8b,0 simple yes no list items.
+	// 8c,0 single menu entry for complete contacts list.
+	// 93,0 message
+	// 98,0 radio settings
 
-    void *gp = ((uint8_t*)green_key) - 1 ;
-    syslog_printf("f menugreen.%s.%x 0 0x%x\n", lbl2, gp, gp );
+	// item_count 
+	// 0 = not visible
 
-    register uint32_t *sp asm("sp");   
-    for(int i=15;i<20;i++) {
-		syslog_printf( "%d : 0x%x\n", i, sp[i] );
-    }
-	syslog_printf( "f menucall.%s 0 0x%x\n", lbl2, (sp[15] - 1 - 4) );
-  
-    
-    // e f
-    // 6,2 confirmation popup misc.
-    // 6,f confirmation popup scanlist.
-    // 6,f confirmation popup zone.
-    // 6,1 invalid number popup.
-    // a,0 ctcss (only editable in FM)
-    // 9,0 fullscr msg without timeout (my num,versions)
-    // 81,0 enter radio number (new contact,manual dial,edit dmrid,rxf,txf)
-    // 85,0 msgbox without timeout (rxf,txf)
-    // 8a,0 utilities menu items
-    // 8b,0 simple yes no list items.
-    // 8c,0 single menu entry for complete contacts list.
-    // 93,0 message
-    // 98,0 radio settings
-    
-    // item_count 
-    // 0 = not visible
-    
-    // f
-    // 0 = stable
-    // 2 = remove after timeout
-    
-//    if( global_addl_config.experimental == 1 ) {
-//        switch( item_count ) {
-//            case 0 :
-//                item_count = 1 ; // cheating.
-//                break ;
-//        }
-//    }
-    
-    menu_entry_t *poi = &md380_menu_mem_base[menuid];    
-    
-    poi->label = label ;
-    poi->green = green_key ;
-    poi->red = red_key ;
-    poi->off12 = e ;
-    poi->off13 = f ;
-    poi->item_count = item_count ;
-	poi->unk3 = 0;
+	// f
+	// 0 = stable
+	// 2 = remove after timeout
+
+	//    if( global_addl_config.experimental == 1 ) {
+	//        switch( item_count ) {
+	//            case 0 :
+	//                item_count = 1 ; // cheating.
+	//                break ;
+	//        }
+	//    }
+
+	menu_entry_t *poi = &md380_menu_mem_base[menuid];
+
+	poi->label = label;
+	poi->green = green_key;
+	poi->red = red_key;
+	poi->off12 = mType;
+	poi->off13 = unk1;
+	//poi->item_count = item_count;
+	//poi->unk3 = 0;
+
+	menuid = (uint8_t)menuid;
     
     // supress language menu.
     if( green_key == (void*)(0x801FA9C + 1) ) {
         poi->item_count = 0 ;
     }
-	
 
+	*(uint32_t*)&md380_menu_mem_base[(uint8_t)menuid].off16 = enabled;
+	
+	return menuid;
 }
 
 uint8_t index_of(uint8_t value, uint8_t arr[], uint8_t len)
@@ -370,7 +342,9 @@ void mn_submenu_finalize2()
     menu_t *menu_mem = get_menu_stackpoi();
     
     for (int i = 0; i < menu_mem->numberof_menu_entries; i++) { 
-        md380_menu_mem_base[md380_menu_id + i].unk3 = 2; // numbered icons
+		//*((BYTE *)&md380_menu_mem_base[i].unk3 + 24 * (unsigned __int8)md380_menu_id)
+        //md380_menu_mem_base[md380_menu_id + i].unk3 = 2; // numbered icons
+		*(char*)(*(uint8_t*)&md380_menu_mem_base[i].unk3 + (24 * md380_menu_id))  = 2;
     }    
 }
 
@@ -958,23 +932,39 @@ void create_menu_entry_set_priv_screen(void)
 const static wchar_t wcBanner[] = L"TyIsBeast";
 const static wchar_t wcBanner2[] = L"DMRTrack";
 
+//void create_menu_entry_addl_functions_screen_temp(void)
+//{
+//	menu_t *menu_mem;
+//
+//	//md380_menu_0x2001d3c1 = md380_menu_0x200011e4;
+//	//mn_editbuffer_poi = md380_menu_edit_buf;
+//
+//	menu_mem = get_menu_stackpoi();
+//	menu_mem->menu_title = wcBanner2;
+//	menu_mem->entries = &md380_menu_mem_base[24 * (uint8_t)md380_menu_id];
+//	//menu_mem->entries = &md380_menu_mem_base[md380_menu_id];
+//	menu_mem->numberof_menu_entries = 1;
+//	menu_mem->unknown_00 = 0;
+//	menu_mem->unknown_01 = 0;
+//	menu_mem->unk3 = 0;
+//
+//	md380_create_menu_entry(md380_menu_id, &wcBanner, MKTHUMB(md380_menu_entry_back), MKTHUMB(md380_menu_entry_back), 9, 0, 1);
+//}
+
 void create_menu_entry_addl_functions_screen_temp(void)
 {
-	menu_t *menu_mem;
 
-	//md380_menu_0x2001d3c1 = md380_menu_0x200011e4;
-	//mn_editbuffer_poi = md380_menu_edit_buf;
+	md380_menu_id = get_menu_id_for_depth(--md380_menu_depth);
 
-	menu_mem = get_menu_stackpoi();
+	menu_t *menu_mem = get_menu_stackpoi();
+
+	menu_mem->numberof_menu_entries=1;
 	menu_mem->menu_title = wcBanner2;
-	//menu_mem->entries = &md380_menu_mem_base[24 * (uint8_t)md380_menu_id];
-	menu_mem->entries = &md380_menu_mem_base[md380_menu_id];
-	menu_mem->numberof_menu_entries = 1;
-	menu_mem->unknown_00 = 0;
-	menu_mem->unknown_01 = 0;
-	menu_mem->unk3 = 0;
+	menu_mem->entries = &md380_menu_mem_base[(uint8_t)md380_menu_id];
 
-	md380_create_menu_entry(md380_menu_id, &wcBanner, MKTHUMB(md380_menu_entry_back), MKTHUMB(md380_menu_entry_back), 9, 0, 1);
+	md380_create_menu_entry(md380_menu_id, wcBanner, MKTHUMB(md380_menu_entry_back), MKTHUMB(md380_menu_entry_back), 6, 1, 1);
+
+	//mn_submenu_finalize();
 }
 
 void create_menu_entry_addl_functions_screen(void)
@@ -1030,11 +1020,11 @@ void create_menu_utilies_hook()
     menu_mem = get_menu_stackpoi();
     menu_mem->entries = &md380_menu_mem_base[md380_menu_id];
     //menu_mem->numberof_menu_entries;
-    menu_mem->numberof_menu_entries = 6;
+    menu_mem->numberof_menu_entries = 7;
 	menu_mem->unknown_00 = 0;
 	menu_mem->unk3 = 0;
 
-	md380_create_menu_entry(md380_menu_id+2, md380_wt_programradio, MKTHUMB(md380_menu_entry_programradio), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
+	md380_create_menu_entry(md380_menu_id+3, md380_wt_programradio, MKTHUMB(md380_menu_entry_programradio), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
 
     
 	//}
@@ -1049,16 +1039,16 @@ void create_menu_utilies_hook()
 		md380_create_menu_entry(11, wt_addl_func, MKTHUMB(create_menu_entry_addl_functions_screen), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
 	}*/
 		//if (menu_mem->numberof_menu_entries == 8) { // d13.020 has hidden gps entrys on this menu
-			md380_create_menu_entry(md380_menu_id + 3, wt_set_tg_id, MKTHUMB(create_menu_entry_set_tg_screen), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
-			md380_create_menu_entry(md380_menu_id + 4, wt_set_priv_id, MKTHUMB(create_menu_entry_set_priv_screen), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
-			//md380_create_menu_entry(md380_menu_id + 4, wt_addl_func, MKTHUMB(create_menu_entry_addl_functions_screen_temp), MKTHUMB(md380_menu_entry_back), 0x9, 0, 1);
+			md380_create_menu_entry(md380_menu_id + 4, wt_set_tg_id, MKTHUMB(create_menu_entry_set_tg_screen), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
+			md380_create_menu_entry(md380_menu_id + 5, wt_set_priv_id, MKTHUMB(create_menu_entry_set_priv_screen), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
+			md380_create_menu_entry(md380_menu_id + 6, wt_addl_func, MKTHUMB(create_menu_entry_addl_functions_screen_temp), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
 		//}
 		//else {
 		//	md380_create_menu_entry(9, wt_set_tg_id, MKTHUMB(create_menu_entry_set_tg_screen), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
 		//	md380_create_menu_entry(10, wt_set_priv_id, MKTHUMB(create_menu_entry_set_priv_screen), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
 		//	md380_create_menu_entry(11, wt_addl_func, MKTHUMB(create_menu_entry_addl_functions_screen), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
 		//}
-
+			//mn_submenu_finalize2();
 }
 
 uint32_t Flashadr2 = 0x203C03;
