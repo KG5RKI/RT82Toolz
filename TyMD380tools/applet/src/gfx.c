@@ -152,6 +152,9 @@ void rx_screen_blue_hook(unsigned int bg_color)
 	//char *timeSlot[3];
 	//int primask = OS_ENTER_CRITICAL(); // for form sake
 
+	//if (nm_screen == 9)
+	//	nm_screen = 0;
+
 	//channel_info_t *ci = &current_channel_info;
 
 	dst = rst_dst;
@@ -948,7 +951,7 @@ void draw_datetime_row_hook()
 	}
 	/*if (ad_hoc_tg_channel)
 	{
-		draw_adhoc_statusline();
+	draw_adhoc_statusline();
 	}*/
 	//if (is_statusline_visible()) 
 	{
@@ -957,4 +960,3 @@ void draw_datetime_row_hook()
 	}
 	//draw_datetime_row();
 }
-

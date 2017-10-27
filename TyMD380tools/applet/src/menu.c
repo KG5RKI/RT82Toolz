@@ -811,18 +811,20 @@ void create_menu_entry_set_priv_screen_store(void)
 		return;
 	}
 
+	//ad_hoc_tg_channel = channel_num;
+	ad_hoc_talkgroup = new_tx_id;
+	ad_hoc_call_type = CONTACT_USER;
 
-	/*contact.id_l = new_tx_id & 0xFF ;
+
+	contact.id_l = new_tx_id & 0xFF ;
 	contact.id_m = (new_tx_id>>8) & 0xFF ;
 	contact.id_h = (new_tx_id>>16) & 0xFF ;
-	contact.type = CONTACT_GROUP ;*/
+	contact.type = CONTACT_USER;
 
 	extern int ad_hoc_talkgroup;
 	extern int ad_hoc_call_type;
 
-	//ad_hoc_tg_channel = channel_num;
-	ad_hoc_talkgroup = new_tx_id;
-	ad_hoc_call_type = CONTACT_USER;
+	
 
 	//wchar_t *p = (void*)contact.name; // write entered tg to the contact name 
 									  // so that it is dislayed on the monitor1 screen

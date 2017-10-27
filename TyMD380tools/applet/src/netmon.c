@@ -149,12 +149,14 @@ void netmon1_update()
 	//{
 	//	con_printf("%02X%02X%02X%02X%c", pp[i], pp[i+1], pp[i+2], pp[i+3], ((i!=0) && i % 12 == 0 ? '\n' : '.'));
 	//}
-	con_printf("Addr:%08X\n", hexScrollWindowIndex);
+	/*con_printf("Addr:%08X\n", hexScrollWindowIndex);
 	char* hexa = (char*)hexScrollWindowIndex;
 	for (int i = 0; i < sizeof(contact_t); i+=4)
 	{
 		con_printf("%02X%02X%02X%02X%c", hexa[i], hexa[i+1], hexa[i+2], hexa[i+3], ((i!=0) && i % 12 == 0 ? '\n' : '.'));
-	}
+	}*/
+
+	con_printf("gui_opmode: %02X %02X %02X\n", gui_opmode1, gui_opmode2, gui_opmode3);
 	
 	//pp = (char*)&contact2;
 	//pp = (char*)0x2001A7A0;
@@ -545,6 +547,8 @@ extern void f_4315_hook()
 
 
 //extern void rx_screen_blue_hook(char *bmp, int x, int y);
+extern void rx_screen_blue_hook(unsigned int bg_color);
+
 
 extern void checkAdHocTG();
 
@@ -559,7 +563,7 @@ void f_4225_hook()
 			// menu is showing.
 			if (new == SCR_MODE_IDLE || new == SCR_MODE_RX_VOICE || new == SCR_MODE_RX_TERMINATOR) {
 				// new mode tries to deviate from menu to popup.
-				
+
 				// reset.
 				gui_opmode1 = SCR_MODE_MENU;
 				checkAdHocTG();
@@ -569,13 +573,14 @@ void f_4225_hook()
 			old = new;
 			checkAdHocTG();
 		}
-	}
+	}	
 
 	//if (global_addl_config.micbargraph > 0) 
 	{
 		if (!is_netmon_visible()) {
 			//draw_micbargraph();
 			//rx_screen_blue_hook(NULL, 0, 0);
+			//rx_screen_blue_hook(0xff8032);
 		}
 	}
 	fCntAGC++;

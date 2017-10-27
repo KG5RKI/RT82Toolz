@@ -71,8 +71,10 @@ void copy_dst_to_contact()
 	//int dst = 3148;
 	extern wchar_t channel_name[];
 	extern int ad_hoc_talkgroup;
+	extern int ad_hoc_call_type;
 
 	ad_hoc_talkgroup = dst;
+	ad_hoc_call_type = CONTACT_GROUP;
 	checkAdHocTG();
 	
 	/*{
@@ -241,8 +243,8 @@ int handle_hotkey( int keycode )
 			break;
 
 		case 2:
-			//slog_redraw();
-			//switch_to_screen(1);
+			slog_redraw();
+			switch_to_screen(1);
 			
 		//{
 		//	syslog_printf("FLASHERASE %08X \n", Flashadr);
@@ -297,22 +299,32 @@ int handle_hotkey( int keycode )
 		}
 		syslog_dump_dmesg();
 		break;
+
+		case 10:
 		case 13: //end call
 			//bp_send_beep(BEEP_TEST_1);
 			if (nm_screen) {
 				//channel_num = 0;
 				switch_to_screen(0);
+				return 1;
 				//if(Menu_IsVisible()){
 				//	channel_num = 0;
 				//}
 			}
 			else if (!Menu_IsVisible()) {
 				switch_to_screen(9);
-				switch_to_screen(0);
+				//switch_to_screen(0);
+				//gui_opmode1 = SCR_MODE_IDLE | 0x80;
+				//switch_to_screen(9);
+				//switch_to_screen(0);
+
+				kb_keycode = 10;
+				kb_keypressed = 2;
+				kb_handler();
+				return 1;
 			}
 			break;
 
-		case 10:
 		case 7:
 			//Let 7 disable ad-hoc tg mode;
 			if (!nm_screen && !Menu_IsVisible()) {
@@ -380,9 +392,13 @@ int handle_hotkey( int keycode )
 			rx_screen_blue_hook(0xff8032);
 		}
 		else if (keycode == 10 && !nm_screen) {
-
+			gui_opmode1 = SCR_MODE_IDLE | 0x80;
 			//switch_to_screen(9);
-			switch_to_screen(0);
+			//switch_to_screen(0);
+
+			kb_keycode = keycode;
+			kb_keypressed = 2;
+			//kb_handler();
 			return 0;
 		}
 		
@@ -424,6 +440,7 @@ int is_intercept_allowed()
     
     switch( get_main_mode() ) {
         case 27 :
+
 		case 28 :
             return 1 ;
         default:
@@ -451,7 +468,7 @@ int is_intercepted_keycode( int kc )
         //case 12 :
 		//case 13 : //end call
 		case 14 : // *
-        case 15 :
+        case 15 : // #
             return 1 ;
         default:
             return 0 ;
@@ -462,6 +479,7 @@ int is_intercepted_keycode2(int kc)
 {
 	switch (kc) {
 	
+	case 10:
 	case 20:
 	case 21:
 	case 13: //end call
@@ -479,9 +497,14 @@ void kb_handle(int key) {
 	int kp = kb_keypressed;
 	int kc = key;
 
+	/*if (key == 11 || key == 12) {
+		kb_keycode = key;
+		kb_keypressed = 2;
+	}*/
+
 	if (is_intercept_allowed()) {
 		if (is_intercepted_keycode2(kc)) {
-		    if ((kp & 2) == 2) {
+			if ((kp & 2) == 2) {
 				handle_hotkey(kc);
 				if (nm_screen) {
 					kb_keypressed = 8;
@@ -491,10 +514,7 @@ void kb_handle(int key) {
 		}
 	}
 
-	if (key == 11 || key == 12) {
-		kb_keycode = key;
-		kb_keypressed = 2;
-	}
+	
 
 }
 
@@ -536,11 +556,10 @@ void kb_handler_hook()
         if( is_intercepted_keycode(kc) ) {
 			if ((kp & 2) == 2) {
 
-				int kf = handle_hotkey(kc);
-				if (nm_screen && kf)
-				{
+				if(kc != 10)
 					kb_keypressed = 8;
-				}
+
+				int kf = handle_hotkey(kc);
                 return ;
             }
         }

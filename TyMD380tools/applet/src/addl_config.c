@@ -155,6 +155,7 @@ void init_global_addl_config_hook(void)
 		global_addl_config.edit_bg_color = 0x9;
 		global_addl_config.mic_gain = 0;
 		global_addl_config.alt_text = 0;
+		global_addl_config.netmon = 1;
 	}
 
 //#ifdef CONFIG_MENU

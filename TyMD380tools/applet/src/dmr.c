@@ -321,10 +321,11 @@ void dmr_apply_privsquelch_hook(OS_EVENT *event, char *mode)
 
 void dmr_before_squelch_hook(uint8_t *pkt, uint8_t unk)
 {
-	if (ad_hoc_tg_channel == channel_num) {
+	//if (ad_hoc_tg_channel == channel_num) 
+	{
 		if (ad_hoc_talkgroup) {
 
-			store_dst = ad_hoc_talkgroup;
+			//store_dst = ad_hoc_talkgroup;
 
 			contact.id_l = ad_hoc_talkgroup & 0xFF;
 			contact.id_m = (ad_hoc_talkgroup >> 8) & 0xFF;
