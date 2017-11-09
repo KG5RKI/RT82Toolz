@@ -140,7 +140,7 @@ int main(void) {
   md380_CPS_version[0] = 0;
   md380_CPS_version[1] = 0;
   md380_CPS_version[2] = 1;
-  md380_CPS_version[3] = 1;
+  md380_CPS_version[3] = 5;
   /*
   RTC_TimeTypeDef RTC_TimeTypeTime;
   md380_RTC_GetTime(RTC_Format_BIN, &RTC_TimeTypeTime);

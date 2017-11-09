@@ -67,7 +67,8 @@ void rst_voice_lc_header(lc_t *lc)
             rst_grp = 1 ;
 			updateSrcDst(src, dst);
         } else {
-            rst_grp = 0 ;            
+            rst_grp = 0 ;
+
         }
         
         //LOGR("cs %c %d->%d\n", grp_c, src, dst );

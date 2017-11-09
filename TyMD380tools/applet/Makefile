@@ -51,7 +51,7 @@ SRCS  = main.o printf.o dmesg.o system_stm32f4xx.o
 SRCS += spiflash.o usb.o usersdb.o
 SRCS += radiostate.o etsi.o dmr.o 
 SRCS += gfx.o keyb.o lastheard.o console.o syslog.o netmon.o 
-SRCS += menu.o addl_config.o util.o
+SRCS += menu.o addl_config.o util.o 
 
 ###################################################
 

@@ -110,10 +110,11 @@ int beep_event_probe = 0 ;
 void switch_to_screen( int scr )
 {
 	nm_screen = scr;
-
-    // cause transient -> switch back to idle screen.
+	// cause transient -> switch back to idle screen.
     gui_opmode2 = OPM2_MENU ;
     gui_opmode1 = SCR_MODE_IDLE | 0x80 ;
+
+	
 }
 
 extern int hexScrollWindowIndex;
@@ -300,7 +301,7 @@ int handle_hotkey( int keycode )
 		syslog_dump_dmesg();
 		break;
 
-		case 10:
+		/*case 10:
 		case 13: //end call
 			//bp_send_beep(BEEP_TEST_1);
 			if (nm_screen) {
@@ -324,7 +325,8 @@ int handle_hotkey( int keycode )
 				return 1;
 			}
 			break;
-
+			*/
+		//case 10:
 		case 7:
 			//Let 7 disable ad-hoc tg mode;
 			if (!nm_screen && !Menu_IsVisible()) {
@@ -349,9 +351,7 @@ int handle_hotkey( int keycode )
 		case 9:
 			//bp_send_beep(BEEP_TEST_3);
 			syslog_redraw();
-			//switch_to_screen(3);
-			hexScrollWindowIndex -= 4;
-			//switch_to_screen(2);
+			switch_to_screen(2);
 			break;
 		case 11:
 			//gui_control(1);
@@ -368,13 +368,25 @@ int handle_hotkey( int keycode )
 			//mb_send_beep(beep_event_probe);
 			break;
 		
+			// key '*'
+		case 14:
+			if (nm_screen != 9) {
+				switch_to_screen(9);
+				rx_screen_blue_hook(0xff8032);
+			}
+			else if (nm_screen == 9) {
+
+				switch_to_screen(0);
+			}
+			break;
 
 			// key '#'
 		case 15:
 
 			if (!Menu_IsVisible() && nm_screen) {
 				syslog_redraw();
-				switch_to_screen(3);
+				switch_to_screen(3);  //change this back to 3
+				
 			}
 			break;
 		}
@@ -391,7 +403,8 @@ int handle_hotkey( int keycode )
 			//channel_num=0;
 			rx_screen_blue_hook(0xff8032);
 		}
-		else if (keycode == 10 && !nm_screen) {
+		/*else if (keycode == 10 && !nm_screen) {
+			nm_screen = 10;
 			gui_opmode1 = SCR_MODE_IDLE | 0x80;
 			//switch_to_screen(9);
 			//switch_to_screen(0);
@@ -400,7 +413,7 @@ int handle_hotkey( int keycode )
 			kb_keypressed = 2;
 			//kb_handler();
 			return 0;
-		}
+		}*/
 		
 	}
 	return 1;
@@ -438,14 +451,15 @@ int is_intercept_allowed()
 			return 1;
 	}
     
-    switch( get_main_mode() ) {
+    /**witch( get_main
+		_mode() ) {
         case 27 :
 
 		case 28 :
             return 1 ;
         default:
             return 0 ;
-    }
+    }*/
     
     
 }
@@ -463,7 +477,7 @@ int is_intercepted_keycode( int kc )
         case 7 :
         case 8 :
         case 9 :
-		case 10:
+		//case 10:
         //case 11 :
         //case 12 :
 		//case 13 : //end call
@@ -479,11 +493,11 @@ int is_intercepted_keycode2(int kc)
 {
 	switch (kc) {
 	
-	case 10:
-	case 20:
-	case 21:
-	case 13: //end call
-		return 1;
+	//case 10:
+	//case 20:
+	//case 21:
+	//case 13: //end call
+	//	return 1;
 	default:
 		return 0;
 	}
@@ -514,7 +528,6 @@ void kb_handle(int key) {
 		}
 	}
 
-	
 
 }
 
@@ -555,11 +568,8 @@ void kb_handler_hook()
 	{
         if( is_intercepted_keycode(kc) ) {
 			if ((kp & 2) == 2) {
-
-				if(kc != 10)
-					kb_keypressed = 8;
-
-				int kf = handle_hotkey(kc);
+				kb_keypressed = 8;
+				handle_hotkey(kc);
                 return ;
             }
         }

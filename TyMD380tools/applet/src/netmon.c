@@ -36,6 +36,7 @@ uint8_t nm_screen = 0 ;
 uint8_t nm_started = 0 ;
 uint8_t nm_started5 = 0 ;
 uint8_t nm_started6 = 0 ;
+uint8_t nm_started7 = 0;
 uint8_t rx_voice = 0 ;
 uint8_t rx_new = 0 ;
 uint8_t ch_new = 0 ;
@@ -490,12 +491,42 @@ void netmon6_update()
 
 }
 
+
+void netmon7_update()
+{
+	clog_draw_poll();
+
+	extern wchar_t channel_name[20];           // read current channel name from external  
+	static int ch_cnt = 0;                     // lastheard line counter
+	char clog = 'c';
+
+	if (nm_started7 == 0) {
+		clog_printf("==== ALT_MENU ====\n");
+		nm_started7 = 1;                        // flag for restart of LH list
+		ch_cnt = 1;                             // reset lh counter 
+
+
+
+		clog_printf("\n[3] - Set/Clear AdHoc TG\n");
+		clog_printf("[4] - Netmon 4\n");
+		clog_printf("[5] - Clear all logs\n");
+		clog_printf("[6] - Dump dbg log\n");
+		clog_printf("[*] - Toggle RX Scrn\n");
+		clog_printf("[#] - Syslog / AltMenu\n");
+		clog_printf("[7] - Back\n");
+	}
+
+	
+
+}
+
 void netmon_update()
 {
-    if( !is_netmon_visible() || nm_screen == 9) {
+    if( !is_netmon_visible() || nm_screen >= 9) {
         netmon6_update();
         netmon4_update();
         netmon5_update();
+		netmon7_update();
         return ;
     }
     
@@ -508,6 +539,8 @@ void netmon_update()
         case 2 :
             netmon2_update();
             return ;
+
+		// '#' button menu shown if pressed while already in alt menu.
         case 3 :
             netmon3_update();
             return ;
@@ -516,15 +549,25 @@ void netmon_update()
             netmon4_update();
             return ;
         case 5 :
-            netmon4_update();
-            netmon6_update();
-            netmon5_update();
+			syslog_clear();
+			lastheard_clear();
+			slog_clear();
+			clog_clear();
+			slog_redraw();
+			nm_started = 0;	// reset nm_start flag used for some display handling
+			nm_started5 = 0;	// reset nm_start flag used for some display handling
+			nm_started6 = 0;	// reset nm_start flag used for some display handling
+			nm_started7 = 0;
             return ;
         case 6 :
             netmon4_update();
             //netmon5_update();
             netmon6_update();
             return ;
+		case 7:
+			netmon7_update();
+			return;
+
 		default:
 			return;
     }
@@ -537,7 +580,7 @@ extern void f_4315_hook()
 	netmon_update();
 	con_redraw();
 
-	if (is_netmon_visible()) {
+	if (is_netmon_visible() && nm_screen != 9) {
 		return;
 	}
 	F_4315(); // Seems to be Tytera's own "painter" for update_scr_17.
@@ -600,7 +643,7 @@ void f_4225_hook()
 
 	f_4225(); 
 
-	if (is_netmon_visible()) {
+	if (is_netmon_visible() && nm_screen!=9) {
 
 		// steer back to idle screen, because that's the most intercepted.
 		if (gui_opmode2 == OPM2_VOICE) {

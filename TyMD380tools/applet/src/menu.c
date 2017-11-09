@@ -38,7 +38,7 @@
 
 extern addl_config_t global_addl_config;
 extern void checkAdHocTG();
-const static wchar_t wt_addl_func[]         = L"TyToolz";
+const static wchar_t wt_addl_func[]         = L"Toolz";
 const static wchar_t wt_datef[]             = L"Date format";
 const static wchar_t wt_debug[]             = L"USB logging";
 //const static wchar_t wt_netmon[]            = L"NetMon";
@@ -931,7 +931,7 @@ void create_menu_entry_set_priv_screen(void)
 
 }
 
-const static wchar_t wcBanner[] = L"TyIsBeast";
+const static wchar_t wcBanner[] = L"RT82 - EXXT";
 const static wchar_t wcBanner2[] = L"DMRTrack";
 
 //void create_menu_entry_addl_functions_screen_temp(void)

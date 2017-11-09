@@ -750,6 +750,42 @@ if __name__ == '__main__':
 
     merger.hookbl(0x801AC40, sapplet.getadr("sub_801AC40"), 0)
 	
+    merger.hookbl(0x080154AE, sapplet.getadr("create_menu_utilies_hook"), 0)
+	
+    spiflashreadhooks = [
+        0x8013520,
+        0x80258fc,
+        0x8025b5e,
+        0x802c72e,
+        0x802c740,
+        0x802c752,
+        0x802c764,
+        0x802c7a0,
+        0x802ca0c,
+        0x802ca2c,
+        0x802ca52,
+        0x802ca96,
+        0x802cb4c,
+        0x802cb56,
+        0x802cbcc,
+        0x802cbf8,
+        0x802cc2c,
+        0x8033482,
+        0x8033534,
+        0x8033572,
+        0x804150a,
+        0x80415e2,
+        0x804397a,
+        0x80439dc,
+        0x8043a30,
+        0x8043a76,
+        0x8043ab4,
+        0x8043b38,
+        0x8043bae
+    ]
+    for adr in spiflashreadhooks:
+        merger.hookbl(adr, sapplet.getadr("spiflash_read_hook"))
+	
     print("Merging %s into %s at %08x" % (
         sys.argv[2],
         sys.argv[1],

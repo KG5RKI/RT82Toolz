@@ -209,6 +209,9 @@ if __name__ == '__main__':
 	
     #merger.hookbl(0x0800E4B8, sapplet.getadr("print_date_hook"), 0)
    # merger.hookbl(0x08029844, sapplet.getadr("draw_statusline_hook"))
+   
+    
+    #merger.hookbl(0x08062A08, sapplet.getadr("init_global_addl_config_hook"), 0)
 	
     dmr_before_squelch_list = [
         0x804b446,
@@ -746,13 +749,18 @@ if __name__ == '__main__':
         merger.hookbl(adr, sapplet.getadr("gfx_drawtext2_hook"))
 	
     rxscrn_hooks = [
-        0x80287e2,
+        #0x80287e2,
         0x80322ac,
     ]
     for adr in rxscrn_hooks:
         merger.hookbl(adr, sapplet.getadr("rx_screen_blue_hook"))
 		
-    merger.hookbl(0x803a4f6, sapplet.getadr("rx_screen_gray_hook"))
+    rxscrn_hooks = [
+        0x0803a4f6,
+        0x080287E2,
+    ]
+    for adr in rxscrn_hooks:
+        merger.hookbl(adr, sapplet.getadr("rx_screen_gray_hook"))
 		
 		
     GetContactIDFromIndex_hooks = [

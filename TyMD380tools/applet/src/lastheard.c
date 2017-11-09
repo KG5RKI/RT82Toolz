@@ -373,7 +373,7 @@ void clog_draw_poll()
         return ;
     }
     
-    int con_height = 10 ;
+    int con_height = 12 ;
     
     clog_redraw_flag = 0 ;
     

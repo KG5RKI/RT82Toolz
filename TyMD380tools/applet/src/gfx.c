@@ -152,8 +152,9 @@ void rx_screen_blue_hook(unsigned int bg_color)
 	//char *timeSlot[3];
 	//int primask = OS_ENTER_CRITICAL(); // for form sake
 
-	//if (nm_screen == 9)
-	//	nm_screen = 0;
+	//if (!nm_screen) {
+	//	nm_screen = 9;
+	//}
 
 	//channel_info_t *ci = &current_channel_info;
 
@@ -371,6 +372,7 @@ void rx_screen_gray_hook(unsigned int bg_color)
 	gfx_select_font(gfx_font_norm);
 	//gfx_set_fg_color(0xff8032);
 	//gfx_set_bg_color(0xff000000);
+
 }
 
 

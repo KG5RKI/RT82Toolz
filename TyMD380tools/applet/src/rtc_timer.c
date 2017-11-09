@@ -64,7 +64,7 @@ extern void f_4315_hook()
     con_redraw();
 
 
-    if( is_netmon_visible() && nm_screen!=9) {
+    if( is_netmon_visible() && nm_screen<9) {
         return ;
     }
     F_4315(); // Seems to be Tytera's own "painter" for update_scr_17.

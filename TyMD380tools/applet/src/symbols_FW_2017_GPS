@@ -1,155 +1,109 @@
-gfx_set_bg_color                         = 0x08025479 ;
-
-gfx_set_fg_color                         = 0x08025485 ;
-
-
-gfx_blockfill                            = 0x08025B19 ;
-
-gfx_drawtext7                            = 0x0802F851 ;
-
-gfx_select_font                          = 0x0802ADED ;
-
-md380_RTC_GetDate                        = 0x0803958F ;
-
-
-md380_itow                               = 0x0801CCD9 ;
-
-gfx_drawtext2                            = 0x080260E9 ;
-
-
-md380_RTC_GetTime                        = 0x0803945B ;
-
-gfx_drawtext10                           = 0x0800E421 ;
-
-draw_datetime_row                        = 0x0800E541 ;
-
-md380_spiflash_read                      = 0x0804382F ;
-
-
-md380_spiflash_enable                    = 0x080438E3 ;
-
-
-md380_spiflash_disable                   = 0x080438FF ;
-
-md380_spiflash_write                     = 0x08043917 ;
-
-md380_spiflash_sektor_erase4k            = 0x08043619 ;
-
-
-md380_spi_sendrecv                       = 0x08043875 ;
-
-
-md380_spiflash_wait                      = 0x080438C1 ;
-
-
-md380_spiflash_block_erase64k            = 0x0804364D ;
-
-md380_spiflash_security_registers_read   = 0x08043681 ;
-
-
-
-
-md380_OSMboxPost                         = 0x08039955 ;
-md380_OSMboxPend                         = 0x08040C83 ;
-
-
-
-dmr_call_start                           = 0x0804C87F ;
-
-dmr_before_squelch                       = 0x08045759 ;
-
-dmr_call_end                             = 0x0804D635 ;
-
-
-dmr_CSBK_handler                         = 0x0804DB99 ;
-
-gfx_drawchar_pos                         = 0x0802F209 ;
-dmr_handle_data                          = 0x080510F3 ;
-
-gfx_drawtext4                            = 0x08026107 ;
-
-
-
-gfx_clear3                               = 0x08026095 ;
-
-
-gfx_font_small                           = 0x080EB5FC ;
-gfx_font_norm                            = 0x080EB63C ;
-
-
-gfx_drawtext                             = 0x0800E477 ;
-
-gfx_drawbmp                              = 0x0802F2D5 ;
-
-
-draw_statusline                          = 0x0804793D ;
-
-
-
 F_4315                                   = 0x08032855 ;
-f_4225                                   = 0x080288DD ;
-
-
+TG_cacheA                                = 0x0 ;
+TG_cacheB                                = 0x0 ;
+backlight_timer                          = 0x2001DF6A ;
+botlinetext                              = 0x2001D948 ;
+channelA                                 = 0x2001D2BC ;
+channelB                                 = 0x2001D2FC ;
+channelC                                 = 0x2001D33C ;
+channel_name                             = 0x2001D6F8 ;
+contact                                  = 0x2001D6B0 ;
+dmr_CSBK_handler                         = 0x0804DB99 ;
+dmr_before_squelch                       = 0x08045759 ;
+dmr_call_end                             = 0x0804D635 ;
+dmr_call_start                           = 0x0804C87F ;
+dmr_handle_data                          = 0x080510F3 ;
+draw_datetime_row                        = 0x0800E541 ;
+draw_statusline                          = 0x0804793D ;
 draw_zone_channel                        = 0x0800F2A1 ;
-
-
-kb_handler                               = 0x0806EFB1 ;
-
-
-
-usb_upld_handle                          = 0x080DB945 ;
-usb_dnld_handle                          = 0x080DB1A9 ;
-
-
-usb_send_packet                          = 0x0807A633 ;
-
-
-
-md380_blockadr                           = 0x2001DD34 ;
-
-
-md380_packetlen                          = 0x2001DD38 ;
-
-
-
-md380_dfutargetadr                       = 0x20001238 ;
-md380_dfu_target_adr                     = 0x20001238 ;
-
-
-
-md380_dfu_state                          = 0x2001E05A ;
-md380_thingy2                            = 0x2001E05B ;
-md380_packet                             = 0x2001A158 ;
-md380_usbstring                          = 0x2001C6F8 ;
-
-
-kb_keypressed                            = 0x2001DD84 ;
-kb_row_col_pressed                       = 0x2001E00F ;
-kb_keycode                               = 0x2001E04B ;
-
-gui_opmode3                              = 0x2001E06A ;
-gui_opmode2                              = 0x2001E016 ;
+enable_backlight                         = 0x080398E3 ;
+f_1444                                   = 0x0803D611 ;
+f_4225                                   = 0x080288DD ;
+get_menu_id_for_depth                    = 0x080115F7 ;
+gfx_blockfill                            = 0x08025B19 ;
+gfx_clear3                               = 0x08026095 ;
+gfx_drawbmp                              = 0x0802F2D5 ;
+gfx_drawchar_pos                         = 0x0802F209 ;
+gfx_drawtext                             = 0x0800E477 ;
+gfx_drawtext10                           = 0x0800E421 ;
+gfx_drawtext2                            = 0x080260E9 ;
+gfx_drawtext4                            = 0x08026107 ;
+gfx_drawtext7                            = 0x0802F851 ;
+gfx_font_norm                            = 0x080EB63C ;
+gfx_font_small                           = 0x080EB5FC ;
+gfx_select_font                          = 0x0802ADED ;
+gfx_set_bg_color                         = 0x08025479 ;
+gfx_set_fg_color                         = 0x08025485 ;
 gui_opmode1                              = 0x2001E018 ;
 gui_opmode1_prev                         = 0x2001E017 ;
+gui_opmode2                              = 0x2001E016 ;
+gui_opmode3                              = 0x2001E06A ;
+kb_bot_side_key_press_time               = 0x2001E03C ;
+kb_handler                               = 0x0806EFB1 ;
+kb_key_press_time                        = 0x2001E042 ;
+kb_keycode                               = 0x2001E04B ;
+kb_keypressed                            = 0x2001DD84 ;
+kb_row_col_pressed                       = 0x2001E00F ;
+kb_row_col_pressed                       = 0x2001E040 ;
+kb_side_key_max_time                     = 0x2001E03E ;
+kb_top_side_key_press_time               = 0x2001E03A ;
 m_cntr2                                  = 0x2001DEE8 ;
-contact2                                 = 0x2001D68C ;
-contact                                  = 0x2001DD68 ;
-
-
-channel_name                             = 0x2001D6F8 ;
-
-
-md380_radio_config                       = 0x2001CDD0 ;
-
-
-
-backlight_timer                          = 0x2001DF6A ;
-zone_name                                = 0x2001BDC0 ;
-
-
+main_menu                                = 0x08057681 ;
+md380_CPS_version                        = 0x2001DD1C ;
+md380_OSMboxPend                         = 0x08040C83 ;
+md380_OSMboxPost                         = 0x08039955 ;
+md380_RTC_GetDate                        = 0x0803958F ;
+md380_RTC_GetTime                        = 0x0803945B ;
+md380_blockadr                           = 0x2001DD34 ;
+md380_create_main_menu_entry             = 0x0800C189 ;
+md380_create_menu_entry                  = 0x0800C93D ;
+md380_current_TG                         = 0x2001DD68 ;
+md380_dfu_state                          = 0x2001E05A ;
+md380_dfu_target_adr                     = 0x20001238 ;
+md380_dfutargetadr                       = 0x20001238 ;
+md380_itow                               = 0x0801CCD9 ;
+md380_lastheard_dest                     = 0x2001DD70 ;
+md380_lastheard_dmrid                    = 0x2001DD6C ;
+md380_menu_0x200011e4                    = 0x20001520 ;
+md380_menu_0x2001d3c1                    = 0x2001DFDD ;
+md380_menu_0x2001d3ed                    = 0x2001E00E ;
+md380_menu_0x2001d3ee                    = 0x2001E00F ;
+md380_menu_0x2001d3ef                    = 0x2001E010 ;
+md380_menu_0x2001d3f0                    = 0x2001E011 ;
+md380_menu_0x2001d3f1                    = 0x2001E012 ;
+md380_menu_0x2001d3f4                    = 0x2001E015 ;
+md380_menu_depth                         = 0x20001520 ;
+md380_menu_edit_buf                      = 0x2001BB7E ;
+md380_menu_entry_back                    = 0x0801162B ;
+md380_menu_entry_programradio            = 0x08015571 ;
+md380_menu_entry_selected                = 0x2001DFCC ;
 md380_menu_id                            = 0x2001DFDE ;
-
-f_1444                                   = 0x0803D611 ;
-
-
-enable_backlight                         = 0x080398E3 ;
+md380_menu_mem_base                      = 0x20016120 ;
+md380_menu_memory                        = 0x2001C220 ;
+md380_menu_numerical_input               = 0x08020901 ;
+md380_packet                             = 0x2001A158 ;
+md380_packetlen                          = 0x2001DD38 ;
+md380_radio_config                       = 0x2001CDD0 ;
+md380_spi_sendrecv                       = 0x08043875 ;
+md380_spiflash_block_erase64k            = 0x0804364D ;
+md380_spiflash_disable                   = 0x080438FF ;
+md380_spiflash_enable                    = 0x080438E3 ;
+md380_spiflash_read                      = 0x0804382F ;
+md380_spiflash_security_registers_read   = 0x08043681 ;
+md380_spiflash_sektor_erase4k            = 0x08043619 ;
+md380_spiflash_wait                      = 0x080438C1 ;
+md380_spiflash_write                     = 0x08043917 ;
+md380_thingy2                            = 0x2001E05B ;
+md380_usbstring                          = 0x2001C6F8 ;
+md380_wt_programradio                    = 0x080EB9FC ;
+mn_editbuffer_poi                        = 0x20001104 ;
+q_status_4                               = 0x0 ;
+read_contact                             = 0x0802CA39 ;
+store_dst                                = 0x0 ;
+store_src                                = 0x0 ;
+testTG                                   = 0x2001D6B0 ;
+toplinetext                              = 0x2001DCC0 ;
+usb_dnld_handle                          = 0x080DB1A9 ;
+usb_send_packet                          = 0x0807A633 ;
+usb_upld_handle                          = 0x080DB945 ;
+zone_name                                = 0x2001BDC0 ;
