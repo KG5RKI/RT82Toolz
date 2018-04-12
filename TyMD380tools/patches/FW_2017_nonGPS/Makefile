@@ -12,7 +12,8 @@ patched.img: unwrapped.img
 	./patch.py
 	#../../md380-gfx --firmware=patched.img --gfx=replacement-font-big-latin.pbm fontreplace
 	#../../md380-gfx --firmware=patched.img --gfx=replacement-font-small-latin.pbm fontreplace
-	#../../md380-gfx --firmware=patched.img --dir ./extrsc4 extract
+	#../../md380-gfx --firmware=patched.img --dir ./rsrc2017 extract 
+	
 	../../md380-gfx --firmware=patched.img --gfx ./extrsc4/0x80df3bc_mod.ppm write
 	../../md380-gfx --firmware=patched.img --gfx ./extrsc4/0x80df3e4_mod.ppm write
 ##### md380-gfx "relocate" and "write"  doun't work with d13.020
