@@ -60,6 +60,8 @@ void reset_backlight()
 	backlight_timer = 5 * 500;
 
 	// enabling backlight again.
+	//MOVS    R1, #0x10
+	//LDR.W   R0, =GPIOE_MODER
 	enable_backlight(0x40021000, 0x10);
 }
 
@@ -149,9 +151,9 @@ static long getfirstnumber2(const char * p) {
 extern void rx_screen_blue_hook(unsigned int bg_color);
 
 static int Flashsize = 0x1000;
-uint32_t Flashadr = 0x203C03;
+uint32_t Flashadr = 0x203C00;
 
-uint32_t ptrrr = 0x20014D88;
+uint32_t ptrrr = 0x20000000 + 0x18000;
 
 extern void md380_Flash_Log();
 
@@ -185,22 +187,23 @@ int handle_hotkey( int keycode )
 
 
 			//WORKS!!
-			/*syslog_printf("\nDumpin...");
+			syslog_printf("\nDumpin...%X", ptrrr);
 			for (i = 0; i < 0x20; i += 1) {
 				md380_spiflash_write((void*)(ptrrr +(i* 1024)), Flashadr + (i * 1024), 1024);
-				syslog_printf("\n %x ...", i* 1024);
+				//syslog_printf("\n %x ...", i* 1024);
 			}
-			ptrrr += 0x10 * 1024;
-			Flashadr += 0x10 * 1024;
-			syslog_printf("\n %x ...", 0x10 * 1024);
-			*/
-			clog_redraw();
-			syslog_printf("\nmain_mode: %d", idd);
-			//menu_t *menu_mem;
-			//md380_Flash_Log();
+			ptrrr += 0x20 * 1024;
+			Flashadr += 0x20 * 1024;
+			syslog_printf("\n %x ...", Flashadr);
+			
+			
+			//clog_redraw();
+			//syslog_printf("\nmain_mode: %d", idd);
+			////menu_t *menu_mem;
+			////md380_Flash_Log();
 
 			//{
-			
+			//
 
 			//	syslog_printf("FLASHWRITE %x %d\n", Flashadr, Flashsize);
 			//	// enable write
@@ -224,7 +227,7 @@ int handle_hotkey( int keycode )
 			//		//syslog_printf("%x ", (page_adr & 0xff));
 			//		md380_spi_sendrecv(page_adr & 0xff);
 			//		for (int ii = 0; ii < 256; ii++) {
-			//			md380_spi_sendrecv(((char*)0x20010000)[ii + (i* 256)]);
+			//			md380_spi_sendrecv(((char*)ptrrr)[ii + (i* 256)]);
 			//		}
 			//		md380_spiflash_disable();
 			//		md380_spiflash_wait();
@@ -233,11 +236,12 @@ int handle_hotkey( int keycode )
 			//	syslog_printf("Done\n");
 			//}
 			//Flashadr += Flashsize;
+			//ptrrr += Flashsize;
 			//idd = getfirstnumber2((char*)dumpOffset);
 			
 			//idd = get_main_mode();
 
-			//}
+			
 			//syslog_printf("\nmain_mode: %d", idd);
 			//syslog_printf("\ngui_opmode2: %d", gui_opmode2);
 			//syslog_printf("\ngui_opmode3: %d", gui_opmode3);

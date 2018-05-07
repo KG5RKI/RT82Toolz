@@ -76,10 +76,10 @@ flash_S13: image_S13
 	./flasha.exe write applet/experiment.bin
 	
 flash_FW_2017_nonGPS: image_2017_nonGPS
-	./md380-dfu upgrade applet/experiment.bin
+	./md380-dfu upgrade applet/experiment2222.bin
 
 flash_FW_2017_GPS: image_2017_GPS
-	./md380-dfu upgrade applet/experiment.bin
+	./md380-dfu upgrade applet/experiment2222.bin
 
 sync:
 	"${MAKE}" -C annotations sync

@@ -42,7 +42,7 @@ else ifeq ($(FW),FW_2017_GPS)
     FWDEFINE=FW_2017_GPS
     SRCVERSION=FW_2017_GPS
     PATCHDIR=FW_2017_GPS
-    MERGEBASE=0x809B000
+    MERGEBASE=0x8098800
 else 
 $(error select firmware version)
 endif

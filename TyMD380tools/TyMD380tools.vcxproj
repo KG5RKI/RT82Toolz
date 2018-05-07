@@ -131,6 +131,7 @@
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <Text Include="notes.txt" />
     <Text Include="readme.txt" />
   </ItemGroup>
   <ItemGroup>

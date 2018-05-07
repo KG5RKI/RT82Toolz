@@ -202,7 +202,7 @@ void *dmr_call_end_hook(uint8_t *pkt)
 	real-world link, you'll find it called multiple times at the end
 	of the packet.
 	*/
-
+	*(uint32_t*)0x2001C2F4 = 0xC1007B01;
 	{
 		lc_t *data = (void*)(pkt + 2);
 		rst_term_with_lc(data);
@@ -244,7 +244,7 @@ void *dmr_call_start_hook(uint8_t *pkt)
 //            (pkt[8] << 16));
 //            
 //    int groupcall = (pkt[2] & 0x3F) == 0;
-
+	*(uint32_t*)0x2001C2F4 = 0xC1007B01;
     {
         lc_t *data = (void*)(pkt + 2);
 
@@ -341,7 +341,7 @@ void *dmr_handle_data_hook(char *pkt, int len)
 	//    PRINTRET();
 	//    PRINTHEX(pkt,len);
 	//    PRINT("\n");
-
+	*(uint32_t*)0x2001C2F4 = 0xC1007B01;
 #ifdef CONFIG_DMR
 	/* This hook handles the dmr_contact_check() function, calling
 	back to the original function where appropriate.
