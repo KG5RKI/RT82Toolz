@@ -358,7 +358,7 @@ uint32_t rgb16torgb(uint16_t color) {
 #define RX_POPUP_Y_START 22 // 24
 #define RX_POPUP_X_START 4  // 10
 
-void draw_rx_screen2(unsigned int bg_color)
+void draw_rx_screen(unsigned int bg_color)
 {
 	static int dst;
 	int src;
@@ -367,7 +367,7 @@ void draw_rx_screen2(unsigned int bg_color)
 	//char *timeSlot[3];
 	int primask = OS_ENTER_CRITICAL(); // for form sake
 
-	channel_info_t *ci = &current_channel_info;
+	//channel_info_t *ci = &current_channel_info;
 
 	dst = rst_dst;
 	src = rst_src;
@@ -383,127 +383,47 @@ void draw_rx_screen2(unsigned int bg_color)
 	gfx_set_fg_color(0x000000);
 	gfx_select_font(gfx_font_small);
 
-	user_t usr;
-
-	if (usr_find_by_dmrid(&usr, src) == 0) {
-		usr.callsign = "ID unknown";
-		usr.firstname = "";
-		usr.name = "No entry in";
-		usr.place = "your user.bin";
-		usr.state = "see README.md";
-		usr.country = "on Github";
-	}
-
+	
 	gfx_select_font(gfx_font_small);
-
-	int ts1 = (ci->cc_slot_flags >> 2) & 0x1;
-	int ts2 = (ci->cc_slot_flags >> 3) & 0x1;
 
 	int y_index = RX_POPUP_Y_START;
 
-	if (grp) {
-		gfx_printf_pos(RX_POPUP_X_START, y_index, "%d->TG %d %s", src, dst, (ts2 == 1 ? "TS2" : "TS1"));
-	}
-	else {
-		gfx_printf_pos(RX_POPUP_X_START, y_index, "%d->%d %s", src, dst, (ts2 == 1 ? "TS2" : "TS1"));
-	}
+		gfx_printf_pos(RX_POPUP_X_START, y_index, "%d->TG %d %s", src, dst, (1 == 1 ? "TS2" : "TS1"));
+	
+
 	y_index += GFX_FONT_SMALL_HEIGHT;
 
 	gfx_select_font(gfx_font_norm); // switch to large font
-	gfx_printf_pos2(RX_POPUP_X_START, y_index, 10, "%s %s", usr.callsign, usr.firstname);
+	gfx_printf_pos2(RX_POPUP_X_START, y_index, 10, "%s %s", "TESTING", "4321");
 	y_index += GFX_FONT_NORML_HEIGHT;
 
-	if (global_addl_config.userscsv > 1 && talkerAlias.length > 0) {		// 2017-02-19 show Talker Alias depending on setup 0=CPS 1=DB 2=TA 3=TA & DB
-																			// TA or TA/DB mode
-		if (talkerAlias.length > 16) {
-			gfx_select_font(gfx_font_small);
-			gfx_printf_pos2(RX_POPUP_X_START, y_index, 10, "%s", talkerAlias.text);
-			y_index += GFX_FONT_SMALL_HEIGHT;
-		}
-		else {
-			if (talkerAlias.length < 1) {
 				gfx_printf_pos2(RX_POPUP_X_START, y_index, 10, "DMRID: %d", src);
-			}
-			else {
-				gfx_puts_pos(RX_POPUP_X_START, y_index, talkerAlias.text);
-				gfx_printf_pos2(RX_POPUP_X_START, y_index, 10, "%s", talkerAlias.text);
-			}
-			y_index += GFX_FONT_NORML_HEIGHT;
-		}
-
-	}
-	else {
-		// user.bin or codeplug or talkerAlias length=0
-		nameLen = strlen(usr.name);
-		if (nameLen > 16) {  // print in smaller font
-			gfx_select_font(gfx_font_small);
-			gfx_puts_pos(RX_POPUP_X_START, y_index, usr.name);
-			y_index += GFX_FONT_SMALL_HEIGHT; // previous line was in small font
-		}
-		else {  // print in larger font if it will fit
-			gfx_puts_pos(RX_POPUP_X_START, y_index, usr.name);
-			y_index += GFX_FONT_NORML_HEIGHT;
-		}
-	}
-
-	y_index += 3;
-	if (global_addl_config.userscsv > 1) {
-		gfx_set_fg_color(0x00FF00);
-	}
-	else {
-		gfx_set_fg_color(0x0000FF);
-	}
-	gfx_blockfill(1, y_index, 156, y_index);
-	gfx_set_fg_color(0x000000);
-	y_index += 2;
-
-	gfx_select_font(gfx_font_small);
-
-	switch (global_addl_config.userscsv) {
-	case 0:
-		gfx_puts_pos(RX_POPUP_X_START, y_index, "Userinfo: CPS mode");
-		y_index += GFX_FONT_SMALL_HEIGHT;
-		break;
-
-		// not implemented. I don't want to waste space for this line in user.bin mode	
-		//case 1 :
-		//	gfx_puts_pos(RX_POPUP_X_START, y_index, "Userinfo: UserDB mode");
-		//    break;
-
-	case 2:
-		if (talkerAlias.length > 0) {
-			gfx_puts_pos(RX_POPUP_X_START, y_index, "Userinfo: TalkerAlias");
-			y_index += GFX_FONT_SMALL_HEIGHT;
-			//    } else {
-			//        gfx_puts_pos(RX_POPUP_X_START, y_index, "Userinfo: TA not rcvd!");
-		}
-		break;
-
-		// not implemented due to same reason above
-		//case 3:
-		//	gfx_puts_pos(RX_POPUP_X_START, y_index, "Userinfo: TA/DB mode");
-		//    break;
-	}
-	switch (global_addl_config.userscsv) {
-	case 1:
-	case 3:
-
-		if (src != 0) {
-			gfx_select_font(gfx_font_small);
-			gfx_puts_pos(RX_POPUP_X_START, y_index, usr.place);
-			y_index += GFX_FONT_SMALL_HEIGHT;
-
-			gfx_puts_pos(RX_POPUP_X_START, y_index, usr.state);
-			y_index += GFX_FONT_SMALL_HEIGHT;
-
-			gfx_puts_pos(RX_POPUP_X_START, y_index, usr.country);
-			y_index += GFX_FONT_SMALL_HEIGHT;
-		}
-	}
+			
 
 	gfx_select_font(gfx_font_norm);
 	gfx_set_fg_color(0xff8032);
 	gfx_set_bg_color(0xff000000);
+}
+
+void rx_screen_blue_hook(char *bmp, int x, int y)
+{
+	if (nm_screen == 9)
+		nm_screen = 0;
+	//netmon_update();
+
+
+
+	//if (global_addl_config.userscsv > 0 && !is_menu_visible()) {
+		//if (global_addl_config.userscsv == 2) {
+			draw_rx_screen(0xff8032);      // ta
+		//}
+
+	//}else {
+	//	swapFGBG();
+
+		//gfx_drawbmp(bmp, x, y);
+	//}
+
 }
 
 void draw_ta_screen(unsigned int bg_color)
@@ -615,85 +535,109 @@ void draw_statusline_hook( uint32_t r0 )
 
 void draw_alt_statusline()
 {
-    int dst;
-    int src;
-    int grp;
-	int fFound = 0;
-
-    gfx_set_fg_color(0);
-    gfx_set_bg_color(0xff8032);
-    gfx_select_font(gfx_font_small);
-
-    char mode = ' ' ;
-    if( rst_voice_active ) {
-        if( rst_mycall ) {
-            mode = '*' ; // on my tg            
-        } else {
-            mode = '!' ; // on other tg
-        }
-    }
-
-    user_t usr, usr2;
-    src = rst_src;
-    
-    if( src == 0 ) {
-	if ( global_addl_config.datef == 5 )
-	{
-	        gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:");
-	} else {
-	        gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "TA:");
-	}
-    } else {
-	if ( global_addl_config.datef == 6 && talkerAlias.length > 0 )				// 2017-02-18 show talker alias in status if rcvd valid
-	{
-		gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "TA: %s", talkerAlias.text);
-	} else {										// 2017-02-18 otherwise show lastheard in status line
-			
-	        if( usr_find_by_dmrid(&usr, src) == 0 ) {
-				if (usr_find_by_dmrid(&usr2, rst_dst) == 0) {
-					gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%d->%d %c", src, rst_dst, mode);
-				}
-				else {
-					gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%d->%s %c", src, usr2.callsign, mode);
-				}
-        	} else {
-        	    
-				if (usr_find_by_dmrid(&usr2, rst_dst) == 0) {
-					gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%s->%d %c", usr.callsign, rst_dst, mode);
-				}
-				else {
-					gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%s->%s %c", usr.callsign, usr2.callsign, mode);
-				}
-	        }	
-	}
-    }
-    
-    gfx_set_fg_color(0);
-    gfx_set_bg_color(0xff000000);
-    gfx_select_font(gfx_font_norm);
-}
-
-void draw_adhoc_statusline()
-{
-	int dst;
 	int src;
-	int grp;
-	int fFound = 0;
 
 	gfx_set_fg_color(0);
 	gfx_set_bg_color(0xff8032);
 	gfx_select_font(gfx_font_small);
 
-	user_t usr;
-	if (usr_find_by_dmrid(&usr, ad_hoc_talkgroup) == 0) {
-		gfx_printf_pos2(RX_POPUP_X_START + 20, 55, 120, "AdHoc: %s - %d", (ad_hoc_call_type == CONTACT_GROUP ? "TG" : "Priv"), ad_hoc_talkgroup);
+	char mode = ' ';
+	if (rst_voice_active) {
+		if (rst_mycall) {
+			mode = '*'; // on my tg            
+		}
+		else {
+			mode = '!'; // on other tg
+		}
+	}
+
+	user_t usr, usr2;
+	src = rst_src;
+
+	if (src == 0) {
+		if (global_addl_config.datef == 5 || global_addl_config.datef >= 7)
+		{
+			gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:");
+		}
+		else {
+			gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "TA:");
+		}
 	}
 	else {
-		gfx_printf_pos2(RX_POPUP_X_START + 20, 55, 120, "AdHoc: %s - %s", (ad_hoc_call_type == CONTACT_GROUP ? "TG" : "Priv"), usr.callsign);
+		if (global_addl_config.datef == 6 && talkerAlias.length > 0)				// 2017-02-18 show talker alias in status if rcvd valid
+		{
+			gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "TA: %s", talkerAlias.text);
+		}
+		else {										// 2017-02-18 otherwise show lastheard in status line
+
+			if (usr_find_by_dmrid(&usr, src) == 0) {
+				if (usr_find_by_dmrid(&usr2, rst_dst) != 0 && cfg_tst_display_flag(&global_addl_config, ShowLabelTG)) {
+					gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%d->%s %c", src, usr2.callsign, mode);
+				}
+				else {
+					gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%d->%d %c", src, rst_dst, mode);
+				}
+			}
+			else {
+
+				if (usr_find_by_dmrid(&usr2, rst_dst) != 0 && cfg_tst_display_flag(&global_addl_config, ShowLabelTG)) {
+					if (global_addl_config.datef == 7) {
+						gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%s %s->%d %c", usr.callsign, usr.firstname, rst_dst, mode);
+					}
+					else if (global_addl_config.datef == 8) {
+						gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%s %s->%s %c", usr.callsign, usr.firstname, usr2.callsign, mode);
+					}
+					else {
+						gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%s->%s %c", usr.callsign, usr2.callsign, mode);
+					}
+				}
+				else {
+					gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%s %s->%d %c", usr.callsign, (global_addl_config.datef == 7 ? usr.firstname : " "), rst_dst, mode);
+				}
+			}
+		}
 	}
+
 	gfx_set_fg_color(0);
 	gfx_set_bg_color(0xff000000);
 	gfx_select_font(gfx_font_norm);
+}
+void draw_adhoc_statusline()
+{
+	int x = RX_POPUP_X_START + 20;
+	int y = 55;
+
+	gfx_set_fg_color(0);
+	gfx_set_bg_color(0xff8032);
+	gfx_select_font(gfx_font_small);
+
+	//BOOL fIsAnalog = current_channel_info_E.bIsAnalog;
+
+	//If current channel is DMR
+	{
+		int tgNum = (ad_hoc_tg_channel ? ad_hoc_talkgroup : current_TG());
+		int callType = (ad_hoc_tg_channel ? ad_hoc_call_type : contact.type);
+		user_t usr;
+		if (usr_find_by_dmrid(&usr, tgNum) != 0 && cfg_tst_display_flag(&global_addl_config, ShowLabelTG)) {
+			//gfx_printf_pos2(x, y, 320, "%s - %d", (ad_hoc_call_type == CONTACT_GROUP ? "TG" : "Priv"), ad_hoc_talkgroup);
+
+			gfx_printf_pos2(x, y, 120, "%s%s", (ad_hoc_tg_channel ? "* " : ""), usr.callsign);
+
+		}
+		else {
+			//gfx_printf_pos2(x, y, 320, "%s - %s", (ad_hoc_call_type == CONTACT_GROUP ? "TG" : "Priv"), usr.callsign);
+			gfx_printf_pos2(x, y, 120, "%s%s %d", (ad_hoc_tg_channel ? "* " : ""), (callType == CONTACT_GROUP ? "TG" : "Priv"), tgNum);
+		}
+
+	}
+
+	//draw_extra_info();
+
+	gfx_set_fg_color(0);
+	gfx_set_bg_color(0xff000000);
+	gfx_select_font(gfx_font_norm);
+
+
 }
 
 void draw_datetime_row_hook()
@@ -707,7 +651,6 @@ void draw_datetime_row_hook()
 # endif
 
 
-#if defined(FW_D13_020) || defined(FW_S13_020)
     if( is_netmon_visible() ) {
         return ;
     }
@@ -715,14 +658,12 @@ void draw_datetime_row_hook()
 	{
 		draw_adhoc_statusline();
 	}
-    if( is_statusline_visible() || global_addl_config.datef == 6 ) {
+    if( is_statusline_visible()) {
         draw_alt_statusline();
         return ; 
     }
     draw_datetime_row();
-#else
-#warning please consider hooking.    
-#endif    
+ 
 }
 
 /* Displays a startup demo on the device's screen, including some of

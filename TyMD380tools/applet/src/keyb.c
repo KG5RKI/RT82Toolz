@@ -153,7 +153,7 @@ extern void rx_screen_blue_hook(unsigned int bg_color);
 static int Flashsize = 0x1000;
 uint32_t Flashadr = 0x203C00;
 
-uint32_t ptrrr = 0x20000000 + 0x18000;
+uint32_t ptrrr = 0x20000000 + 0x10000;
 
 extern void md380_Flash_Log();
 
@@ -438,9 +438,9 @@ void trace_keyb(int sw)
 
 int is_intercept_allowed()
 {
-   // if( !is_netmon_enabled() || Menu_IsVisible()) {
-    //    return 0 ;
-    //}
+	if (!is_netmon_enabled()){//|| Menu_IsVisible()) {
+        return 0 ;
+    }
 	
 
 	switch (gui_opmode2) {

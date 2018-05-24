@@ -35,6 +35,15 @@ if __name__ == '__main__':
     #patcher.nopout((0x08028F88 + 0x6))
    # patcher.nopout((0x08028F88 + 0x8))
    # patcher.nopout((0x08028F88 + 0xA))
+   
+    #test site roaming
+    patcher.sethword(0x0801C774, 0x2001)
+    #record
+    patcher.sethword(0x0801C7A8, 0x2001)
+    #Morola/PC-Audio
+    patcher.sethword(0x0801C6FE, 0x2001)
+    patcher.sethword(0x0801C718, 0x11B0) #fix a typo..
+	
 	
     # freeing ~200k for code patches
     patcher.ffrange(0x80986E8, 0x80CCF54)

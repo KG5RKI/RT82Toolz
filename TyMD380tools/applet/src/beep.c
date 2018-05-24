@@ -14,7 +14,7 @@
 #include "dmesg.h"
 #include "addl_config.h"
 #include "beep.h"
-#include "debug.h"
+//#include "debug.h"
 #include "mbox.h"
 #include "os.h"
 
@@ -24,30 +24,15 @@
 // why it's work, i have no idea ;)
 
 void F_294_replacement(uint16_t value) {
-#ifdef MD380_d13_020
-  uint32_t multiplicand = 0x4a9;
-#endif
-#ifdef MD380_d02_032
-  uint32_t multiplicand = 0x1dd;
-#endif
-#ifdef MD380_s13_020
-  uint32_t multiplicand = 0x49a;
-#endif
 
-  if (global_addl_config.rbeep == 1) {
-#ifdef MD380_d13_020
-    multiplicand= 0x200;
-#endif
-#ifdef MD380_d02_032
-    multiplicand= 0xaa;
-#endif
-#ifdef MD380_s13_020
-    multiplicand= 0x200;
-#endif
-  }
+		if (global_addl_config.rbeep == 1) {
+			uint32_t multiplicand = 0x200;
+			*bp_freq = (uint32_t)value * multiplicand;
+		}
 
- *bp_freq=(uint32_t) value * multiplicand;
+		
 }
+
 
 #if defined(FW_D13_020)
 # define CAN_BEEP 1
@@ -58,7 +43,7 @@ void bp_sempost2();
 void bp_tone_on();
 void bp_tone_off();
 
-extern uint8_t bp_2001e8a7 ;
+extern uint8_t bp_2001CCF0 ;
 
 #else
 # define CAN_BEEP 0
@@ -68,7 +53,7 @@ extern uint8_t bp_2001e8a7 ;
 #define bp_tone_on()
 #define bp_tone_off()
 
-uint8_t bp_2001e8a7 ;
+uint8_t bp_2001CCF0 ;
 
 #endif
 
@@ -76,7 +61,7 @@ uint8_t bp_2001e8a7 ;
 void beep9()
 {
     bp_sempost();
-    bp_2001e8a7 = 3 ;
+    bp_2001CCF0 = 3 ;
     bp_set_freq(0x3ad);
     bp_tone_on();
     OSTimeDly(0x64);
@@ -90,7 +75,7 @@ void beep9()
 static void start()
 {
     bp_sempost();
-    bp_2001e8a7 = 3 ;
+    bp_2001CCF0 = 3 ;
 }
 
 #define DITFREQ 0x3ad
@@ -125,7 +110,7 @@ static void stop()
 
 void bp_beep(uint8_t code)
 {
-    PRINT("bp_beep: %d\n", code);
+    //PRINT("bp_beep: %d\n", code);
     
 #if (CAN_BEEP) 
     start();
@@ -139,6 +124,7 @@ void bp_beep(uint8_t code)
 #endif // can beep ?    
 }
 
+/*
 void * beep_OSMboxPend_hook(OS_EVENT *pevent, uint32_t timeout, int8_t *perr)
 {
     while(1) {
@@ -147,7 +133,6 @@ void * beep_OSMboxPend_hook(OS_EVENT *pevent, uint32_t timeout, int8_t *perr)
             return 0 ;
         }
         uint8_t beep = *(uint8_t*)ret ;
-        PRINT("beep: %d\n", beep);
         switch( beep ) {
             case BEEP_TEST_1 :
                 bp_beep(1);
@@ -163,7 +148,7 @@ void * beep_OSMboxPend_hook(OS_EVENT *pevent, uint32_t timeout, int8_t *perr)
         }
     }
 }
-
+*/
 
 #if defined(FW_D13_020) || defined(FW_S13_020)
 static uint8_t beep_msg ; // it cannot live on the stack.

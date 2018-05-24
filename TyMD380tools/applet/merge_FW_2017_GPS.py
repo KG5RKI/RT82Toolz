@@ -195,9 +195,9 @@ if __name__ == '__main__':
     #merger.hookstub(0x080E50C6,  # USB manufacturer string handler function.
     #                sapplet.getadr("getmfgstr"))
 	
-    #merger.hookbl(0x080325C2, sapplet.getadr("rx_screen_blue_hook"), 0)
-    #merger.hookbl(0x0803263C, sapplet.getadr("rx_screen_blue_hook"), 0)
-    #merger.hookbl(0x08028D92, sapplet.getadr("rx_screen_blue_hook"), 0)
+    merger.hookbl(0x0802a2b0, sapplet.getadr("rx_screen_blue_hook"), 0)
+    merger.hookbl(0x8034018, sapplet.getadr("rx_screen_blue_hook"), 0)
+    merger.hookbl(0x803c85e, sapplet.getadr("rx_screen_blue_hook"), 0)
 	
     #merger.hookbl(0x08032588, sapplet.getadr("rx_screen_blue_hook"), 0)
     #merger.hookbl(0x080325C2, sapplet.getadr("rx_screen_blue_hook"), 0)
@@ -207,9 +207,54 @@ if __name__ == '__main__':
     # keyboard
     merger.hookbl(0x0807002E, sapplet.getadr("kb_handler_hook"));
 	
-    #merger.hookbl(0x0800E4B8, sapplet.getadr("print_date_hook"), 0)
+    merger.hookbl(0x0800E4B8, sapplet.getadr("print_date_hook"), 0)
    # merger.hookbl(0x08029844, sapplet.getadr("draw_statusline_hook"))
-	
+   
+    merger.hookbl(0x080663DC, sapplet.getadr("init_global_addl_config_hook"), 0)
+   
+
+    # Hook lots of AMBE2+ encoder code and hope our places are correct.
+    ambelist = [
+        0x806b4de,
+        0x806b616,
+        0x806b66e,
+        0x806b7bc,
+        0x806b832,
+        0x806b9ac,
+        0x806ba2c,
+        0x806bb98,
+        0x806bbce,
+    ]
+    #for adr in ambelist:
+    #    merger.hookbl(adr, sapplet.getadr("ambe_encode_thing_hook"))
+   
+     # Hook calls within the AMBE2+ decoder.
+    unpacklist = [
+        0x8049e06,
+        0x8049e12,
+        0x8049e2a,
+        0x8049e36,
+        0x806c192,
+        0x806c6be,
+        0x806c712,
+        0x806c768,
+    ]
+    #for adr in unpacklist:
+    #    merger.hookbl(adr, sapplet.getadr("ambe_unpack_hook"))
+   
+    
+    wavdeclist = [
+	    0x806b26c,
+        0x806bee0,
+        0x806c036,
+        0x806c348,
+        0x806c384,
+        0x806c444,
+        0x806c480,
+    ]
+    #for adr in wavdeclist:
+    #    merger.hookbl(adr, sapplet.getadr("ambe_decode_wav_hook"))
+		
     draw_datetime_row_list = [
         0x802af56,
         0x802b4c0,
@@ -235,6 +280,16 @@ if __name__ == '__main__':
         merger.hookbl(adr, sapplet.getadr("dmr_CSBK_handler_hook"))
 	
     merger.hookbl(0x08011770, sapplet.getadr("f_1444_hook"))
+	
+    
+    # hooks regarding the beep_process
+    beep_process_list = [
+        0x08043900, 0x0804400E, 0x08044056 ,  # roger beep 0x285
+    ]
+    #for adr in beep_process_list:
+    #    merger.hookbl(adr, sapplet.getadr("F_294_replacement"), 0)
+		
+    #merger.hookstub2(0x800C93E, sapplet.getadr("create_menu_entry_rev"))
 	
     #dmr_handle_data_hook_list = [0x0804FABA]
     #for adr in dmr_handle_data_hook_list:
@@ -784,7 +839,31 @@ if __name__ == '__main__':
     ]
     #for adr in spiflashreadhooks:
     #    merger.hookbl(adr, sapplet.getadr("spiflash_read_hook"))
-	
+	 # DL4YHF : We don't know here if the PWM'ed backlight, and thus
+    #  SysTick_Handler() shall be included (depends on config.h) .
+    # IF   the applet's symbol table contains a function named 'SysTick_Handler',
+    # THEN patch its address, MADE ODD to indicate Thumb-code, into the
+    # interrupt-vector-table as explained in applet/src/irq_handlers.c :
+    # ex: new_adr = sapplet.getadr("SysTick_Handler"); # threw an exception when "not found" :(
+    new_adr = sapplet.try_getadr("SysTick_Handler");
+    if 1==0:
+    #if new_adr != None:
+        vect_adr = 0x800C03C;  # address inside the VT for SysTick_Handler
+        exp_adr  = 0x80D7233;  # expected 'old' content of the above VT entry
+        old_adr  = merger.getword(vect_adr); # original content of the VT entry
+        new_adr |= 0x0000001;  # Thumb flag for new content in the VT
+        if( old_adr == exp_adr ) :
+           print("Patching SysTick_Handler in VT addr 0x%08x," % vect_adr)
+           print("  old value in vector table = 0x%08x," % old_adr)
+           print("   expected in vector table = 0x%08x," % exp_adr)
+           print("  new value in vector table = 0x%08x." % new_adr)
+           merger.setword( vect_adr, new_adr, old_adr);
+           print("  SysTick_Handler successfully patched.")
+        else:
+           print("Cannot patch SysTick_Handler() !")
+    else:
+           print("No SysTick_Handler() found in the symbol table. Building firmware without.")
+
     print("Merging %s into %s at %08x" % (
         sys.argv[2],
         sys.argv[1],

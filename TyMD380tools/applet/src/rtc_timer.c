@@ -120,9 +120,9 @@ void rx_screen_gray_hook(void *bmp, int x, int y)
 #ifdef CONFIG_GRAPHICS
     if( global_addl_config.userscsv > 0 && !is_menu_visible() ) {
        if( global_addl_config.userscsv == 2) {
-           draw_rx_screen(0x888888);      // ta
+           rx_screen_blue_hook(0x888888);      // ta
        } else {
-           draw_rx_screen(0x888888);
+		   rx_screen_blue_hook(0x888888);
        }
     } else {
 		swapFGBG();

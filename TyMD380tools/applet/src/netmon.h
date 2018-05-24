@@ -45,7 +45,7 @@ inline int is_netmon_visible()
 
 inline int is_statusline_visible()
 {    
-    return 1 ;
+    return (global_addl_config.datef == 5 || global_addl_config.datef == 6 || global_addl_config.datef == 7 || global_addl_config.datef == 8);
 }
 
 #ifdef __cplusplus

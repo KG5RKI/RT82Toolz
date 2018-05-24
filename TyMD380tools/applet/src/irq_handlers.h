@@ -45,6 +45,12 @@
 #  define IRQ_ORIGINAL_SYSTICK_HDLR   0x0809381C // original SysTick_Handler address (without 'Thumb' indicator in bit 0)
 #  undef  MD380_ADDR_DMR_POWER_SAVE_COUNTDOWN /* unknown -> not supported ! */
 #endif
+#ifdef FW_2017_GPS // <- for stoneage firmware (only here to avoid errors in the main makefile's output)
+#  define IRQ_VT_ADDRESS_ORIGINAL_FW  0x0800C000
+#  define IRQ_VT_ADDRESS_OUR_FIRMWARE 0x08098800
+#  define IRQ_ORIGINAL_SYSTICK_HDLR   0x080D7232 // original SysTick_Handler address (without 'Thumb' indicator in bit 0)
+#  undef  MD380_ADDR_DMR_POWER_SAVE_COUNTDOWN /* unknown -> not supported ! */
+#endif
 #ifndef IRQ_ORIGINAL_SYSTICK_HDLR
 # error "Please add new 'ifdef' with the interrupt vector table for the new firmware above !"
 #endif

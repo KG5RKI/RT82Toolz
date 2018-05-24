@@ -117,7 +117,8 @@ void * OSMboxPend_hook(OS_EVENT *pevent, uint32_t timeout, int8_t *perr)
     //  __asm__("mov %0,r14" : "=r" (return_addr));
     //  __asm__("mov %0,r13" : "=r" (sp));
     ret = md380_OSMboxPend(pevent, timeout, perr);
-    
+	return ret;
+
     if( is_netmon_enabled() ) {
         if( ret != NULL ) {
 #if defined(FW_D13_020) || defined(FW_S13_020)

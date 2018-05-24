@@ -862,10 +862,7 @@ void checkAdHocTG() {
 
 void draw_alt_statusline()
 {
-	int dst;
 	int src;
-	int grp;
-	int fFound = 0;
 
 	gfx_set_fg_color(0);
 	gfx_set_bg_color(0xff8032);
@@ -884,53 +881,53 @@ void draw_alt_statusline()
 	user_t usr, usr2;
 	src = rst_src;
 
-	//gfx_printf_pos(RX_POPUP_X_START, 96, "%s - %s", usr.callsign, usr.name);
-
-	
-	if (ad_hoc_talkgroup != 0) {
-		int curTG = (((int)contact.id_h << 16) | ((int)contact.id_m << 8) | (int)contact.id_l);
-		//if (ad_hoc_talkgroup != curTG) 
+	if (src == 0) {
+		if (global_addl_config.datef == 5 || global_addl_config.datef >= 7)
 		{
-			contact.id_l = ad_hoc_talkgroup & 0xFF;
-			contact.id_m = (ad_hoc_talkgroup >> 8) & 0xFF;
-			contact.id_h = (ad_hoc_talkgroup >> 16) & 0xFF;
-			contact.type = ad_hoc_call_type;
-			snprintfw(contact.name, 16, "%s %d*", (contact.type == CONTACT_GROUP ? "TG" : "P"), ad_hoc_talkgroup);
-			gfx_printf_pos2(RX_POPUP_X_START, 80, 157, "%S", contact.name);
+			gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:");
+		}
+		else {
+			gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "TA:");
 		}
 	}
-	
-	if (src == 0) {
-
-		//gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:");
-		gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:");
-	}
 	else {
-												// 2017-02-18 otherwise show lastheard in status line
+		if (global_addl_config.datef == 6 && talkerAlias.length > 0)				// 2017-02-18 show talker alias in status if rcvd valid
+		{
+			gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "TA: %s", talkerAlias.text);
+		}
+		else {										// 2017-02-18 otherwise show lastheard in status line
 
 			if (usr_find_by_dmrid(&usr, src) == 0) {
-				if (usr_find_by_dmrid(&usr2, rst_dst) == 0) {
-					gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%d->%d %c", src, rst_dst, mode);
+				if (usr_find_by_dmrid(&usr2, rst_dst) != 0 && cfg_tst_display_flag(&global_addl_config, ShowLabelTG)) {
+					gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%d->%s %c", src, usr2.callsign, mode);
 				}
 				else {
-					gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%d->%s %c", src, usr2.callsign, mode);
+					gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%d->%d %c", src, rst_dst, mode);
 				}
 			}
 			else {
 
-				if (usr_find_by_dmrid(&usr2, rst_dst) == 0) {
-					gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%s->%d %c", usr.callsign, rst_dst, mode);
+				if (usr_find_by_dmrid(&usr2, rst_dst) != 0 && cfg_tst_display_flag(&global_addl_config, ShowLabelTG)) {
+					if (global_addl_config.datef == 7) {
+						gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%s %s->%d %c", usr.callsign, usr.firstname, rst_dst, mode);
+					}
+					else if (global_addl_config.datef == 8) {
+						gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%s %s->%s %c", usr.callsign, usr.firstname, usr2.callsign, mode);
+					}
+					else {
+						gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%s->%s %c", usr.callsign, usr2.callsign, mode);
+					}
 				}
 				else {
-					gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%s->%s %c", usr.callsign, usr2.callsign, mode);
+					gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%s %s->%d %c", usr.callsign, (global_addl_config.datef == 7 ? usr.firstname : " "), rst_dst, mode);
 				}
 			}
-		
+		}
 	}
 
-	/*gfx_set_fg_color(0);
+	gfx_set_fg_color(0);
 	gfx_set_bg_color(0xff000000);
-	gfx_select_font(gfx_font_norm);*/
+	gfx_select_font(gfx_font_norm);
 }
 
 static int fDoOnceHook = 0;
@@ -944,21 +941,26 @@ void sub_801AC40(char *v0, int v1, int result, char *v3, char v4)
 	
 }
 
-
 void draw_datetime_row_hook()
 {
+# if (CONFIG_APP_MENU)
+	// If the screen is occupied by the optional 'red button menu', 
+	// update or even redraw it completely:
+	
+# endif
+
 
 	if (is_netmon_visible()) {
 		return;
 	}
-	/*if (ad_hoc_tg_channel)
+	//if (ad_hoc_tg_channel)
 	{
-	draw_adhoc_statusline();
-	}*/
-	//if (is_statusline_visible()) 
-	{
-		draw_alt_statusline();
-		//return;
+	//	draw_adhoc_statusline();
 	}
-	//draw_datetime_row();
+	if (is_statusline_visible()) {
+		draw_alt_statusline();
+		return;
+	}
+	draw_datetime_row();
+
 }
