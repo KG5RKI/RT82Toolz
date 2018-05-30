@@ -428,15 +428,15 @@ void print_date_hook(void)
 
 # if (CONFIG_APP_MENU)
    //if( Menu_IsVisible() ) // 'app menu' visible ? Don't allow Tytera to print into the framebuffer !
-   // { return; 
-   // }
+  //  { return; 
+  //  }
 # endif
     if( is_netmon_visible() ) {
         return;
     }
 
 	/*if (global_addl_config.alt_text) {
-		uint16_t fg_color = 0, bg_color = 0;
+		uint32_t fg_color = 0, bg_color = 0;
 		Menu_GetColours(SEL_FLAG_NONE, &fg_color, &bg_color);
 		bg_color = rgb16torgb(bg_color);
 		fg_color = rgb16torgb(fg_color);
@@ -444,13 +444,12 @@ void print_date_hook(void)
 		gfx_set_fg_color(fg_color);
 	}*/
 
-#ifdef CONFIG_GRAPHICS
     wchar_t wide[40];
     RTC_DateTypeDef RTC_DateStruct;
     md380_RTC_GetDate(RTC_Format_BCD, &RTC_DateStruct);
 
-    switch (0) {
-        default:
+    switch (global_addl_config.datef) {
+	  default:
             // fallthrough
         case 0:
             wide[0] = '2';
@@ -504,7 +503,6 @@ void print_date_hook(void)
 	swapFGBG();
 
     gfx_drawtext2(wide, 0xa, 0x60, 0x5e);
-#endif //CONFIG_GRAPHICS
 }
 
 void get_RTC_time(char* buffer) {
@@ -836,10 +834,10 @@ void draw_statusline_hook(uint32_t r0)
 	// Fixed by also calling Menu_DrawIfVisible() from other places .
 # endif // CONFIG_APP_MENU ?
 
-	/*if (is_netmon_visible()) {
+	if (is_netmon_visible()) {
 		con_redraw();
 		return;
-	}*/
+	}
 	draw_statusline(r0);
 }
 
@@ -847,7 +845,7 @@ extern int ad_hoc_talkgroup;
 extern int ad_hoc_call_type;
 
 void checkAdHocTG() {
-	if (ad_hoc_talkgroup) {
+	/*if (ad_hoc_talkgroup) {
 		channel_t* channelCache = (channel_t*)0x2001BCF0;
 		for (int i = 0; i < 7; i++) {
 			*((uint16_t*)&(((uint8_t*)(&channelCache[i]))[6])) = 1;
@@ -857,7 +855,7 @@ void checkAdHocTG() {
 		contact.id_m = (ad_hoc_talkgroup >> 8) & 0xFF;
 		contact.id_h = (ad_hoc_talkgroup >> 16) & 0xFF;
 		contact.type = ad_hoc_call_type;
-	}
+	}*/
 }
 
 void draw_alt_statusline()
@@ -935,7 +933,7 @@ void sub_801AC40(char *v0, int v1, int result, char *v3, char v4)
 {
 	if (!fDoOnceHook) {
 		fDoOnceHook = 1;
-		syslog_printf("%08X %08X %80X %08X %08X", (long)v0, v1, result, (long)v3, (long)v4);
+		//syslog_printf("%08X %08X %80X %08X %08X", (long)v0, v1, result, (long)v3, (long)v4);
 
 	}
 	

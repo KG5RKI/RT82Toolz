@@ -331,10 +331,10 @@ void f_4225_hook()
 	
 	if ( global_addl_config.mic_gain > 0 && fCntAGC==30) {
 		if(global_addl_config.mic_gain==1){
-			c5000_spi0_writereg( 0x0F, 0xD8);
+			//c5000_spi0_writereg( 0x0F, 0xD8);
 		}
 		else if(global_addl_config.mic_gain==2){
-			c5000_spi0_writereg( 0x0F, 0xE8);
+			//c5000_spi0_writereg( 0x0F, 0xE8);
 		}
 	}
 	if(fCntAGC==200)

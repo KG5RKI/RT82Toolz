@@ -195,9 +195,9 @@ if __name__ == '__main__':
     #merger.hookstub(0x080E50C6,  # USB manufacturer string handler function.
     #                sapplet.getadr("getmfgstr"))
 	
-    merger.hookbl(0x0802a2b0, sapplet.getadr("rx_screen_blue_hook"), 0)
-    merger.hookbl(0x8034018, sapplet.getadr("rx_screen_blue_hook"), 0)
-    merger.hookbl(0x803c85e, sapplet.getadr("rx_screen_blue_hook"), 0)
+    #merger.hookbl(0x0802a2b0, sapplet.getadr("rx_screen_blue_hook"), 0)
+    #merger.hookbl(0x8034018, sapplet.getadr("rx_screen_blue_hook"), 0)
+    #merger.hookbl(0x803c85e, sapplet.getadr("rx_screen_blue_hook"), 0)
 	
     #merger.hookbl(0x08032588, sapplet.getadr("rx_screen_blue_hook"), 0)
     #merger.hookbl(0x080325C2, sapplet.getadr("rx_screen_blue_hook"), 0)
@@ -208,7 +208,7 @@ if __name__ == '__main__':
     merger.hookbl(0x0807002E, sapplet.getadr("kb_handler_hook"));
 	
     merger.hookbl(0x0800E4B8, sapplet.getadr("print_date_hook"), 0)
-   # merger.hookbl(0x08029844, sapplet.getadr("draw_statusline_hook"))
+    merger.hookbl(0x08029844, sapplet.getadr("draw_statusline_hook"))
    
     merger.hookbl(0x080663DC, sapplet.getadr("init_global_addl_config_hook"), 0)
    
@@ -269,9 +269,9 @@ if __name__ == '__main__':
     for adr in draw_datetime_row_list:
         merger.hookbl(adr, sapplet.getadr("draw_datetime_row_hook"))
 	
-    dmr_call_start_hook_list = [0x804dfc0, 0x804e026, 0x804e04e, 0x804e61e]
-    for adr in dmr_call_start_hook_list:
-        merger.hookbl(adr, sapplet.getadr("dmr_call_start_hook"))
+    #dmr_call_start_hook_list = [0x804dfc0, 0x804e026, 0x804e04e, 0x804e61e]
+    #for adr in dmr_call_start_hook_list:
+        #merger.hookbl(adr, sapplet.getadr("dmr_call_start_hook"))
 		
     merger.hookbl(0x0804E626, sapplet.getadr("dmr_call_end_hook"))
 	
@@ -281,11 +281,12 @@ if __name__ == '__main__':
 	
     merger.hookbl(0x08011770, sapplet.getadr("f_1444_hook"))
 	
+    merger.hookbl(0x0800E610, sapplet.getadr("print_date_hook"), 0)
     
     # hooks regarding the beep_process
-    beep_process_list = [
-        0x08043900, 0x0804400E, 0x08044056 ,  # roger beep 0x285
-    ]
+    #beep_process_list = [
+    #    0x08043900, 0x0804400E, 0x08044056 ,  # roger beep 0x285
+    #]
     #for adr in beep_process_list:
     #    merger.hookbl(adr, sapplet.getadr("F_294_replacement"), 0)
 		
@@ -765,7 +766,7 @@ if __name__ == '__main__':
         0x800de5e,
         0x800deba,
         0x800ded8,
-        0x800e610,
+       # 0x800e610,
         0x800e68a,
         0x800e882,
         0x800e89e,
