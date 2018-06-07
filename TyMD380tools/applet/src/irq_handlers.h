@@ -6,11 +6,11 @@
 //   Module prefix : "IRQ_" .
 
 #ifndef  CONFIG_DIMMED_LIGHT   // want 'dimmable backlight' ?
-# define CONFIG_DIMMED_LIGHT 0 // guess not (else set CONFIG_DIMMED_LIGHT>0 in config.h)
+# define CONFIG_DIMMED_LIGHT 1 // guess not (else set CONFIG_DIMMED_LIGHT>0 in config.h)
 #endif
 
 #ifndef  CONFIG_MORSE_OUTPUT   // want output in Morse code ?
-# define CONFIG_MORSE_OUTPUT 0 // guess not (else set CONFIG_MORSE_OUTPUT>0 in config.h)
+# define CONFIG_MORSE_OUTPUT 1 // guess not (else set CONFIG_MORSE_OUTPUT>0 in config.h)
 #endif
 
 #ifndef  CONFIG_APP_MENU   // Alternative menu activated by red 'BACK'-button ?
@@ -27,12 +27,12 @@
 #define IRQ_VT_OFFSET_FPU             0x188 /* Floating Point Something. Not used, only here for completeness   */
 
 // Address of the VT in Tytera's original firmware. Used to "jump into their code" somewhere :
-#ifdef FW_D13_020 // <- for MD380/RT3, passed to the compiler via command line from md380tools/applet/Makefile 
-#  define IRQ_VT_ADDRESS_ORIGINAL_FW  0x0800C000
-#  define IRQ_VT_ADDRESS_OUR_FIRMWARE 0x0809D000
-#  define IRQ_ORIGINAL_SYSTICK_HDLR   0x08093f1c // original SysTick_Handler address (without 'Thumb' indicator in bit 0)
-#  define MD380_ADDR_DMR_POWER_SAVE_COUNTDOWN 0x2001e5d0 /* alias 'msg_timer_500' */
-#endif
+//#ifdef FW_D13_020 // <- for MD380/RT3, passed to the compiler via command line from md380tools/applet/Makefile 
+//#  define IRQ_VT_ADDRESS_ORIGINAL_FW  0x0800C000
+//#  define IRQ_VT_ADDRESS_OUR_FIRMWARE 0x0809D000
+//#  define IRQ_ORIGINAL_SYSTICK_HDLR   0x08093f1c // original SysTick_Handler address (without 'Thumb' indicator in bit 0)
+//#  define MD380_ADDR_DMR_POWER_SAVE_COUNTDOWN 0x2001e5d0 /* alias 'msg_timer_500' */
+//#endif
 #ifdef FW_S13_020 // <- for MD390/RT8 (with GPS)
 #  define IRQ_VT_ADDRESS_ORIGINAL_FW  0x0800C000
 #  define IRQ_VT_ADDRESS_OUR_FIRMWARE 0x0809D000

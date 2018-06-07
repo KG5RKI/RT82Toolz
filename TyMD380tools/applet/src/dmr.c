@@ -11,7 +11,7 @@
 
 #define CONFIG_DMR
 
-//#define NETMON
+#define NETMON
 #define DEBUG
 
 #include "dmr.h"
@@ -195,14 +195,13 @@ void *dmr_call_end_hook(uint8_t *pkt)
 
 	pkt points to something like this:
 
-	/--dst-\ /--src-\
-	08 2a 00 00 00 00 00 63 30 05 54 7c 2c 36
+	                /--dst-\ /--src-\
+       08 2a 00 00 00 00 00 63 30 05 54 7c 2c 36
 
 	In a clean, simplex call this only occurs once, but on a
 	real-world link, you'll find it called multiple times at the end
 	of the packet.
 	*/
-	*(uint32_t*)0x2001C2F4 = 0xC1007B01;
 	{
 		lc_t *data = (void*)(pkt + 2);
 		rst_term_with_lc(data);
@@ -210,6 +209,13 @@ void *dmr_call_end_hook(uint8_t *pkt)
 
 	//Forward to the original function.
 	return dmr_call_end(pkt);
+}
+
+extern void checkAdHocTG();
+
+int adhoc_tg_hook(int dmr_src, int dmr_dst, uint8_t *buffer) {
+	checkAdHocTG();
+	return sub_805F562(dmr_src, (ad_hoc_talkgroup ? ad_hoc_talkgroup : dmr_dst), buffer);
 }
 
 void *dmr_call_start_hook(uint8_t *pkt)
@@ -244,7 +250,6 @@ void *dmr_call_start_hook(uint8_t *pkt)
 //            (pkt[8] << 16));
 //            
 //    int groupcall = (pkt[2] & 0x3F) == 0;
-	*(uint32_t*)0x2001C2F4 = 0xC1007B01;
     {
         lc_t *data = (void*)(pkt + 2);
 
@@ -272,77 +277,14 @@ void *dmr_call_start_hook(uint8_t *pkt)
     return dmr_call_start(pkt);
 }
 
-void dmr_apply_squelch_hook(OS_EVENT *event, char * mode)
-{
-#ifdef CONFIG_DMR
-    /* The *mode byte is 0x09 for an unmuted call and 0x08 for a muted
-       call.
-     */
 
-    //printf("dmr_apply_squelch_hook for *mode=0x%02x.\n",*mode);
-
-    if( *mode == 0x8 ) {
-        rst_signal_other_call();
-    }
-    if( *mode == 0x9 ) {
-        rst_signal_my_call();
-    }
-
-    
-
-    /* This is really OSMboxPost().  We should probably change up these
-       names now that we're figuring out what the functions really
-       do. --Travis
-     */
-    md380_OSMboxPost(event, mode);
-#endif
-}
-
-void dmr_apply_privsquelch_hook(OS_EVENT *event, char *mode)
-{
-#ifdef CONFIG_DMR
-    /* The *mode byte is 0x09 for an unmuted call and 0x08 for a muted
-       call.
-     */
-
-    //printf("dmr_apply_squelch_hook for *mode=0x%02x.\n",*mode);
-
-    if( *mode == 0x8 ) {
-        rst_signal_other_call();
-    }
-    if( *mode == 0x9 ) {
-        rst_signal_my_call();
-    }
-
-   
-    md380_OSMboxPost(event, mode);
-#endif
-}
-
-void dmr_before_squelch_hook(uint8_t *pkt, uint8_t unk)
-{
-	//if (ad_hoc_tg_channel == channel_num) 
-	{
-		if (ad_hoc_talkgroup) {
-
-			//store_dst = ad_hoc_talkgroup;
-
-			contact.id_l = ad_hoc_talkgroup & 0xFF;
-			contact.id_m = (ad_hoc_talkgroup >> 8) & 0xFF;
-			contact.id_h = (ad_hoc_talkgroup >> 16) & 0xFF;
-			contact.type = ad_hoc_call_type;
-		}
-	}
-	return dmr_before_squelch();
-}
 
 void *dmr_handle_data_hook(char *pkt, int len)
 {
 	//    PRINTRET();
 	//    PRINTHEX(pkt,len);
 	//    PRINT("\n");
-	*(uint32_t*)0x2001C2F4 = 0xC1007B01;
-#ifdef CONFIG_DMR
+
 	/* This hook handles the dmr_contact_check() function, calling
 	back to the original function where appropriate.
 
@@ -364,8 +306,5 @@ void *dmr_handle_data_hook(char *pkt, int len)
 
 	//Forward to the original function.
 	return dmr_handle_data(pkt, len);
-#else
-	return 0xdeadbeef;
-#endif
 }
 

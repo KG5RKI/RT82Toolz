@@ -5,7 +5,7 @@
 //  for visually impaired hams. Details and implementation in narrator.c .
 
 #ifndef  CONFIG_DIMMED_LIGHT   // want 'dimmable backlight' ?
-# define CONFIG_DIMMED_LIGHT 0 // guess not (else set CONFIG_DIMMED_LIGHT=1 in config.h)
+# define CONFIG_DIMMED_LIGHT 1 // guess not (else set CONFIG_DIMMED_LIGHT=1 in config.h)
 #endif
 
 #ifndef  CONFIG_MORSE_OUTPUT   // want output in Morse code ?

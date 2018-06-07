@@ -108,10 +108,10 @@ extern "C" {
 		wchar_t name[16];
 	} contact_t; // sizeof() = 36 (0x24)
 
-#if defined(FW_D13_020) || defined(FW_S13_020)
+
 # define HAVE_ZONE_NAME 1
 	extern wchar_t zone_name[16];   // 32 bytes @ 0x2001cddc in D13.020
-#endif
+
 
 #if defined(FW_D13_020) /* no time to investigate this: || defined(FW_S13_020) */
 # define HAVE_ZONE_NAME_2 0
@@ -151,13 +151,13 @@ extern "C" {
 		uint8_t unk5; // [5] wasc3
 		uint16_t contact; // [6][7]
 
-		uint8_t unk8; // [8]
-		uint8_t unk9; // [9]
-		uint8_t unk10; // [10] 0xa (type verified) 1...32
-		uint8_t unk11; // [11] 0xb (type verified) 1...250  (scanlist?)
+		uint8_t ToT; // [8]
+		uint8_t ToTRekeyDelay; // [9]
+		uint8_t EmergencyIndex; // [10] 0xa (type verified) 1...32
+		uint8_t ScanListIndex; // [11] 0xb (type verified) 1...250  (scanlist?)
 
-		uint8_t off12; // [12] 0xc (type verified)          (grouplist?)
-		uint8_t gps_tx; // [13] 0xd (type verified) 0...16  0=gps-no-tx 1=gps-tx
+		uint8_t RxGroupIndex; // [12] 0xc (type verified)          (grouplist?)
+		uint8_t Decode; // [13] 0xd (type verified) 0...16  0=gps-no-tx 1=gps-tx
 
 		uint8_t unk14; // [14] 0xe
 		uint8_t unk15; // [15] 0xf
@@ -172,9 +172,9 @@ extern "C" {
 
 	} channel_info_t; // sizeof() = 0x40 
 
-#if defined(FW_D13_020) || defined(FW_S13_020)
+
 	extern channel_info_t current_channel_info;
-#endif
+
 
 
 #ifdef __cplusplus

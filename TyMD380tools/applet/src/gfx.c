@@ -26,8 +26,8 @@
 
 // Needed for LED functions.  Cut dependency.
 #include "stm32f4_discovery.h"
-#include "stm32f4xx_conf.h" // again, added because ST didn't put it here ?
-
+#include "stm32f4xx_conf.h" // again, added because ST didn't put it here ?#
+#include "amenu_set_tg.h"
 
 #define text_height 16
 uint8_t GFX_backlight_on=0; // DL4YHF 2017-01-07 : 0="off" (low intensity), 1="on" (high intensity)
@@ -382,9 +382,9 @@ void red_led(int on) {
   */
 
   if (on) {
-    GPIO_SetBits(GPIOE, GPIO_Pin_1);
+ //   GPIO_SetBits(GPIOE, GPIO_Pin_1);
   } else {
-    GPIO_ResetBits(GPIOE, GPIO_Pin_1);
+ //   GPIO_ResetBits(GPIOE, GPIO_Pin_1);
   }
 }
 
@@ -392,18 +392,18 @@ void lcd_background_led(int on)
 { // 2017-01-07 : Never called / no effect ? The backlight seems to be controlled "by Tytera only" (backlight_timer).
 
 #if( CONFIG_DIMMED_LIGHT ) 
-  GFX_backlight_on = on; // DL4YHF 2017-01-07.  Tried to poll this in irq_handlers.c, but didn't work.
+ // GFX_backlight_on = on; // DL4YHF 2017-01-07.  Tried to poll this in irq_handlers.c, but didn't work.
                          // Poll Tytera's 'backlight_timer' instead. Nonzero="bright", zero="dark" . 
                          // With CONFIG_DIMMED_LIGHT=1, the "Lamp" output (PC6) is usually configured 
                          // as UART6_TX, and switching it 'as GPIO' has no effect then.                         
 #else // ! CONFIG_DIMMED_LIGHT : only completely on or off ...
  
-  if (on) 
-   { GPIO_SetBits(GPIOC, GPIO_Pin_6);
-   } 
-  else 
-   { GPIO_ResetBits(GPIOC, GPIO_Pin_6);
-   }
+  //if (on) 
+  // { GPIO_SetBits(GPIOC, GPIO_Pin_6);
+  // } 
+  //else 
+  // { GPIO_ResetBits(GPIOC, GPIO_Pin_6);
+  // }
 #endif // CONFIG_DIMMED_LIGHT ?   
 }
 
@@ -841,21 +841,18 @@ void draw_statusline_hook(uint32_t r0)
 	draw_statusline(r0);
 }
 
-extern int ad_hoc_talkgroup;
-extern int ad_hoc_call_type;
 
 void checkAdHocTG() {
-	/*if (ad_hoc_talkgroup) {
-		channel_t* channelCache = (channel_t*)0x2001BCF0;
-		for (int i = 0; i < 7; i++) {
-			*((uint16_t*)&(((uint8_t*)(&channelCache[i]))[6])) = 1;
-		}
+	if (ad_hoc_talkgroup) {
+		//contact_t* contact = (contact_t*)0x2001C9D8;
+		
+		*(int*)0x2001C9D8 = ad_hoc_talkgroup;
+		//*(int*)0x2001C9E0 = ad_hoc_talkgroup;
+		//*(int*)0x2001C9DC = ad_hoc_talkgroup;
+		
 
-		contact.id_l = ad_hoc_talkgroup & 0xFF;
-		contact.id_m = (ad_hoc_talkgroup >> 8) & 0xFF;
-		contact.id_h = (ad_hoc_talkgroup >> 16) & 0xFF;
-		contact.type = ad_hoc_call_type;
-	}*/
+		
+	}
 }
 
 void draw_alt_statusline()
@@ -936,8 +933,38 @@ void sub_801AC40(char *v0, int v1, int result, char *v3, char v4)
 		//syslog_printf("%08X %08X %80X %08X %08X", (long)v0, v1, result, (long)v3, (long)v4);
 
 	}
-	
+
 }
+
+
+void draw_adhoc_statusline()
+	{
+		int x = STATUS_X + 20;
+		int y = STATUS_Y - 4;
+		gfx_set_fg_color(0);
+		gfx_set_bg_color(0xff8032);
+		gfx_select_font(gfx_font_small);
+		//BOOL fIsAnalog = current_channel_info_E.bIsAnalog;
+		//If current channel is DMR
+		{
+			int tgNum = (ad_hoc_tg_channel ? ad_hoc_talkgroup : *(int*)md380_current_TG);
+			int callType = (ad_hoc_tg_channel ? ad_hoc_call_type : contact.type);
+			user_t usr;
+			if (usr_find_by_dmrid(&usr, tgNum) != 0 && cfg_tst_display_flag(&global_addl_config, ShowLabelTG)) {
+				//gfx_printf_pos2(x, y, 320, "%s - %d", (ad_hoc_call_type == CONTACT_GROUP ? "TG" : "Priv"), ad_hoc_talkgroup);
+				gfx_printf_pos2(x, y, 120, "%s%s", (ad_hoc_tg_channel ? "* " : ""), usr.callsign);
+			}
+			else {
+				//gfx_printf_pos2(x, y, 320, "%s - %s", (ad_hoc_call_type == CONTACT_GROUP ? "TG" : "Priv"), usr.callsign);
+				gfx_printf_pos2(x, y, 120, "%s%s %d", (ad_hoc_tg_channel ? "* " : ""), (callType == CONTACT_GROUP ? "TG" : "Priv"), tgNum);
+			}
+		}
+		//draw_extra_info();
+		gfx_set_fg_color(0);
+		gfx_set_bg_color(0xff000000);
+		gfx_select_font(gfx_font_norm);
+	}
+
 
 void draw_datetime_row_hook()
 {
@@ -951,9 +978,9 @@ void draw_datetime_row_hook()
 	if (is_netmon_visible()) {
 		return;
 	}
-	//if (ad_hoc_tg_channel)
+	if (ad_hoc_talkgroup)
 	{
-	//	draw_adhoc_statusline();
+		draw_adhoc_statusline();
 	}
 	if (is_statusline_visible()) {
 		draw_alt_statusline();

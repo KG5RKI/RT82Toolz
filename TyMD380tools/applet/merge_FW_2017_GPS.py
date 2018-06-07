@@ -195,12 +195,12 @@ if __name__ == '__main__':
     #merger.hookstub(0x080E50C6,  # USB manufacturer string handler function.
     #                sapplet.getadr("getmfgstr"))
 	
-    #merger.hookbl(0x0802a2b0, sapplet.getadr("rx_screen_blue_hook"), 0)
-    #merger.hookbl(0x8034018, sapplet.getadr("rx_screen_blue_hook"), 0)
-    #merger.hookbl(0x803c85e, sapplet.getadr("rx_screen_blue_hook"), 0)
+    merger.hookbl(0x0802a2b0, sapplet.getadr("rx_screen_blue_hook"), 0)
+    merger.hookbl(0x8034018, sapplet.getadr("rx_screen_blue_hook"), 0)
+    merger.hookbl(0x803c85e, sapplet.getadr("rx_screen_blue_hook"), 0)
 	
-    #merger.hookbl(0x08032588, sapplet.getadr("rx_screen_blue_hook"), 0)
-    #merger.hookbl(0x080325C2, sapplet.getadr("rx_screen_blue_hook"), 0)
+    merger.hookbl(0x08032588, sapplet.getadr("rx_screen_blue_hook"), 0)
+    merger.hookbl(0x080325C2, sapplet.getadr("rx_screen_blue_hook"), 0)
 	
     #merger.hookbl(0x080D8A20, sapplet.getadr("usb_upld_hook"), 0x080D94BC)  # Old handler adr.
 	
@@ -269,15 +269,36 @@ if __name__ == '__main__':
     for adr in draw_datetime_row_list:
         merger.hookbl(adr, sapplet.getadr("draw_datetime_row_hook"))
 	
-    #dmr_call_start_hook_list = [0x804dfc0, 0x804e026, 0x804e04e, 0x804e61e]
-    #for adr in dmr_call_start_hook_list:
-        #merger.hookbl(adr, sapplet.getadr("dmr_call_start_hook"))
+    dmr_call_start_hook_list = [0x0804E61E, 0x0804E04E, 0x0804E026, 0x0804DFC0]
+    for adr in dmr_call_start_hook_list:
+        merger.hookbl(adr, sapplet.getadr("dmr_call_start_hook"))
 		
     merger.hookbl(0x0804E626, sapplet.getadr("dmr_call_end_hook"))
 	
     dmr_CSBK_handler_hook_list = [0x0804E29C, 0x0804E62E]
     for adr in dmr_CSBK_handler_hook_list:
         merger.hookbl(adr, sapplet.getadr("dmr_CSBK_handler_hook"))
+		
+    dmr_handle_data_hook_list = [0x0804E65A, 0x0804E664, 0x0804E6C2]
+    for adr in dmr_handle_data_hook_list:
+        merger.hookbl(adr, sapplet.getadr("dmr_handle_data_hook"))
+		
+	# os semaphore hook .. now we can crate own semaphores
+    #merger.hookbl(0x08060AFE, sapplet.getadr("OSSemCreate_hook"), 0)
+	
+    # other OSMboxPend hooks
+    mbx_pend_list = [
+        0x804366a,
+        0x8059d0e,
+        0x805a95a,
+        0x805ae7a,
+        0x805cc72,
+        0x8067084,
+        0x80670ae,
+    ]
+    for adr in mbx_pend_list:
+        merger.hookbl(adr, sapplet.getadr("OSMboxPend_hook"))
+	
 	
     merger.hookbl(0x08011770, sapplet.getadr("f_1444_hook"))
 	
@@ -292,9 +313,6 @@ if __name__ == '__main__':
 		
     #merger.hookstub2(0x800C93E, sapplet.getadr("create_menu_entry_rev"))
 	
-    #dmr_handle_data_hook_list = [0x0804FABA]
-    #for adr in dmr_handle_data_hook_list:
-    #    merger.hookbl(adr, sapplet.getadr("dmr_handle_data_hook"))
 				  
     drwbmplist = [
         0x800d18c,
@@ -794,8 +812,8 @@ if __name__ == '__main__':
         0x8034018,
         0x803c85e
     ]
-    #for adr in rxscrn_hooks:
-    #    merger.hookbl(adr, sapplet.getadr("rx_screen_blue_hook"))
+    for adr in rxscrn_hooks:
+        merger.hookbl(adr, sapplet.getadr("rx_screen_blue_hook"))
 		
 	# f_4315
     merger.hookbl(0x0802A140, sapplet.getadr("f_4315_hook"))
@@ -808,6 +826,55 @@ if __name__ == '__main__':
 	
     merger.hookbl(0x080156A4, sapplet.getadr("create_menu_utilies_hook"), 0)
 	
+	
+    adhoc_tg_hooks = [
+        #0x8050C5C,
+		#0x08051C78,
+		#0x0804E588, #also sets array of bits
+		#0x0804FB4A,
+
+        #0x08050C5C,
+        #0x08051C78
+        0x805d0e2,
+        0x0804FE96,
+        0x0804FF32,
+	
+  
+        #0x804fd3a,
+        #0x804fe96,
+        #0x804ff32,
+        #0x8050f6c,
+        #0x8050f50, 
+        #0x8050f38,
+        #0x804fd92,
+        #0x804fdd4,
+        #0x804fe26,
+        #0x8050ef2,
+        #0x8050f0a,
+        #0x8050f22,
+        #0x805d0e2,
+        #0x804fb4a,
+        #0x8050eda,
+		
+		
+        #0x8050e16,
+        #0x8052080,
+        #0x8052476,
+        #0x80521b6,
+        #0x805212e,
+        #0x805ac02,
+        #0x80517b2,
+        #0x805183c,
+        #0x80518a4,
+        #0x8051bde,
+        #0x8052454,
+        #0x0804CC8E
+	
+    ]
+    #for adr in adhoc_tg_hooks:
+        #merger.hookbl(adr, sapplet.getadr("adhoc_tg_hook"))
+	
+ 
     spiflashreadhooks = [
         0x801362c,
         0x8015374,
@@ -847,8 +914,8 @@ if __name__ == '__main__':
     # interrupt-vector-table as explained in applet/src/irq_handlers.c :
     # ex: new_adr = sapplet.getadr("SysTick_Handler"); # threw an exception when "not found" :(
     new_adr = sapplet.try_getadr("SysTick_Handler");
-    if 1==0:
-    #if new_adr != None:
+
+    if new_adr != None:
         vect_adr = 0x800C03C;  # address inside the VT for SysTick_Handler
         exp_adr  = 0x80D7233;  # expected 'old' content of the above VT entry
         old_adr  = merger.getword(vect_adr); # original content of the VT entry
@@ -864,7 +931,10 @@ if __name__ == '__main__':
            print("Cannot patch SysTick_Handler() !")
     else:
            print("No SysTick_Handler() found in the symbol table. Building firmware without.")
-
+		   
+    #Change TIM12 IRQ Handler to new one
+    merger.setword(0x0800c0ec, sapplet.getadr("New_TIM12_IRQHandler")+1);
+    
     print("Merging %s into %s at %08x" % (
         sys.argv[2],
         sys.argv[1],

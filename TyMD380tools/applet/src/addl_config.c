@@ -25,7 +25,7 @@ void cfg_read_struct(addl_config_t *cfg)
 
 void cfg_write_struct(addl_config_t *cfg)
 {
-	spiflash_write_with_type_check(cfg, spi_flash_addl_config_start, sizeof(addl_config_t));
+	md380_spiflash_write(cfg, spi_flash_addl_config_start, sizeof(addl_config_t));
 }
 
 uint8_t calc_crc(void *buf, int size)
@@ -102,6 +102,8 @@ int cfg_load()
 		return 0;
 	}
 
+	cfg_save();
+
 	return 1;
 }
 
@@ -109,6 +111,14 @@ void cfg_save()
 {
 	global_addl_config.crc = 0;
 	global_addl_config.length = sizeof(addl_config_t);
+
+	// The upper 4 bits must never be ZERO, to avoid 'complete darkness' of the display when ACTIVE .
+	// Because in some radios, the PWM caused audible hum, use max brightness per default:
+	// 2017-04-17 : Put this important note back in. Please don't remove this !
+	if (!(global_addl_config.backlight_intensities & 0xF0))
+	{
+		global_addl_config.backlight_intensities |= 0xF0;
+	}
 
 	global_addl_config.crc = calc_crc(&global_addl_config, sizeof(addl_config_t));
 

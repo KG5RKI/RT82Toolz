@@ -70,8 +70,6 @@ class MD380FW(object):
         #assert header[4] == self.bar
         #assert 0x8000000 <= header[6] < 0x8200000
         #assert header[7] == len(img) - 512
-        with open('C:/tyt/FW_2017_funkay.bin', 'wb') as f:
-            front = f.write(self.app[:rsrc_len])
         self.app = self.app[rsrc_len:]
 		
 
@@ -121,7 +119,7 @@ def main():
 
     if args.wrap:
 	
-        with open('C:/tyt/FW_2017_funkay.bin', 'rb') as f:
+        with open('C:/tyt/FW_2017_f.bin', 'rb') as f:
             front = f.read()
             input = front + input;
 	

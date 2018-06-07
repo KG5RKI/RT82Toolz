@@ -8,11 +8,12 @@ channelB                                 = 0x2001BF64 ;
 channelC                                 = 0x2001BFA4 ;
 channel_name                             = 0x2001C360 ;
 contact                                  = 0x2001C318 ;
-dmr_CSBK_handler                         = 0x804FA9D ;
+dmr_CSBK_handler                         = 0x0804FA9D ;
 dmr_before_squelch                       = 0x8047551 ;
 dmr_call_end                             = 0x804F539 ;
 dmr_call_start                           = 0x804E773 ;
-dmr_handle_data                          = 0x8053187 ;
+dmr_handle_data                          = 0x0806C981 ;
+dmr_sms_arrive                           = 0x0804EE89 ;
 draw_datetime_row                        = 0x800E541 ;
 draw_statusline                          = 0x8049749 ;
 draw_zone_channel                        = 0x800F321 ;
@@ -51,7 +52,7 @@ m_cntr2                                  = 0x2001CB58 ;
 main_menu                                = 0x805971D ;
 md380_CPS_version                        = 0x2001C98C ;
 md380_OSMboxPend                         = 0x8042933 ;
-md380_OSMboxPost                         = 0x803B17D ;
+md380_OSMboxPost                         = 0x08042A49 ;
 md380_RTC_GetDate                        = 0x803ADB7 ;
 md380_RTC_GetTime                        = 0x803AC83 ;
 md380_blockadr                           = 0x2001C9A4 ;
@@ -64,6 +65,7 @@ md380_dfutargetadr                       = 0x20001280 ;
 md380_itow                               = 0x801DF59 ;
 md380_lastheard_dest                     = 0x2001C9E0 ;
 md380_lastheard_dmrid                    = 0x2001C9DC ;
+md380_dmr_id                             = 0x2001C97C ;
 md380_menu_0x200011e4                    = 0x2000155C ;
 md380_menu_0x2001d3c1                    = 0x2001CC4E ;
 md380_menu_0x2001d3ed                    = 0x2001CC7F ;
@@ -115,6 +117,8 @@ bp_set_freq                              = 0x0804494F ;
 bp_tone_on                               = 0x08044982 ;
 bp_tone_off                              = 0x080449D2 ;
 OSSemPost                                = 0x08060C41 ;
+OSSemPend                                = 0x08060B51 ;
+OSSemCreate                              = 0x08060AFF ;
 ambe_mystery                             = 0x2000F6F0 ;
 ambe_decode_wav                          = 0x0807773D ;
 ambe_unpack                              = 0x0806C509 ;
@@ -122,3 +126,33 @@ ambe_encode_thing                        = 0x08077295 ;
 bp_2001CCF0                              = 0x2001CCF0 ;
 bp_freq                                  = 0x2001C89C ;
 IRQ_ORIGINAL_SYSTICK_HDLR                = 0x080D7232 ;
+
+channel_A_destination                    = 0x2001C2F4 ;
+
+
+
+radio_status_1                           = 0x2001C9EC ;
+micGainValue                             = 0x2001C93C ;
+currentMenuItemTitle                     = 0x2001C930 ;
+
+dmr_lc_header_buffer                     = 0x2001C51C ;
+PcTuneRelated                            = 0x2001CA88 ;
+q_status_4                               = 0x2001CA00 ; 
+beep_code_send                           = 0x2001CCF1 ;
+
+OS_ENTER_CRITICAL                        = 0x08060C9D ;
+OS_EXIT_CRITICAL                         = 0x08060CA5 ;
+
+sema1_poi                                = 0x2001CA54 ;
+event5_mbox_poi                          = 0x2001e658 ;
+event1_mbox_poi_radio                    = 0x2001e65c ;
+event3_mbox_poi                          = 0x2001CA70 ;
+event4_mbox_poi                          = 0x2001CA68 ;
+event2_mbox_poi_beep                     = 0x2001CA90 ;
+sema2_poi                                = 0x2001CA7C ;
+OSTaskCreateExt                          = 0x08062F5D ;
+OSTaskNameSet                            = 0x0806302A ;
+
+current_channel_info                     = 0x2001BE64 ;
+
+sub_805F562                              = 0x805F563 ;

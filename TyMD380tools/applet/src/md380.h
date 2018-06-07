@@ -19,6 +19,8 @@ void wstrhex(wchar_t *, long);
 
 // md380 dmr
 
+int sub_805F562(int dmr_src, int dmr_dst, uint8_t *buffer);
+
 //! Function that handles checking a DMR contact.
 void* dmr_call_end(void *pkt);
 //! Function that handles a DMR call.

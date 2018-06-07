@@ -298,11 +298,35 @@ int handle_hotkey( int keycode )
 		case 6:
 		{
 			static int cnt = 0;
+			syslog_clear();
+			lastheard_clear();
+			slog_clear();
+			clog_clear();
+			nm_started = 0;	// reset nm_start flag used for some display handling
+			nm_started5 = 0;	// reset nm_start flag used for some display handling
+			nm_started6 = 0;	// reset nm_start flag used for some display handling
+
+			uint32_t *ptrToData = 0x2001C2F4;
+
+			for (int i = 0; i < 8; i++) {
+				for (int x = 0; x < 8; x++) {
+					syslog_printf("%02X", *(uint8_t*)(ptrToData + ((i * 8) + x)));
+				}
+				syslog_printf(" ");
+				for (int x = 0; x < 8; x++) {
+					syslog_printf("%c", *(uint8_t*)(ptrToData + ((i * 8) + x)));
+				}
+				syslog_printf("\n");
+			}
+			syslog_redraw();
+			if (!Menu_IsVisible() && nm_screen) {
+				switch_to_screen(3);  //change this back to 3
+
+			}
 			//*(uint32_t*)0x2001C898 = 4000;
 			//*(uint32_t*)0x2001C8A0 = 4000;
 			//syslog_printf("=POKED 4000! %d=\n", cnt++);
 		}
-		syslog_dump_dmesg();
 		break;
 
 		/*case 10:
@@ -441,7 +465,6 @@ int is_intercept_allowed()
 	if (!is_netmon_enabled()){//|| Menu_IsVisible()) {
         return 0 ;
     }
-	
 
 	switch (gui_opmode2) {
 		case OPM2_MENU:
@@ -538,46 +561,57 @@ void kb_handle(int key) {
 void kb_handler_hook()
 {
 
-    trace_keyb(0);
+	trace_keyb(0);
 
-    kb_handler();
+	kb_handler();
 
-    trace_keyb(1);
+	trace_keyb(1);
 
 	//Menu_OnKey(KeyRowColToASCII(kb_row_col_pressed));
 
-	
+
 
 	if (nextKey > 0) {
 		kb_keypressed = 2;
 		kb_keycode = nextKey;
 		nextKey = -1;
 	}
-    
-    int kp = kb_keypressed ;
-    int kc = kb_keycode ;
+
+	int kp = kb_keypressed;
+	int kc = kb_keycode;
 
 	/*if (kc == 20 || kc == 21) {
 		kb_keypressed = 8;
 		return;
 	}*/
 
-    // allow calling of menu during qso.
-    // not working correctly.
+	// allow calling of menu during qso.
+	// not working correctly.
 	//if (kc == 3) {
 	//	copy_dst_to_contact();
 	//}
 	//copy_dst_to_contact();
-    if( is_intercept_allowed() ) 
+	if (is_intercept_allowed())
 	{
-        if( is_intercepted_keycode(kc) ) {
+		if (is_intercepted_keycode(kc)) {
 			if ((kp & 2) == 2) {
 				kb_keypressed = 8;
 				handle_hotkey(kc);
-                return ;
-            }
-        }
-    }
+				return;
+			}
+		}
+	}
+	/*else if (kc == 1) {
+		kb_keypressed = 8;
+		syslog_printf("\nDumpin...%X", ptrrr);
+		for (int i = 0; i < 0x20; i += 1) {
+			md380_spiflash_write((void*)(ptrrr + (i * 1024)), Flashadr + (i * 1024), 1024);
+			//syslog_printf("\n %x ...", i* 1024);
+		}
+		ptrrr += 0x20 * 1024;
+		Flashadr += 0x20 * 1024;
+		syslog_printf("\n %x ...", Flashadr);
+	}*/
 
    /* if ( kc == 17 || kc == 18 ) {
       if ( (kp & 2) == 2 || kp == 5 ) { // The reason for the bitwise AND is that kp can be 2 or 3

@@ -27,10 +27,12 @@
 
 #if (CONFIG_APP_MENU)
 //# include "app_menu.h"     // alternative menu, with faster text display
-//# include "lcd_driver.h"   // alternative LCD driver, less QRM, faster 
+//  // alternative LCD driver, less QRM, faster 
 //# include "irq_handlers.h" // stopwatch for periodic framebuffer updates 
 //# include "amenu_lastheard.h"
 #endif // CONFIG_APP_MENU ?
+
+# include "lcd_driver.h" 
 
 uint8_t nm_screen = 0 ;
 uint8_t nm_started = 0 ;
@@ -59,8 +61,7 @@ int progress = 0 ;
     extern uint16_t m_cntr2 ;
 //#endif
 
-uint8_t gui_opmode3 = 0xFF ;
-uint16_t m_cntr2 = 0x00;
+
 
     
 // mode2
@@ -119,15 +120,15 @@ void print_vce()
 
 void print_smeter()
 {
-   // extern uint8_t smeter_rssi ;
-   // con_printf("rssi:%d\n", smeter_rssi );
+	//extern uint8_t smeter_rssi;
+	//con_printf("rssi:%d\n", smeter_rssi);
 
 }
 
 //int hexScrollWindowIndex = 0x2001C19C;
 //int hexScrollWindowIndex = 0x2001BBEC;
 //int hexScrollWindowIndex = 0x2001BE30; //GOOD
-int hexScrollWindowIndex = 0x20014D80;
+//int hexScrollWindowIndex = 0x20014D80;
 
 void netmon1_update()
 {
@@ -141,122 +142,76 @@ void netmon1_update()
 
 	con_clrscr();
 
-	//con_printf("%c|%02d|%2d|%2d|%4d\n", c, gui_opmode1 & 0x7F, gui_opmode2, gui_opmode3, m_cntr2);
+	con_printf("%c|%02d|%2d|%2d|%4d\n", c, gui_opmode1 & 0x7F, gui_opmode2, gui_opmode3, m_cntr2);
 
-	char* pp = (char*)&contact;
 
-	//con_printf("con:%S\n", contact2.name);
-	//for (int i = 0; i < sizeof(contact_t); i+=4)
-	//{
-	//	con_printf("%02X%02X%02X%02X%c", pp[i], pp[i+1], pp[i+2], pp[i+3], ((i!=0) && i % 12 == 0 ? '\n' : '.'));
-	//}
-	/*con_printf("Addr:%08X\n", hexScrollWindowIndex);
-	char* hexa = (char*)hexScrollWindowIndex;
-	for (int i = 0; i < sizeof(contact_t); i+=4)
+	extern uint8_t channel_num;
+	con_printf("ch:%d ", channel_num);
+
+	con_printf("zn:%S\n", zone_name);
+	con_printf("con:%S\n", contact.name);
+
+	extern wchar_t channel_name[];
+	con_printf("cn:%S\n", channel_name);
+
 	{
-		con_printf("%02X%02X%02X%02X%c", hexa[i], hexa[i+1], hexa[i+2], hexa[i+3], ((i!=0) && i % 12 == 0 ? '\n' : '.'));
-	}*/
+		char *str = "?";
+		switch (last_radio_event) {
+		case 0x1:
+			str = "nosig";
+			break;
+		case 0x2:
+			str = "TX denied";
+			break;
+		case 0x3:
+			str = "FM";
+			break;
+		case 0x4:
+			str = "Out_of_sync"; // TS 102 361-2 clause p 5.2.1.3.2
+			break;
+		case 0x5:
+			str = "num5 0x5";
+			break;
+		case 0x7:
+			str = "RX csbk/idle";
+			break;
+		case 0x8:
+			str = "RX other"; // TS 102 361-2 clause p 5.2.1.3.2
+			break;
+		case 0x9:
+			str = "RX myreq"; // TS 102 361-2 clause p 5.2.1.3.2
+			break;
+		case 0xa:
+			str = "RX silence";
+			break;
+		case 0xd:
+			str = "num13 0xd";
+			break;
+		case 0xe:
+			str = "Wait_TX_Resp";
+			break;
+		}
+		con_printf("radio: %s\n", str);
+	}
+	{
+		con_printf("re:%02x be:%02x e3:%02x e4:%02x\ne5:%02x ", last_radio_event, last_event2, last_event3, last_event4, last_event5);
+	}
+	print_smeter();
 
-	con_printf("gui_opmode: %02X %02X %02X\n", gui_opmode1, gui_opmode2, gui_opmode3);
-	
-	//pp = (char*)&contact2;
-	//pp = (char*)0x2001A7A0;
-	//for (int i = 0; i < 0x30; i += 4)
-	//{
-	//	con_printf("%02X%02X%02X%02X%c", pp[i], pp[i + 1], pp[i + 2], pp[i + 3], ((i != 0) && i % 12 == 0 ? '\n' : '.'));
-	//}
-	/*int idd = (*(int*)0x2001C88C);
+	{
+		//        uint8_t *p = (void*)0x2001e5f0 ; // @D13
+		con_printf("st: %2x %2x %2x %2x\n",
+			radio_status_1.m0, radio_status_1.m1,
+			radio_status_1.m2, radio_status_1.m3);
+	} 
 
-	con_printf("\n2001C88C: %08X", idd);
+	{
+		// only valid when transmitting or receiving.
+		//uint32_t *recv = (void*)0x2001e5e4;
+		//con_printf("%d\n", *recv);
+	}
+ 
 
-	idd = (*(int*)0x2001C8A0);
-
-	con_printf("\nOldsrc: %d", idd);
-	idd = (*(int*)0x2001C898);
-
-	con_printf("\nmaybeID: %d", idd);*/
-
-	//idd = (*(int*)0x2001C89C); //this one is fast updating
-
-	//con_printf("\nCB2: %d", idd);
-
-
-    extern uint8_t channel_num ;
-    //con_printf("ch:%d ", channel_num ); 
-    
-    //con_printf("zn:%S\n",zone_name);
-	//con_printf("con:%S\n", contact.name);
-    
-    
-
-   // extern wchar_t channel_name[] ;
-   // con_printf("cn:%S\n",channel_name); 
-
-    {
-        char *str = "?" ;
-        switch( last_radio_event ) {
-            case 0x1 :
-                str = "nosig" ;
-                break ;
-            case 0x2 :
-                str = "TX denied" ;
-                break ;
-            case 0x3 :
-                str = "FM" ;
-                break ;
-            case 0x4 :
-                str = "Out_of_sync" ; // TS 102 361-2 clause p 5.2.1.3.2
-                break ;
-            case 0x5 :
-                str = "num5 0x5" ; 
-                break ;
-            case 0x7 :
-                str = "RX csbk/idle" ;
-                break ;
-            case 0x8 :
-                str = "RX other" ; // TS 102 361-2 clause p 5.2.1.3.2
-                break ;
-            case 0x9 :
-                str = "RX myreq" ; // TS 102 361-2 clause p 5.2.1.3.2
-                break ;
-            case 0xa :
-                str = "RX silence" ;
-                break ;
-            case 0xd :
-                str = "num13 0xd" ;
-                break ;
-            case 0xe :
-                str = "Wait_TX_Resp" ;
-                break ;
-        }
-        //con_printf("radio: %s\n", str);
-    }
-    {
-        //con_printf("re:%02x be:%02x e3:%02x e4:%02x\ne5:%02x ", last_radio_event, last_event2, last_event3, last_event4, last_event5 );
-    }
-    print_smeter();
-#if defined(FW_D13_020) || defined(FW_S13_020)
-    {
-//        uint8_t *p = (void*)0x2001e5f0 ; // @D13
-        con_printf("st: %2x %2x %2x %2x\n", 
-                radio_status_1.m0, radio_status_1.m1, 
-                radio_status_1.m2, radio_status_1.m3 );
-    }
-#endif    
-#ifdef FW_D13_020
-    {
-        // only valid when transmitting or receiving.
-        uint32_t *recv = (void*)0x2001e5e4 ;
-        con_printf("%d\n", *recv); 
-    }
-#endif    
-#ifdef FW_S13_020
-    {
-        // only valid when transmitting or receiving.
-        uint32_t *recv = (void*)0x2001e6b4 ;                    // needs to be confirmed!
-        con_printf("%d\n", *recv); 
-    }
-#endif     
 }
 
 void print_bcd( uint8_t bcd )
@@ -275,45 +230,39 @@ void printfreq( void *p2 )
 
 void netmon2_update()
 {
-	/*con_clrscr();
-	con_printf("kb_keycode: %d\n", kb_keycode);
-	con_printf("kb_keypressed: %d\n", kb_keypressed);
-	con_printf("kb_row_col_pressed: %d\n", kb_row_col_pressed);
-	*/
-	/*
-    con_clrscr();
+	con_clrscr();
+	channel_info_t *ci = &current_channel_info;
 
-    channel_info_t *ci = &current_channel_info ;
-    
-    {
-        con_printf("mde:%02x prv:%02x pow:%02x\n", ci->mode, ci->priv, ci->power );
-        
-        con_puts("rx:");
-        printfreq(&ci->rxf);
-        con_nl();
-        
-        con_puts("tx:");
-        printfreq(&ci->txf);
-        con_nl();
+	{
+		con_printf("mde:%02x prv:%02x pow:%02x\n", ci->mode, ci->priv, ci->power);
 
-        int cc = ( ci->cc_slot_flags >> 4 ) & 0xf ;
-        int ts1 = ( ci->cc_slot_flags >> 2 ) & 0x1 ;
-        int ts2 = ( ci->cc_slot_flags >> 3 ) & 0x1 ;
-        con_printf("cc:%d ts1:%d ts2:%d\n", cc, ts1, ts2 );
+		con_puts("rx:");
+		printfreq(&ci->rxf);
+		con_nl();
 
-        con_printf("cn:%S\n", ci->name ); // assume zero terminated.
-    }
+		con_puts("tx:");
+		printfreq(&ci->txf);
+		con_nl();
 
-    print_hdr();
-    print_vce();
-    */
-//    {
-//        extern uint32_t kb_handler_count ;
-//        extern uint32_t f4225_count ; 
-//
-//        con_printf("%d %d\n", kb_handler_count, f4225_count);
-//    }
+		int cc = (ci->cc_slot_flags >> 4) & 0xf;
+		int ts1 = (ci->cc_slot_flags >> 2) & 0x1;
+		int ts2 = (ci->cc_slot_flags >> 3) & 0x1;
+		con_printf("cc:%d ts1:%d ts2:%d\n", cc, ts1, ts2);
+
+		con_printf("cn:%S\n", ci->name); // assume zero terminated.
+	}
+
+	print_hdr();
+	print_vce();
+
+	//    {
+	//        extern uint32_t kb_handler_count ;
+	//        extern uint32_t f4225_count ; 
+	//
+	//        con_printf("%d %d\n", kb_handler_count, f4225_count);
+	//    }
 }
+
 
 void netmon3_update()
 {
@@ -646,9 +595,9 @@ void f_4225_hook()
 	if (is_netmon_visible() && nm_screen!=9) {
 
 		// steer back to idle screen, because that's the most intercepted.
-		if (gui_opmode2 == OPM2_VOICE) {
-			gui_opmode2 = OPM2_IDLE;
-		}
+		//if (gui_opmode2 == OPM2_VOICE) {
+		//	gui_opmode2 = OPM2_IDLE;
+		//}
 	}
 }
 

@@ -19,9 +19,12 @@
 //#define CONFIG_DMR
 #define CONFIG_MENU
 #define CONFIG_AES
+
+# define CONFIG_DIMMED_LIGHT 0
 #ifndef FW_D02_032  // Not for very old firmware (missing hooks..):
-# define CONFIG_DIMMED_LIGHT 1 // Dimmable backlight ? 0 or undef'd=no, 1=yes
-# define CONFIG_MORSE_OUTPUT 1 // Morse output ? 0 or undef'd=no, 1=yes
+// Dimmable backlight ? 0 or undef'd=no, 1=yes
+// Morse output ? 0 or undef'd=no, 1=yes
+# define CONFIG_MORSE_OUTPUT 1 
 # define CONFIG_APP_MENU 1 // Alternative 'application menu' ? 0=no, 1=yes
 #endif
 
