@@ -12,6 +12,7 @@
 #include "debug.h"
 #include "syslog.h"
 #include "usersdb.h"
+#include "amenu_set_tg.h"
 
 //#include <arpa/inet.h>
 
@@ -57,6 +58,10 @@ void rst_voice_lc_header(lc_t *lc)
 	if (groupcall)
 		g_src = src;
 
+	if (ad_hoc_talkgroup) {
+		lc->dst = set_adr(ad_hoc_talkgroup);
+	}
+
 	//updateSrcDst(src, dst);
     if( !rst_voice_active || rst_src != src || rst_dst != dst) {
 		updateSrcDst(src, dst);
@@ -92,6 +97,11 @@ void rst_term_with_lc(lc_t *lc)
 	int groupcall = flco == 0;
 	if (groupcall)
 		g_src = src;
+
+	if (ad_hoc_talkgroup) {
+		lc->dst = set_adr(ad_hoc_talkgroup);
+	}
+
 	if (rst_voice_active) {
 		updateSrcDst(src, dst);
 		PRINT("\n* Call from %d to %s%d ended.\n", src, groupcall ? "group " : "", dst);
@@ -216,6 +226,10 @@ void rst_data_header(void *data)
 	rst_hdr_src = get_adr(datahdr->src);
 	rst_hdr_dst = get_adr(datahdr->dst);
 
+	if (ad_hoc_talkgroup) {
+		datahdr->dst = set_adr(ad_hoc_talkgroup);
+	}
+
 	char ug = 'U';
 	if (grp) {
 		ug = 'G';
@@ -223,7 +237,7 @@ void rst_data_header(void *data)
 
 	LOGR("dh %c (%d) %d->%d %d\n", ug, rst_hdr_sap, rst_hdr_src, rst_hdr_dst, get_answer(data));
 
-	PRINT("sap=%d %s dpf=%d %s src=%d dst=%d btf=%d grp=%d\n", sap, sap_to_str(sap), dpf, dpf_to_str(dpf), get_adr(datahdr->src), get_adr(datahdr->dst), btf, grp);
+	syslog_printf("sap=%d %s dpf=%d %s src=%d dst=%d btf=%d grp=%d\n", sap, sap_to_str(sap), dpf, dpf_to_str(dpf), get_adr(datahdr->src), get_adr(datahdr->dst), btf, grp);
 
 	//    PRINT("data: ");
 	//    PRINTHEX(datahdr,12);

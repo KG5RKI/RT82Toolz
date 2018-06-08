@@ -20,7 +20,7 @@
 #define CONFIG_MENU
 #define CONFIG_AES
 
-# define CONFIG_DIMMED_LIGHT 0
+# define CONFIG_DIMMED_LIGHT 1
 #ifndef FW_D02_032  // Not for very old firmware (missing hooks..):
 // Dimmable backlight ? 0 or undef'd=no, 1=yes
 // Morse output ? 0 or undef'd=no, 1=yes

@@ -1230,10 +1230,10 @@ void create_menu_entry_set_tg_screen(void)
    }
 
    // load current tg into edit buffer (#708) :
-   //current_tg = (int) contact.id_h ;
-   //current_tg = (current_tg<<8) + (int) contact.id_m;
-   //current_tg = (current_tg<<8) + (int) contact.id_l;
-   //current_tg = rst_dst;
+   current_tg = (int) contact.id_h ;
+   current_tg = (current_tg<<8) + (int) contact.id_m;
+   current_tg = (current_tg<<8) + (int) contact.id_l;
+   current_tg = rst_dst;
 
    nchars = uli2w(current_tg, md380_menu_edit_buf);
    //nchars = 0;
@@ -1356,7 +1356,7 @@ void create_menu_entry_addl_functions_screen(void)
     mn_submenu_add_98(wt_datef, create_menu_entry_datef_screen);
     mn_submenu_add_98(wt_showcall, create_menu_entry_showcall_screen);
     //mn_submenu_add_98(wt_debug, create_menu_entry_debug_screen);
-    mn_submenu_add_98(wt_promtg, create_menu_entry_promtg_screen);
+    //mn_submenu_add_98(wt_promtg, create_menu_entry_promtg_screen);
     //mn_submenu_add_8a(wt_edit, create_menu_entry_edit_screen, 0); // disable this menu entry - no function jet
     //mn_submenu_add_8a(wt_edit_dmr_id, create_menu_entry_edit_dmr_id_screen, 1);
     //mn_submenu_add_8a(wt_set_tg_id, create_menu_entry_set_tg_screen, 1); // Brad's PR#708 already in use here (DL4YHF, since 2017-03)
@@ -1368,7 +1368,7 @@ void create_menu_entry_addl_functions_screen(void)
     
     mn_submenu_add_98(wt_config_reset, mn_config_reset);
 
-    mn_submenu_add(wt_backlight_menu, create_menu_entry_backlight_screen);
+    //mn_submenu_add(wt_backlight_menu, create_menu_entry_backlight_screen);
 #if( CONFIG_MORSE_OUTPUT )
     //mn_submenu_add(wt_morse_menu, create_menu_entry_morse_screen);
 #endif   
@@ -1449,8 +1449,8 @@ void md380_create_menu_entry_hook(int menu_id, const wchar_t *name, void* green_
 		logPtr = logBuffa + strlen((char*)&logBuffa);
 	}
 	
-	if (logPtr - logBuffa >= 1024)
-		md380_Flash_Log();
+	//if (logPtr - logBuffa >= 1024)
+		//md380_Flash_Log();
 
 	//  printhex2((char *) label,14);
 	//  printf("\n");

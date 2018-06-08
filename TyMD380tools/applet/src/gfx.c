@@ -939,7 +939,7 @@ void sub_801AC40(char *v0, int v1, int result, char *v3, char v4)
 
 void draw_adhoc_statusline()
 	{
-		int x = STATUS_X + 20;
+		int x = D_DATETIME_Y + 20;
 		int y = STATUS_Y - 4;
 		gfx_set_fg_color(0);
 		gfx_set_bg_color(0xff8032);

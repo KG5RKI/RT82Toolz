@@ -157,6 +157,10 @@ uint32_t ptrrr = 0x20000000 + 0x10000;
 
 extern void md380_Flash_Log();
 
+
+static uint32_t *ptrToData = 0x2001C2F4;
+
+
 int handle_hotkey( int keycode )
 {
 	char lat[23] = { 0 };
@@ -187,14 +191,14 @@ int handle_hotkey( int keycode )
 
 
 			//WORKS!!
-			syslog_printf("\nDumpin...%X", ptrrr);
-			for (i = 0; i < 0x20; i += 1) {
-				md380_spiflash_write((void*)(ptrrr +(i* 1024)), Flashadr + (i * 1024), 1024);
-				//syslog_printf("\n %x ...", i* 1024);
-			}
-			ptrrr += 0x20 * 1024;
-			Flashadr += 0x20 * 1024;
-			syslog_printf("\n %x ...", Flashadr);
+			////syslog_printf("\nDumpin...%X", ptrrr);
+			////for (i = 0; i < 0x20; i += 1) {
+			////	md380_spiflash_write((void*)(ptrrr +(i* 1024)), Flashadr + (i * 1024), 1024);
+			////	//syslog_printf("\n %x ...", i* 1024);
+			////}
+			////ptrrr += 0x20 * 1024;
+			////Flashadr += 0x20 * 1024;
+			////syslog_printf("\n %x ...", Flashadr);
 			
 			
 			//clog_redraw();
@@ -247,9 +251,13 @@ int handle_hotkey( int keycode )
 			//syslog_printf("\ngui_opmode3: %d", gui_opmode3);
 			break;
 
+		case 20:
 		case 2:
-			slog_redraw();
+			//ptrToData += 0x10;
+			//syslog_redraw();
 			switch_to_screen(1);
+			break;
+			
 			
 		//{
 		//	syslog_printf("FLASHERASE %08X \n", Flashadr);
@@ -306,15 +314,16 @@ int handle_hotkey( int keycode )
 			nm_started5 = 0;	// reset nm_start flag used for some display handling
 			nm_started6 = 0;	// reset nm_start flag used for some display handling
 
-			uint32_t *ptrToData = 0x2001C2F4;
-
-			for (int i = 0; i < 8; i++) {
-				for (int x = 0; x < 8; x++) {
-					syslog_printf("%02X", *(uint8_t*)(ptrToData + ((i * 8) + x)));
+			
+			syslog_printf("  ~ Hex - %08X ~ \n", *(uint32_t*)(ptrToData));
+			for (int i = 0; i < 6; i++) {
+				for (int x = 0; x < 6; x++) {
+					syslog_printf("%02X", *(uint8_t*)(ptrToData + x));
 				}
+				
 				syslog_printf(" ");
-				for (int x = 0; x < 8; x++) {
-					syslog_printf("%c", *(uint8_t*)(ptrToData + ((i * 8) + x)));
+				for (int x = 0; x < 6; x++) {
+					syslog_printf("%c", *(char*)(ptrToData++));
 				}
 				syslog_printf("\n");
 			}
@@ -328,32 +337,25 @@ int handle_hotkey( int keycode )
 			//syslog_printf("=POKED 4000! %d=\n", cnt++);
 		}
 		break;
-
-		/*case 10:
+		
+		//case 10:
 		case 13: //end call
-			//bp_send_beep(BEEP_TEST_1);
+				 //bp_send_beep(BEEP_TEST_1);
 			if (nm_screen) {
 				//channel_num = 0;
 				switch_to_screen(0);
-				return 1;
 				//if(Menu_IsVisible()){
 				//	channel_num = 0;
 				//}
 			}
 			else if (!Menu_IsVisible()) {
 				switch_to_screen(9);
-				//switch_to_screen(0);
-				//gui_opmode1 = SCR_MODE_IDLE | 0x80;
-				//switch_to_screen(9);
-				//switch_to_screen(0);
-
-				kb_keycode = 10;
-				kb_keypressed = 2;
-				kb_handler();
-				return 1;
+				switch_to_screen(0);
 			}
 			break;
-			*/
+			
+			
+
 		//case 10:
 		case 7:
 			//Let 7 disable ad-hoc tg mode;
@@ -372,13 +374,15 @@ int handle_hotkey( int keycode )
 			}*/
 
 			break;
+		//case 21:
 		case 8:
+			//ptrToData -= 0x10;
 			//bp_send_beep(BEEP_TEST_2);
 			switch_to_screen(1);
 			break;
 		case 9:
 			//bp_send_beep(BEEP_TEST_3);
-			syslog_redraw();
+			
 			switch_to_screen(2);
 			break;
 		case 11:
@@ -387,6 +391,8 @@ int handle_hotkey( int keycode )
 			//beep_event_probe++ ;
 			//sms_test2(beep_event_probe);
 			//mb_send_beep(beep_event_probe);
+			//ptrToData -= 0x10;
+			//syslog_redraw();
 			break;
 		case 12:
 			//gui_control(241);
@@ -394,6 +400,8 @@ int handle_hotkey( int keycode )
 			//beep_event_probe-- ;
 			//sms_test2(beep_event_probe);
 			//mb_send_beep(beep_event_probe);
+			ptrToData += 0x10;
+			syslog_redraw();
 			break;
 		
 			// key '*'
@@ -455,7 +463,7 @@ void trace_keyb(int sw)
     uint8_t kp = kb_keypressed ;
     
     if( old_kp != kp ) {
-        //LOGB("kp: %d %02x -> %02x (%04x) (%d)\n", sw, old_kp, kp, kb_row_col_pressed, kb_keycode );
+		syslog_printf("kp: %d %02x -> %02x (%04x) (%d)\n", sw, old_kp, kp, kb_row_col_pressed, kb_keycode );
         old_kp = kp ;
     }
 }
@@ -504,10 +512,10 @@ int is_intercepted_keycode( int kc )
         case 7 :
         case 8 :
         case 9 :
-		//case 10:
-        //case 11 :
-        //case 12 :
-		//case 13 : //end call
+		case 10:
+        case 11 :
+        case 12 :
+		case 13 : //end call
 		case 14 : // *
         case 15 : // #
             return 1 ;
@@ -520,9 +528,9 @@ int is_intercepted_keycode2(int kc)
 {
 	switch (kc) {
 	
-	//case 10:
-	//case 20:
-	//case 21:
+	case 10:
+	case 20:
+	case 21:
 	//case 13: //end call
 	//	return 1;
 	default:
@@ -561,14 +569,14 @@ void kb_handle(int key) {
 void kb_handler_hook()
 {
 
-	trace_keyb(0);
+	//trace_keyb(0);
 
 	kb_handler();
 
-	trace_keyb(1);
+	//trace_keyb(1);
 
 	//Menu_OnKey(KeyRowColToASCII(kb_row_col_pressed));
-
+	//kb code down side 23
 
 
 	if (nextKey > 0) {

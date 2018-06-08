@@ -183,6 +183,15 @@ void dmr_CSBK_handler_hook(uint8_t *pkt)
 //    PRINT("CSBK: ");
 //    PRINTHEX(pkt,14);
 //    PRINT("\n");
+	lc_t *lc = (void*)(pkt + 2);
+
+	int src = get_adr(lc->src);
+	int dst = get_adr(lc->dst);
+	int flco = get_flco(lc);
+
+	if (ad_hoc_talkgroup) {
+		lc->dst = set_adr(ad_hoc_talkgroup);
+	}
 
     dmr_CSBK_handler(pkt);
 }
