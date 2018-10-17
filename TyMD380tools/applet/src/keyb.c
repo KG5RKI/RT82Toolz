@@ -251,7 +251,7 @@ int handle_hotkey( int keycode )
 			//syslog_printf("\ngui_opmode3: %d", gui_opmode3);
 			break;
 
-		case 20:
+		//case 20:
 		case 2:
 			//ptrToData += 0x10;
 			//syslog_redraw();
@@ -285,7 +285,7 @@ int handle_hotkey( int keycode )
 				copy_dst_to_contact();
 			else {
 				ad_hoc_talkgroup = 0;
-				syslog_printf("Cleared AdHocTG\r\n");
+				syslog_printf("Cleared AdHocTG\n");
 			}
 			//switch_to_screen(9);
 			break;
@@ -339,7 +339,7 @@ int handle_hotkey( int keycode )
 		break;
 		
 		//case 10:
-		case 13: //end call
+		/*case 13: //end call
 				 //bp_send_beep(BEEP_TEST_1);
 			if (nm_screen) {
 				//channel_num = 0;
@@ -354,7 +354,7 @@ int handle_hotkey( int keycode )
 			}
 			break;
 			
-			
+			*/
 
 		//case 10:
 		case 7:
@@ -385,24 +385,24 @@ int handle_hotkey( int keycode )
 			
 			switch_to_screen(2);
 			break;
-		case 11:
+		//case 11:
 			//gui_control(1);
 			//bp_send_beep(BEEP_9);
 			//beep_event_probe++ ;
 			//sms_test2(beep_event_probe);
 			//mb_send_beep(beep_event_probe);
-			//ptrToData -= 0x10;
-			//syslog_redraw();
-			break;
-		case 12:
+		//	ptrToData -= 0x10;
+		//	syslog_redraw();
+		////	break;
+		//case 12:
 			//gui_control(241);
 			//bp_send_beep(BEEP_25);
 			//beep_event_probe-- ;
 			//sms_test2(beep_event_probe);
 			//mb_send_beep(beep_event_probe);
-			ptrToData += 0x10;
-			syslog_redraw();
-			break;
+		//	ptrToData += 0x10;
+		//	syslog_redraw();
+		//	break;
 		
 			// key '*'
 		case 14:
@@ -413,6 +413,7 @@ int handle_hotkey( int keycode )
 			else if (nm_screen == 9) {
 
 				switch_to_screen(0);
+				switch_to_screen(9);
 			}
 			break;
 
@@ -463,16 +464,16 @@ void trace_keyb(int sw)
     uint8_t kp = kb_keypressed ;
     
     if( old_kp != kp ) {
-		syslog_printf("kp: %d %02x -> %02x (%04x) (%d)\n", sw, old_kp, kp, kb_row_col_pressed, kb_keycode );
+		//syslog_printf("kp: %d %02x -> %02x (%04x) (%d)\n", sw, old_kp, kp, kb_row_col_pressed, kb_keycode );
         old_kp = kp ;
     }
 }
 
 int is_intercept_allowed()
 {
-	if (!is_netmon_enabled()){//|| Menu_IsVisible()) {
-        return 0 ;
-    }
+	if (!is_netmon_enabled()) {//|| Menu_IsVisible()) {
+		return 0;
+	}
 
 	switch (gui_opmode2) {
 		case OPM2_MENU:
@@ -502,7 +503,7 @@ int is_intercept_allowed()
 int is_intercepted_keycode( int kc )
 {
     switch( kc ) {
-		//case 0 :
+		case 0 :
         case 1 :
 		case 2 :
         case 3 :
@@ -515,7 +516,7 @@ int is_intercepted_keycode( int kc )
 		case 10:
         case 11 :
         case 12 :
-		case 13 : //end call
+		//case 13 : //end call
 		case 14 : // *
         case 15 : // #
             return 1 ;
@@ -532,7 +533,7 @@ int is_intercepted_keycode2(int kc)
 	case 20:
 	case 21:
 	//case 13: //end call
-	//	return 1;
+		return 1;
 	default:
 		return 0;
 	}
@@ -545,7 +546,7 @@ static int nextKey = -1;
 void kb_handle(int key) {
 	int kp = kb_keypressed;
 	int kc = key;
-
+	//return;
 	/*if (key == 11 || key == 12) {
 		kb_keycode = key;
 		kb_keypressed = 2;
@@ -561,6 +562,7 @@ void kb_handle(int key) {
 				return;
 			}
 		}
+		
 	}
 
 
@@ -569,11 +571,11 @@ void kb_handle(int key) {
 void kb_handler_hook()
 {
 
-	//trace_keyb(0);
+	trace_keyb(0);
 
 	kb_handler();
 
-	//trace_keyb(1);
+	trace_keyb(1);
 
 	//Menu_OnKey(KeyRowColToASCII(kb_row_col_pressed));
 	//kb code down side 23
@@ -599,27 +601,39 @@ void kb_handler_hook()
 	//	copy_dst_to_contact();
 	//}
 	//copy_dst_to_contact();
-	if (is_intercept_allowed())
-	{
-		if (is_intercepted_keycode(kc)) {
+
+
+
+	/*if (key == 11 || key == 12) {
+	kb_keycode = key;
+	kb_keypressed = 2;
+	}*/
+
+	if (is_intercept_allowed() || nm_screen) {
+		if (is_intercepted_keycode(kc) || is_intercepted_keycode2(kc)) {
 			if ((kp & 2) == 2) {
-				kb_keypressed = 8;
 				handle_hotkey(kc);
+				if (nm_screen) {
+					kb_keypressed = 8;
+				}
 				return;
 			}
 		}
-	}
-	/*else if (kc == 1) {
-		kb_keypressed = 8;
-		syslog_printf("\nDumpin...%X", ptrrr);
-		for (int i = 0; i < 0x20; i += 1) {
-			md380_spiflash_write((void*)(ptrrr + (i * 1024)), Flashadr + (i * 1024), 1024);
-			//syslog_printf("\n %x ...", i* 1024);
+		else if (kc == 13) {
+			if (nm_screen) {
+				switch_to_screen(0);
+			}
+			/*else if (nm_screen == 9 || gui_opmode2  !nm_screen && ((kp & 2) == 2 || kp == 5 || (kp&1)))) {
+				switch_to_screen(9);
+				switch_to_screen(0);
+			}*/
+		}//end call)
+		//while in netmon hook all button inputs, set event as handled so it doesnt get passed to kernel
+		else if (nm_screen) {
+			kb_keypressed = 8;
 		}
-		ptrrr += 0x20 * 1024;
-		Flashadr += 0x20 * 1024;
-		syslog_printf("\n %x ...", Flashadr);
-	}*/
+
+	}
 
    /* if ( kc == 17 || kc == 18 ) {
       if ( (kp & 2) == 2 || kp == 5 ) { // The reason for the bitwise AND is that kp can be 2 or 3

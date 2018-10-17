@@ -116,11 +116,12 @@
     <ExecutablePath>C:\Windows\System32;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
-    <NMakeBuildCommandLine>"C:\Program Files (x86)\Atollic\TrueSTUDIO for STM32 9.0.1\Tools\make.exe" flash_FW_2017_nonGPS</NMakeBuildCommandLine>
-    <NMakeCleanCommandLine>"C:\Program Files (x86)\Atollic\TrueSTUDIO for STM32 9.0.1\Tools\make.exe" clean</NMakeCleanCommandLine>
-    <NMakeReBuildCommandLine>"C:\Program Files (x86)\Atollic\TrueSTUDIO for STM32 9.0.1\Tools\make.exe" flash_FW_2017_GPS</NMakeReBuildCommandLine>
+    <NMakeBuildCommandLine>make flash_FW_2017_nonGPS</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>make clean</NMakeCleanCommandLine>
+    <NMakeReBuildCommandLine>make flash_FW_2017_GPS</NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>CONFIG_SPIFLASH;CONFIG_GRAPHICS;CONFIG_SPIF5000;CONFIG_AMBE;CONFIG_AES;CONFIG_MORSE_OUTPUT;CONFIG_DIMMED_LIGHT;CONFIG_APP_MENU;FW_D13_020;WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <ExecutablePath>C:\cygwin64\bin;C:\Windows\System32;$(ExecutablePath)</ExecutablePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)\applet\lib\inc;$(ProjectDir)\applet\lib\inc\core;$(ProjectDir)\applet\lib\inc\peripherals;C:\Program Files (x86)\GNU Tools Arm Embedded\7 2018-q2-update\arm-none-eabi\include</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <NMakeBuildCommandLine>make flash</NMakeBuildCommandLine>

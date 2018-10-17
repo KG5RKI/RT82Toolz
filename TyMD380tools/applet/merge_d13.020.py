@@ -199,9 +199,9 @@ if __name__ == '__main__':
     
     merger.hookstub(0x08016a96,
                     sapplet.getadr("loadfirmwareversion_hook"))
-    merger.hookbl(0x0808eb66,  # Call to usb_dfu_upload().
+    merger.hookbl(0x080D10A1,  # Call to usb_dfu_upload().
                   sapplet.getadr("usb_upld_hook"),
-                  0x0808f308)  # Old handler adr.
+                  0)  # Old handler adr.
 
     merger.hookbl(0x80408e0,  # Call to dmr_call_end()
                   sapplet.getadr("dmr_call_end_hook"))

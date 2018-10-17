@@ -107,7 +107,7 @@ testTG                                   = 0x2001C318 ;
 toplinetext                              = 0x2001C92C ;
 usb_dnld_handle                          = 0x80D1165 ;
 usb_send_packet                          = 0x807CEB3 ;
-usb_upld_handle                          = 0x80D1901 ;
+usb_upld_handle                          = 0x080D1901 ;
 zone_name                                = 0x2001AA70 ;
 OSTimeDly                                = 0x08049BAD ;
 bp_sempost                               = 0x08043608 ;
@@ -156,3 +156,4 @@ OSTaskNameSet                            = 0x0806302A ;
 current_channel_info                     = 0x2001BE64 ;
 
 sub_805F562                              = 0x805F563 ;
+usb_do_setup                             = 0x080D107F;

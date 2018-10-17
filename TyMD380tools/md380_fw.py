@@ -18,7 +18,7 @@ class MD380FW(object):
         self.magic = b'OutSecurityBin'
         self.jst = b'MD-9600\x00\x00'
         self.foo = '\x30\x02\x00\x30\x00\x40\x00\x47'
-        self.bar = ('\x02\x18\x0C\x03\x04\x05\x06\x07'
+        self.bar = ('\x02\x19\x0C\x03\x04\x05\x06\x07'
                     '\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
                     '\x10\x11\x12\x13\x14\x15\x16\x17'
                     '\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f'
@@ -30,7 +30,6 @@ class MD380FW(object):
         self.header_fmt = '<16s9s7s16s33s43s8sLLL112s'
         self.footer_fmt = '<240s16s'
         self.rsrcSize = 0x5D400
-        #self.rsrcSize = 0x59800
 
     def pad(self, align=512, byte=b'\xff'):
         pad_length = (align - len(self.app) % align) % align
@@ -70,10 +69,10 @@ class MD380FW(object):
         #assert header[4] == self.bar
         #assert 0x8000000 <= header[6] < 0x8200000
         #assert header[7] == len(img) - 512
-        with open('C:/tyt/FW_2017_funkay.bin', 'wb') as f:
-            front = f.write(self.app[:rsrc_len])
+        header_rsrc_thingy = self.app[:rsrc_len]
+        with open("FW_2017_f.bin", 'wb') as f:
+            f.write(header_rsrc_thingy)
         self.app = self.app[rsrc_len:]
-		
 
     def crypt(self, data):
         return self.xor(data, self.key)
@@ -121,7 +120,7 @@ def main():
 
     if args.wrap:
 	
-        with open('C:/tyt/FW_2017_funkay.bin', 'rb') as f:
+        with open('RT82_static_rsrc.bin', 'rb') as f:
             front = f.read()
             input = front + input;
 	

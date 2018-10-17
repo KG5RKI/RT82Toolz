@@ -663,7 +663,7 @@ void gfx_drawbmp_hook( void *bmp, int x, int y )
     }
 }
 
-const wchar_t TyToolzStr[11] = L"TyToolz Ver";
+const wchar_t TyToolzStr[11] = L"Toolz_V1.0";
 
 // r0 = str, r1 = x, r2 = y, r3 = xlen
 void gfx_drawtext2_hook(wchar_t *str, int x, int y, int xlen)
@@ -939,8 +939,8 @@ void sub_801AC40(char *v0, int v1, int result, char *v3, char v4)
 
 void draw_adhoc_statusline()
 	{
-		int x = D_DATETIME_Y + 20;
-		int y = STATUS_Y - 4;
+		int x =  20;
+		int y = 96 - 4;
 		gfx_set_fg_color(0);
 		gfx_set_bg_color(0xff8032);
 		gfx_select_font(gfx_font_small);
@@ -952,11 +952,11 @@ void draw_adhoc_statusline()
 			user_t usr;
 			if (usr_find_by_dmrid(&usr, tgNum) != 0 && cfg_tst_display_flag(&global_addl_config, ShowLabelTG)) {
 				//gfx_printf_pos2(x, y, 320, "%s - %d", (ad_hoc_call_type == CONTACT_GROUP ? "TG" : "Priv"), ad_hoc_talkgroup);
-				gfx_printf_pos2(x, y, 120, "%s%s", (ad_hoc_tg_channel ? "* " : ""), usr.callsign);
+				gfx_printf_pos2(RX_POPUP_X_START+3, 88, 20, "%s%s", (ad_hoc_tg_channel ? "* " : ""), usr.callsign);
 			}
 			else {
 				//gfx_printf_pos2(x, y, 320, "%s - %s", (ad_hoc_call_type == CONTACT_GROUP ? "TG" : "Priv"), usr.callsign);
-				gfx_printf_pos2(x, y, 120, "%s%s %d", (ad_hoc_tg_channel ? "* " : ""), (callType == CONTACT_GROUP ? "TG" : "Priv"), tgNum);
+				gfx_printf_pos2(RX_POPUP_X_START+3, 88, 20, "%s%s %d", (ad_hoc_tg_channel ? "* " : ""), (callType == CONTACT_GROUP ? "TG" : "Priv"), tgNum);
 			}
 		}
 		//draw_extra_info();
@@ -978,14 +978,17 @@ void draw_datetime_row_hook()
 	if (is_netmon_visible()) {
 		return;
 	}
-	if (ad_hoc_talkgroup)
-	{
-		draw_adhoc_statusline();
-	}
+	
 	if (is_statusline_visible()) {
-		draw_alt_statusline();
+		if (ad_hoc_talkgroup)
+		{
+			draw_adhoc_statusline();
+		}
 		return;
 	}
-	draw_datetime_row();
+	else {
+		draw_datetime_row();
+	}
+	
 
 }

@@ -9,7 +9,7 @@ unwrapped.img:
 
 .PHONY: patched.img
 patched.img: unwrapped.img
-	./patch.py
+	python ./patch.py
 	#../../md380-gfx --firmware=patched.img --gfx=replacement-font-big-latin.pbm fontreplace
 	#../../md380-gfx --firmware=patched.img --gfx=replacement-font-small-latin.pbm fontreplace
 	#../../md380-gfx --firmware=patched.img --dir ./extrsc4 extract

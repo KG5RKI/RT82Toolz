@@ -78,9 +78,9 @@ int cfg_load()
 	R(global_addl_config.alt_text, 1);
 
 	// restore dmrid
-	if ((global_addl_config.cp_override & CPO_DMR) == CPO_DMR) {
-		md380_radio_config.dmrid = global_addl_config.dmrid;
-	}
+	//if ((global_addl_config.cp_override & CPO_DMR) == CPO_DMR) {
+	//	md380_radio_config.dmrid = global_addl_config.dmrid;
+	//}
 
 	//    // restore radio name
 	//    if (global_addl_config.userscsv == 1) {

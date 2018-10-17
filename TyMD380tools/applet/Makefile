@@ -1,7 +1,7 @@
 
 MKLISTING=1
 
-FW ?= D13_020
+FW ?= FW_2017_nonGPS
 
 ifeq (,$(wildcard mark.tmp))
 	# not exists
@@ -50,8 +50,8 @@ endif
 SRCS  = main.o printf.o dmesg.o system_stm32f4xx.o debug.o os.o
 SRCS += spiflash.o usb.o usersdb.o
 SRCS += radiostate.o etsi.o dmr.o 
-SRCS += gfx.o keyb.o lastheard.o console.o syslog.o netmon.o 
-SRCS += menu.o addl_config.o util.o ambe.o beep.o font_8_8.o lcd_driver.o irq_handlers.o timer.o
+SRCS += gfx.o keyb.o lastheard.o console.o lcd_driver.o syslog.o netmon.o 
+SRCS += menu.o addl_config.o util.o ambe.o beep.o font_8_8.o irq_handlers.o timer.o  
 
 ###################################################
 
@@ -116,7 +116,7 @@ base.img:
 	
 merged.img: applet.img base.img   
 	cp ../patches/$(PATCHDIR)/patched.img ./merged.img
-	python2 merge_$(SRCVERSION).py merged.img applet.img $(MERGEBASE)
+	python merge_$(SRCVERSION).py merged.img applet.img $(MERGEBASE)
 
 #patched.bin: proj
 #	"${MAKE}" -C ../patches/$(PATCHDIR) patched.img
@@ -124,7 +124,8 @@ merged.img: applet.img base.img
 
 #The wrapped file is the one that works with the Windows updater.
 wrapped.bin: merged.img
-	../md380-fw --wrap merged.img wrapped.bin
+	cp ../firmware/bin/RT82_static_rsrc.bin ./RT82_static_rsrc.bin
+	python ../md380_fw.py --wrap merged.img wrapped.bin
 
 experiment.bin: wrapped.bin
 	cp wrapped.bin experiment.bin

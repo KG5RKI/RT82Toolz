@@ -79,7 +79,8 @@ flash_FW_2017_nonGPS: image_2017_nonGPS
 	./md380-dfu upgrade applet/experiment2222.bin
 
 flash_FW_2017_GPS: image_2017_GPS
-	./md380-dfu upgrade applet/experiment2222.bin
+	echo "Need to fix auto flashing from script, otherwise firmware is built!"
+	#./md380-dfu upgrade applet/experiment2222.bin
 
 sync:
 	"${MAKE}" -C annotations sync
