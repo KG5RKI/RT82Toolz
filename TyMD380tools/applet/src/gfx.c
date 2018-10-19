@@ -804,18 +804,19 @@ unsigned int color = rgb(fValue / 500.0f);
 // and that it fills all background
 void gfx_printf_pos2(int x, int y, int xlen, const char *fmt, ...)
 {
-    char buf[50];
+    char buf[100];
     
     va_list va;
     va_start(va, fmt);
 
 	//swapFGBG();
     
-    va_snprintf(buf, 50, fmt, va );
+    va_snprintf(buf, 100, fmt, va );
     gfx_drawtext7(buf,x,y);
     gfx_clear3( xlen );
     
     va_end(va);        
+
     
 }
 
@@ -859,8 +860,11 @@ void draw_alt_statusline()
 {
 	int src;
 
+	//gfx_set_fg_color(0xFFAA55);
+	//gfx_blockfill(STATUS_LINE_X_START, STATUS_LINE_Y_START, STATUS_LINE_X_START + 94, STATUS_LINE_Y_START + 12);
+
 	gfx_set_fg_color(0);
-	gfx_set_bg_color(0xff8032);
+	gfx_set_bg_color(0xFFAA55);
 	gfx_select_font(gfx_font_small);
 
 	char mode = ' ';
@@ -879,42 +883,42 @@ void draw_alt_statusline()
 	if (src == 0) {
 		if (global_addl_config.datef == 5 || global_addl_config.datef >= 7)
 		{
-			gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:");
+			gfx_printf_pos2(STATUS_LINE_X_START, STATUS_LINE_Y_START, 120, "lh:                                                ");
 		}
 		else {
-			gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "TA:");
+			gfx_printf_pos2(STATUS_LINE_X_START, STATUS_LINE_Y_START, 120, "TA:                                                ");
 		}
 	}
 	else {
 		if (global_addl_config.datef == 6 && talkerAlias.length > 0)				// 2017-02-18 show talker alias in status if rcvd valid
 		{
-			gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "TA: %s", talkerAlias.text);
+			gfx_printf_pos2(STATUS_LINE_X_START, STATUS_LINE_Y_START, 120, "TA: %s                                                ", talkerAlias.text);
 		}
 		else {										// 2017-02-18 otherwise show lastheard in status line
 
 			if (usr_find_by_dmrid(&usr, src) == 0) {
 				if (usr_find_by_dmrid(&usr2, rst_dst) != 0 && cfg_tst_display_flag(&global_addl_config, ShowLabelTG)) {
-					gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%d->%s %c", src, usr2.callsign, mode);
+					gfx_printf_pos2(STATUS_LINE_X_START, STATUS_LINE_Y_START, 120, "lh:%d->%s %c                                                ", src, usr2.callsign, mode);
 				}
 				else {
-					gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%d->%d %c", src, rst_dst, mode);
+					gfx_printf_pos2(STATUS_LINE_X_START, STATUS_LINE_Y_START, 120, "lh:%d->%d %c                                                ", src, rst_dst, mode);
 				}
 			}
 			else {
 
 				if (usr_find_by_dmrid(&usr2, rst_dst) != 0 && cfg_tst_display_flag(&global_addl_config, ShowLabelTG)) {
 					if (global_addl_config.datef == 7) {
-						gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%s %s->%d %c", usr.callsign, usr.firstname, rst_dst, mode);
+						gfx_printf_pos2(STATUS_LINE_X_START, STATUS_LINE_Y_START, 120, "lh:%s %s->%d %c                                                ", usr.callsign, usr.firstname, rst_dst, mode);
 					}
 					else if (global_addl_config.datef == 8) {
-						gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%s %s->%s %c", usr.callsign, usr.firstname, usr2.callsign, mode);
+						gfx_printf_pos2(STATUS_LINE_X_START, STATUS_LINE_Y_START, 120, "lh:%s %s->%s %c                                                ", usr.callsign, usr.firstname, usr2.callsign, mode);
 					}
 					else {
-						gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%s->%s %c", usr.callsign, usr2.callsign, mode);
+						gfx_printf_pos2(STATUS_LINE_X_START, STATUS_LINE_Y_START, 120, "lh:%s->%s %c                                                ", usr.callsign, usr2.callsign, mode);
 					}
 				}
 				else {
-					gfx_printf_pos2(RX_POPUP_X_START, 96, 157, "lh:%s %s->%d %c", usr.callsign, (global_addl_config.datef == 7 ? usr.firstname : " "), rst_dst, mode);
+					gfx_printf_pos2(STATUS_LINE_X_START, STATUS_LINE_Y_START, 120, "lh:%s %s->%d %c                                                ", usr.callsign, (global_addl_config.datef == 7 ? usr.firstname : " "), rst_dst, mode);
 				}
 			}
 		}
@@ -980,10 +984,11 @@ void draw_datetime_row_hook()
 	}
 	
 	if (is_statusline_visible()) {
-		if (ad_hoc_talkgroup)
+		/*if (ad_hoc_talkgroup)
 		{
 			draw_adhoc_statusline();
-		}
+		}*/
+		draw_alt_statusline();
 		return;
 	}
 	else {
