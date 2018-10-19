@@ -25,7 +25,7 @@ void cfg_read_struct(addl_config_t *cfg)
 
 void cfg_write_struct(addl_config_t *cfg)
 {
-	md380_spiflash_write(cfg, spi_flash_addl_config_start, sizeof(addl_config_t));
+	md380_spiflash_write(cfg, spi_flash_addl_config_start, 1024);
 }
 
 uint8_t calc_crc(void *buf, int size)
