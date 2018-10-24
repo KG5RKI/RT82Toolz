@@ -415,7 +415,7 @@ void netmon6_update()
     char clog = 'c';
 
     if ( nm_started6 == 0 ) {
-        clog_printf("Netmon 6 RX channel ========\n");
+       // clog_printf("Netmon 6 RX channel ========\n");
         nm_started6 = 1;                        // flag for restart of LH list
         ch_cnt = 1;                             // reset lh counter 
     }   
@@ -443,13 +443,14 @@ void netmon6_update()
 
 void netmon7_update()
 {
-	clog_draw_poll();
+	//clog_clear();
 
 	extern wchar_t channel_name[20];           // read current channel name from external  
 	static int ch_cnt = 0;                     // lastheard line counter
 	char clog = 'c';
 
-	if (nm_started7 == 0) {
+	if (nm_started7 == 0) 
+	{
 		clog_printf("==== ALT_MENU ====\n");
 		nm_started7 = 1;                        // flag for restart of LH list
 		ch_cnt = 1;                             // reset lh counter 
@@ -457,16 +458,17 @@ void netmon7_update()
 
 
 		clog_printf("\n[3] - Set/Clear AdHoc TG\n");
-		clog_printf("[4] - Netmon 4\n");
+		clog_printf("[4] - Last Heard\n");
 		clog_printf("[5] - Clear all logs\n");
-		clog_printf("[6] - Dump dbg log\n");
+		clog_printf("[6] - Hex Dump\n");
+		clog_printf("[7] - Back\n");
+		clog_printf("[8-9] - RF Params\n");
 		clog_printf("[*] - Toggle RX Scrn\n");
 		clog_printf("[#] - Syslog / AltMenu\n");
-		clog_printf("[7] - Back\n");
+		
 	}
 
-	
-
+	clog_redraw();
 }
 
 void netmon_update()

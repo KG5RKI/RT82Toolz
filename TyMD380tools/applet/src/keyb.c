@@ -160,7 +160,7 @@ extern void md380_Flash_Log();
 
 static uint32_t *ptrToData = 0x2001C2F4;
 
-
+extern uint8_t nm_started7;
 int handle_hotkey( int keycode )
 {
 	char lat[23] = { 0 };
@@ -421,18 +421,22 @@ int handle_hotkey( int keycode )
 		case 15:
 
 			if (!Menu_IsVisible() && nm_screen) {
-				syslog_redraw();
-				switch_to_screen(3);  //change this back to 3
-				
+				switch_to_screen(3);
+
+				//change this back to 3
+
 			}
+			
+				
 			break;
 		}
 	}
 	else {
 		if (keycode == 15 ) {
 			if (!Menu_IsVisible()) {
-				syslog_redraw();
-				switch_to_screen(3);
+				//syslog_redraw();
+				switch_to_screen(7);
+				clog_redraw();
 			}
 		}
 		else if (keycode == 14 && !nm_screen) {
