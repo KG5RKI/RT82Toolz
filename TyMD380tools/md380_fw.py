@@ -70,7 +70,7 @@ class MD380FW(object):
         #assert 0x8000000 <= header[6] < 0x8200000
         #assert header[7] == len(img) - 512
         header_rsrc_thingy = self.app[:rsrc_len]
-        with open("FW_2017_f.bin", 'wb') as f:
+        with open("RT82_header_rsrc.bin", 'wb') as f:
             f.write(header_rsrc_thingy)
         self.app = self.app[rsrc_len:]
 
@@ -120,7 +120,7 @@ def main():
 
     if args.wrap:
 	
-        with open('RT82_static_rsrc.bin', 'rb') as f:
+        with open('RT82_header_rsrc.bin', 'rb') as f:
             front = f.read()
             input = front + input;
 	

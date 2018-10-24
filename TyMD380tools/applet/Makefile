@@ -124,7 +124,7 @@ merged.img: applet.img base.img
 
 #The wrapped file is the one that works with the Windows updater.
 wrapped.bin: merged.img
-	cp ../firmware/bin/RT82_static_rsrc.bin ./RT82_static_rsrc.bin
+	cp ../firmware/RT82_header_rsrc.bin ./RT82_header_rsrc.bin
 	python ../md380_fw.py --wrap merged.img wrapped.bin
 
 experiment.bin: wrapped.bin
