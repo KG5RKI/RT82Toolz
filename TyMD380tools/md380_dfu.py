@@ -37,7 +37,8 @@ import time
 import usb.core
 
 import dfu_suffix
-from DFU import DFU, State
+from DFU import DFU, State, Enumeration
+import struct
 
 # The tricky thing is that *THREE* different applications all show up
 # as this same VID/PID pair.
@@ -54,7 +55,7 @@ md380_product = 0xdf11
 # application_size   = 0x00040000
 
 
-def download(dfu, data, flash_address):
+def unused_download(dfu, data, flash_address):
     block_size = 1 << 8
     sector_size = 1 << 12
     if flash_address & (sector_size - 1) != 0:
@@ -76,36 +77,132 @@ def download(dfu, data, flash_address):
     finally:
         print()
 
+def download(dfu,location,size,data):
+    print("make_download(location=%08x, size=%d, len(data)=%dk)"%(location,size,len(data)/1024))
+    write_size = 1024
+    full_write = 128
+    half_write = 64
+    full_write_size = 128*write_size
+    half_write_size = 64*write_size
+
+    x=location & (full_write_size -1)
+    if 0 < x < half_write_size:
+        y= half_write_size - x
+        number_of_possible_writes = y/write_size
+    elif 0 <= x < full_write_size:
+        y= full_write_size - x
+        number_of_possible_writes = y/write_size
+    number_of_writes_left = size/write_size
+    if number_of_writes_left > number_of_possible_writes:
+        number_of_writes_this_pass = number_of_possible_writes
+    else:
+        number_of_writes_this_pass = number_of_writes_left
+    print("write %dk"%(number_of_writes_this_pass))
+    dfu.set_address(location)
+    written = 0
+    for i in range(number_of_writes_this_pass):
+        block_num = i+2
+        packet = data[written:written+write_size]
+        # print("dfu.download, block_num=%02x len(packet)=%d"%(block_num,len(packet)))
+        dfu.download(block_num, packet)
+        dfu.wait_till_ready()
+        written += write_size
+    print("after ==  %08x"%(location+written))
+    left_to_write_here = size-written
+    new_location = location+written
+    print()
+    if left_to_write_here > 0:
+        return download(dfu, new_location, left_to_write_here, data[written:])
+    else:
+        return data[written:]
+
+class RadioModels(Enumeration):
+    map = {
+        0: 'MD380',
+        1: 'MD2017',
+    }
+RadioModels.create_from_map()
 
 def download_codeplug(dfu, data):
     """Downloads a codeplug to the MD380."""
     block_size = 1024
+    dfu.wait_till_ready()
 
     dfu.md380_custom(0x91, 0x01)  # Programming Mode
     dfu.md380_custom(0x91, 0x01)  # Programming Mode
-    # dfu.md380_custom(0xa2,0x01); #Returns "DR780...", seems to crash client.
-    # hexdump(dfu.get_command());  #Gets a string.
-    dfu.md380_custom(0xa2, 0x02)
-    hexdump(dfu.get_command())  # Gets a string.
+    radioid = dfu.identify_radio() #0xa2 0x01
+    if radioid[0:4] == "2017":
+        thisradio=RadioModels.MD2017
+    else:
+        thisradio=RadioModels.MD380
     time.sleep(2)
     dfu.md380_custom(0xa2, 0x02)
+    hexdump(dfu.get_command())  # Gets a string.
     dfu.md380_custom(0xa2, 0x03)
+    hexdump(dfu.get_command())  # Gets a string.
     dfu.md380_custom(0xa2, 0x04)
+    hexdump(dfu.get_command())  # Gets a string.
     dfu.md380_custom(0xa2, 0x07)
+    hexdump(dfu.get_command())  # Gets a string.
+    """ 
+    sudo modprobe usbmon, wireshark-gtk, !(frame.len == 64) && usb.src == "host"
+    MD-2017
+    ✔    9101
+    ✔    9101
+    ✔    a201
+    ✔    a202
+    ✔    a203
+    ✔    a204
+    ✔    a207
+    ✔    41:00:00:00:00
+    ✔    41:00:00:01:00
+    ✔    41:00:00:02:00
+    ✔    41:00:00:03:00
+    ✔    41:00:00:11:00
+    ✔    41:00:00:12:00
+    ✔    41:00:00:13:00
+    ✔    41:00:00:14:00
+    ✔    41:00:00:15:00
+    ✔    41:00:00:16:00
+    ✔    41:00:00:17:00
+    ✔    41:00:00:18:00
+    ✔    41:00:00:19:00
+    ✔    21:00:00:00:00
+    ✔    start copying
+        after wValue == 0x41
+        21:00:00:01:00, wValue = 2
+        after wValue == 0x41
+        21:00:00:02:00, wValue = 2
+    rpt
+    debug notes:
+        249 not accurate for MD2017? Shifted 16 bytes starting at 0x40235
 
-    dfu.erase_block(0x00000000)
-    dfu.erase_block(0x00010000)
-    dfu.erase_block(0x00020000)
-    dfu.erase_block(0x00030000)
+    """
 
+    dfu.erase_block(0x00000000,True)
+    dfu.erase_block(0x00010000,True)
+    dfu.erase_block(0x00020000,True)
+    dfu.erase_block(0x00030000,True)
+    if thisradio == RadioModels.MD2017:
+        dfu.erase_block(0x00110000,True)
+        dfu.erase_block(0x00120000,True)
+        dfu.erase_block(0x00130000,True)
+        dfu.erase_block(0x00140000,True)
+        dfu.erase_block(0x00150000,True)
+        dfu.erase_block(0x00160000,True)
+        dfu.erase_block(0x00170000,True)
+        dfu.erase_block(0x00180000,True)
+        dfu.erase_block(0x00190000,True)
+        addr_multiplier = 0
+        
     dfu.set_address(0x00000000)  # Zero address, used by configuration tool.
 
-    # sys.exit();
-
     status, timeout, state, discarded = dfu.get_status()
-    # print(status, timeout, state, discarded)
+    #print(status, timeout, state, discarded)
 
     block_number = 2
+    next_set = False
+    print("sending %d bytes, %f blocks"%(len(data),len(data)/block_size))
 
     try:
         while len(data) > 0:
@@ -113,15 +210,29 @@ def download_codeplug(dfu, data):
             if len(packet) < block_size:
                 packet += '\xFF' * (block_size - len(packet))
             dfu.download(block_number, packet)
-            state = 11
-            while state != State.dfuDNLOAD_IDLE:
-                status, timeout, state, discarded = dfu.get_status()
-                # print(status, timeout, state, discarded)
+            dfu.wait_till_ready()
+            #state = 11
+            #while state != State.dfuDNLOAD_IDLE:
+            #    status, timeout, state, discarded = dfu.get_status()
+                #print(status, timeout, state, discarded)
             sys.stdout.write('.')
             sys.stdout.flush()
             block_number += 1
+            if thisradio == RadioModels.MD2017 and block_number == 0x42:
+                #set pointer to same blocks we erased above
+                block_number = 2
+                addr_multiplier += 1
+                if addr_multiplier > 3 and not next_set:
+                    next_set = True
+                    addr_multiplier = 1
+                    data = data[16:] #skip 16 bytes to solve alignment issues - not sure why, this is just what the captures show
+                offset = 0 if not next_set else 0x100000  
+                if addr_multiplier > 9: print("Done!"); break
+                dfu.set_address(0x00000000 + offset +0x10000  * addr_multiplier, True)
+                print()
     finally:
         print()
+        dfu.md380_reboot()
 
 
 def hexdump(string):
@@ -205,6 +316,191 @@ def upload_codeplug(dfu, filename):
     finally:
         print("Done.")
 
+def breakout_header_and_footer_if_present(data):
+    if data[0:14] == "OutSecurityBin" and data[-16:] == "OutputBinDataEnd":
+        header, data, footer = data[:0x100], data[0x100:], data[-0x100:]
+        return header, data, footer
+    return None, data, None
+
+
+
+firmware_upload_wrong_mode_strings={
+    "MD2017":"""ERROR: You forgot to enter the bootloader.
+Please hold PTT and the orange button next to volume knob while rebooting.  You
+should see the LED blinking green and red, and then your
+radio will be ready to accept this firmware update.""",
+    "MD380":"""ERROR: You forgot to enter the bootloader.
+Please hold PTT and the button above it while rebooting.  You
+should see the LED blinking green and red, and then your
+radio will be ready to accept this firmware update."""
+}
+
+def parse_firmware_header(header):
+    #32bit int at 0x7C is the number of sections - in md380s there is only one section and number of sections value is not set i suppose
+    # each section is a 32 bit int for the location in flash 
+    #  and then another which is length to write there
+    num_sections = struct.unpack_from("<I",header,0x7C)[0]
+    sections = []
+    for i in range(num_sections):
+         section_start, section_length = struct.unpack_from("<II",header,0x80+i*8)
+         sections.append( (section_start, section_length) )
+    return {
+            "num_firmware_locations": num_sections,
+            "firmware_locations_and_lengths": sections
+            }
+
+
+def download_firmware_md2017(dfu, data):
+    """
+    sudo modprobe usbmon, wireshark-gtk, !(frame.len == 64) && usb.src == "host"
+    rdt header 
+        00000070: ffff ffff ffff ffff ffff ffff 0200 0000  ................
+        00000080: 0000 0600 00d4 0500 00c0 0008 0058 0e00  .............X..
+
+        0000 0002
+            ? maybe how many chunks?
+        0006 0000
+            first write location in flash
+        0005 d400
+            oh, lol, duh. this is the length of the first location
+        0800 c000
+            next location to write to in flash
+        000e 5800
+            if that's a location into unwrapped bin, it's right on 1k boundary (bytes 8840 4462 1ca5 b921 at 0x0e5900) but not anything else special i can see
+            where to split somehow?
+            918k?
+            aha! it's the length of what's to be written to last location
+        so it goes 
+            number of locations is written in the header
+            and then a location, and a length in bytes to be written there
+            and then your write in order of those locations!
+
+    first 0x100 into bin for header
+    last 0x100 end of bin is footer
+    i count 1291k written or so
+    1321984 or 142c00 long headerless and footerless file
+    1321984 bytes in 1291k of writes, so file fits perfectly in bytes written
+
+    following appears to be from flashing TYT2017-UV\(REC\)-D3.31.bin in file 
+    firmware_to_radio_but_for_real_this_time.pcapng.gz
+    0x21 
+        9101
+        a201
+        a231
+        a203
+        a207
+        9131
+
+        //this part is new
+        erase these
+        41:00:00:06:00
+        41:00:00:07:00
+        41:00:00:08:00
+        41:00:00:09:00
+        41:00:00:0a:00
+        41:00:00:0b:00
+        41:00:00:0c:00
+        41:00:00:0d:00
+        41:00:00:0e:00
+        41:00:00:0f:00
+
+        write these:
+        5*64k and 1*53k, == 373k
+        21:00:00:06:00, data 1024 wValue == 0x02, wValue++, until wValue == 0x41
+            first bytes:
+            offset 0x100 into wrapped bin
+            00aa89891f4beccf424514540065eb66417d549051423915ea
+        21:00:00:07:00, data 1024
+        21:00:00:08:00, data 1024
+        21:00:00:09:00, data 1024
+        21:00:00:0a:00, data 1024
+        21:00:00:0b:00, data 1024, same except only until wValue == 0x36
+            last bytes:
+            2a81ee1fb5c918599923bb1d086505cf03ff563d52061f0744017bce2776891d
+
+        don't know where boundaries of data written are
+
+
+        //this part is almost exact same as md380
+        41:00:c0:00:08
+        41:00:00:01:08
+        41:00:00:02:08
+        41:00:00:04:08
+        41:00:00:06:08
+        41:00:00:08:08
+        41:00:00:0a:08
+        41:00:00:0c:08
+        41:00:00:0e:08
+
+        16k, 64k, 6*128k, 70k == 918k
+        21:00:c0:00:08, data, end 0x11
+            offset 0x5d500 into wrapped bin:
+            first bytes here:
+            309f89a9029ee2c72d491a5c7769e56e3e71
+        21:00:00:01:08, data, end 0x41
+        21:00:00:02:08, data, end 0x81
+        21:00:00:04:08, data, end 0x81
+        21:00:00:06:08, data, end 0x81
+        21:00:00:08:08, data, end 0x81
+        21:00:00:0a:08, data, end 0x81
+        21:00:00:0c:08, data, end 0x81
+        21:00:00:0e:08, data, end 0x47 // this line writes less data on md2017 than md380
+            very last bytes:
+            563d52061f0744017bce 2776 891d
+        end
+
+
+    """
+    addresses = [
+        0x00060000,
+        0x00070000,
+        0x00080000,
+        0x00090000,
+        0x000a0000,
+        0x000b0000,
+        0x000c0000,
+        0x000d0000,
+        0x000e0000,
+        0x000f0000,
+
+        0x0800c000,
+        0x08010000,
+        0x08020000,
+        0x08040000,
+        0x08060000,
+        0x08080000,
+        0x080a0000,
+        0x080c0000,
+        0x080e0000
+        ]
+    try:
+        if not dfu.we_are_in_firmware_upgrade_mode():
+            print(firmware_upload_wrong_mode_strings["MD2017"])
+            sys.exit(1)
+
+        print("Beginning firmware upgrade.")
+        sys.stdout.flush() # let text appear immediately (for mingw)
+        status, timeout, state, discarded = dfu.get_status()
+        assert state == State.dfuIDLE
+        
+        dfu.md380_custom(0x91, 0x01)
+        dfu.md380_custom(0x91, 0x31)
+
+        dfu.erase_blocks(addresses)
+
+        header, data, footer = breakout_header_and_footer_if_present(data)
+        header_dict = parse_firmware_header( header )
+        print("Writing firmware:")
+        for location,size in header_dict["firmware_locations_and_lengths"]:
+            print("0x%08x : len = 0x%x bytes, %dk"%(location,size,size/1024))
+            data = download(dfu,location,size,data)
+            print()
+
+
+
+
+    except Exception as e:
+        print(e)
 
 def download_firmware(dfu, data):
     """ Download new firmware binary to the radio. """
@@ -229,13 +525,8 @@ def download_firmware(dfu, data):
              0x20000]  # e
     block_ends = [0x11, 0x41, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81]
     try:
-        # Are we in the right mode?
-        mfg = dfu.get_string(1)
-        if mfg != u'AnyRoad Technology':
-            print("""ERROR: You forgot to enter the bootloader.
-Please hold PTT and the button above it while rebooting.  You
-should see the LED blinking green and red, and then your
-radio will be radio to accept this firmware update.""")
+        if not dfu.we_are_in_firmware_upgrade_mode():
+            print(firmware_upload_wrong_mode_strings["MD380"])
             sys.exit(1)
 
         print("Beginning firmware upgrade.")
@@ -246,20 +537,13 @@ radio will be radio to accept this firmware update.""")
         dfu.md380_custom(0x91, 0x01)
         dfu.md380_custom(0x91, 0x31)
 
-        for address in addresses:
-            if dfu.verbose:
-                print("Erasing address@ 0x%x" % address)
-                sys.stdout.flush()
-            dfu.erase_block(address)
+        dfu.erase_blocks(addresses)
 
         block_size = 1024
         block_start = 2
         address_idx = 0
-
-        if data[0:14] == "OutSecurityBin":  # skip header if present
-            if dfu.verbose:
-                print("Skipping 0x100 byte header in data file")
-            header, data = data[:0x100], data[0x100:]
+        
+        header, data, footer = breakout_header_and_footer_if_present(data)
 
         print("Writing firmware:")
 
@@ -356,7 +640,6 @@ def init_dfu(alt=0):
 
     if dev is None:
         raise RuntimeError('Device not found')
-
     dfu = DFU(dev, alt)
     dev.default_timeout = 3000
 
@@ -430,24 +713,32 @@ def main():
                     dfu = init_dfu()
                     download_firmware(dfu, data)
 
+            elif sys.argv[1] == "new_upgrade":
+                with open(sys.argv[2], 'rb') as f:
+                    data = f.read()
+                    dfu = init_dfu()
+                    download_firmware_md2017(dfu,data)
+
             elif sys.argv[1] == 'write':
                 import usb.core
                 f = open(sys.argv[2], 'rb')
                 data = f.read()
                 f.close()
+                print(len(data),data[0:5])
 
                 if sys.argv[2][-4:] == '.dfu':
                     suf_len, vendor, product = dfu_suffix.check_suffix(data)
                     dfu = init_dfu()
-                    firmware = data[:-suf_len]
-                elif sys.argv[2][-4:] == '.rdt' and len(data) == 262709 and data[0:5] == 'DfuSe':
+                    codeplug = data[:-suf_len]
+                elif sys.argv[2][-4:] == '.rdt' and ( len(data) == 262709 or len(data) == 852533 ) and data[0:5] == 'DfuSe':
+                    #small is md380 codeplug, large is MD2017
                     dfu = init_dfu()
-                    firmware = data[549:len(data) - 16]
+                    codeplug = data[549:len(data) - 16]
                 else:
                     dfu = init_dfu()
-                    firmware = data
+                    codeplug = data
 
-                download_codeplug(dfu, firmware)
+                download_codeplug(dfu, codeplug)
                 print('Write complete')
 
             elif sys.argv[1] == 'sign':
@@ -498,6 +789,12 @@ def main():
                 import usb.core
                 dfu = init_dfu()
                 dfu.abort()
+            elif sys.argv[1] == "ident":
+                dfu = init_dfu()
+                import binascii
+                rid = dfu.identify_radio()
+                print(binascii.hexlify(rid))
+                print(rid)
             else:
                 usage()
         else:
