@@ -27,7 +27,7 @@ void cfg_read_struct(addl_config_t *cfg)
 
 void cfg_write_struct(addl_config_t *cfg)
 {
-	md380_spiflash_write(cfg, spi_flash_addl_config_start, spi_flash_addl_config_size);
+	md380_spiflash_write(cfg, spi_flash_addl_config_start, 1024*4);
 }
 
 uint8_t calc_crc(void *buf, int size)
@@ -154,16 +154,24 @@ void init_global_addl_config_hook(void)
 
 	//Initialize config values if first time
 	if (!cfg_load()) {
-		global_addl_config.fg_color = 0x4F21;
-		global_addl_config.bg_color = 0x10C0;
-		global_addl_config.sel_fg_color = 0xB658;
-		global_addl_config.sel_bg_color = 0xCB40;
-		global_addl_config.edit_fg_color = 0x9;
-		global_addl_config.edit_bg_color = 0x9;
+		global_addl_config.fg_color = 0x1FF1;
+		global_addl_config.bg_color = 0x0100;
+		global_addl_config.sel_fg_color = 0x03E6;
+		global_addl_config.sel_bg_color = 0x6FE0;
+		global_addl_config.edit_fg_color = 0x0AA0;
+		global_addl_config.edit_bg_color = 0x2604;
 		global_addl_config.mic_gain = 0;
-		global_addl_config.alt_text = 0;
+		global_addl_config.alt_text = 1;
 		global_addl_config.display_options |= ShowLabelTG;
+		cfg_save();
 	}
+	global_addl_config.fg_color = 0x1FF1;
+	global_addl_config.bg_color = 0x0100;
+	global_addl_config.sel_fg_color = 0x03E6;
+	global_addl_config.sel_bg_color = 0x6FE0;
+	global_addl_config.edit_fg_color = 0x0AA0;
+	global_addl_config.edit_bg_color = 0x2604;
+	global_addl_config.alt_text = 1;
 
 	//#ifdef CONFIG_MENU
 	md380_create_main_menu_entry();

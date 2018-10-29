@@ -113,7 +113,7 @@ extern uint8_t gui_opmode3 ;
 
 void display_credits();
 
-uint32_t rgb16torgb(uint16_t color);
+//uint32_t rgb16torgb(uint16_t color);
 
 #ifdef __cplusplus
 }

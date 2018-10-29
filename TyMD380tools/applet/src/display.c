@@ -350,10 +350,9 @@ void draw_micbargraph()
     }
 }
 
-uint32_t rgb16torgb(uint16_t color) {
-	return (((color & 0xF800) << 5)*8) | (((color & 0x7E0) << 3) * 8) | (((color & 0x1F)) * 8);
-}
-
+//uint32_t rgb16torgb(uint16_t color) {
+//return (((color & 0xF800) << 5)*8) | (((color & 0x7E0) << 3) * 8) | (((color & 0x1F)) * 8);
+//}
 
 #define RX_POPUP_Y_START 22 // 24
 #define RX_POPUP_X_START 4  // 10

@@ -105,7 +105,7 @@ uint32_t get_spi_flash_type(uint8_t *data) {
    known modellarger than 1MB.
 
  */
-uint32_t spi_flash_addl_config_start = 0x1C0000;
+uint32_t spi_flash_addl_config_start = 0x1FE000;
 uint32_t spi_flash_addl_config_size  = 1024*4;
 
 

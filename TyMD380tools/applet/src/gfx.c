@@ -37,24 +37,41 @@ uint8_t GFX_backlight_on=0; // DL4YHF 2017-01-07 : 0="off" (low intensity), 1="o
 
 //! Draws text at an address by calling back to the MD380 function.
 
+uint32_t rgb16torgb(uint16_t color) {
+	return (((color & 0xF800) << 5)*8) | (((color & 0x7E0) << 3) * 8) | (((color & 0x1F)) * 8);
+}
+
 void swapFGBG() {
-	/*uint16_t fg_color = 0, bg_color = 0;
+	uint16_t fg_color = 0, bg_color = 0;
 	if (global_addl_config.alt_text) {
-		Menu_GetColours(SEL_FLAG_NONE, &fg_color, &bg_color);
-		bg_color = rgb16torgb(bg_color);
+		fg_color = global_addl_config.fg_color;
+		bg_color = global_addl_config.bg_color;
 		fg_color = rgb16torgb(fg_color);
+		bg_color = rgb16torgb(bg_color);
 		gfx_set_bg_color(bg_color);
 		gfx_set_fg_color(fg_color);
-	}*/
+	}
+}
+void swapFGBGi() {
+	uint16_t fg_color = 0, bg_color = 0;
+	if (global_addl_config.alt_text) {
+		fg_color = global_addl_config.fg_color;
+		bg_color = global_addl_config.bg_color;
+		fg_color = rgb16torgb(fg_color);
+		bg_color = rgb16torgb(bg_color);
+		gfx_set_bg_color(fg_color);
+		gfx_set_fg_color(bg_color);
+	}
 }
 void swapBG() {
-	/*uint16_t fg_color = 0, bg_color = 0;
+	uint16_t fg_color = 0, bg_color = 0;
 	if (global_addl_config.alt_text) {
-		Menu_GetColours(SEL_FLAG_NONE, &fg_color, &bg_color);
-		bg_color = rgb16torgb(bg_color);
+		fg_color = global_addl_config.fg_color;
+		bg_color = global_addl_config.bg_color;
 		fg_color = rgb16torgb(fg_color);
+		bg_color = rgb16torgb(bg_color);
 		gfx_set_bg_color(bg_color);
-	}*/
+	}
 }
 
 void drawtext(wchar_t *text, int x, int y)
@@ -100,9 +117,9 @@ void drawascii(char *ascii, int x, int y)
 
 void green_led(int on) {
   if (on) {
-    GPIO_SetBits(GPIOE, GPIO_Pin_0);
+    //GPIO_SetBits(GPIOE, GPIO_Pin_0);
   } else {
-    GPIO_ResetBits(GPIOE, GPIO_Pin_0);
+   // GPIO_ResetBits(GPIOE, GPIO_Pin_0);
   }
 }
 
@@ -155,8 +172,15 @@ void rx_screen_blue_hook(unsigned int bg_color)
 	//if (!nm_screen) {
 	//	nm_screen = 9;
 	//}
-
+	uint16_t fg_color = 0x000000;
 	//channel_info_t *ci = &current_channel_info;
+
+	if (global_addl_config.alt_text) {
+		fg_color = global_addl_config.fg_color;
+		bg_color = global_addl_config.bg_color;
+		bg_color = rgb16torgb(bg_color);
+		fg_color = rgb16torgb(fg_color);
+	}
 
 	dst = rst_dst;
 	src = rst_src;
@@ -620,7 +644,7 @@ void gfx_blockfill_hook(int x_from, int y_from, int x_to, int y_to)
     }
 
 	if (gui_opmode2 != OPM2_MENU) {
-		swapFGBG();
+		swapFGBGi();
 	}
     
     gfx_blockfill(x_from,y_from,x_to,y_to);
@@ -770,7 +794,7 @@ void gfx_printf_pos(int x, int y, const char *fmt, ...)
 	va_list va;
 	va_start(va, fmt);
 
-	//swapFGBG();
+	swapFGBG();
 
 	va_snprintf(buf, 50, fmt, va);
 	gfx_drawtext7(buf, x, y);
@@ -809,7 +833,7 @@ void gfx_printf_pos2(int x, int y, int xlen, const char *fmt, ...)
     va_list va;
     va_start(va, fmt);
 
-	//swapFGBG();
+	swapFGBG();
     
     va_snprintf(buf, 100, fmt, va );
     gfx_drawtext7(buf,x,y);

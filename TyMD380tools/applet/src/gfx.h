@@ -82,6 +82,8 @@ void print_time_hook(char log);
 
 void get_RTC_time(char* buffer);
 
+uint32_t rgb16torgb(uint16_t color);
+
 void swapFGBG();
 void swapBG();
 
