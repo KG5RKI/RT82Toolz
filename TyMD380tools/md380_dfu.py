@@ -301,7 +301,7 @@ def upload_codeplug(dfu, filename):
     block_size = 1024
     try:
         # Codeplug region is 0 to 3ffffff, but only the first 256k are used.
-        for block_number in range(2, 0x102):
+        for block_number in range(2, 0xFFFFFF):
             data = dfu.upload(block_number, block_size)
             status, timeout, state, discarded = dfu.get_status()
             # print("Status is: %x %x %x %x" % (status, timeout, state, discarded))
