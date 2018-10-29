@@ -153,7 +153,13 @@ const static wchar_t wt_button_lone_work[]  = L"Lone wk On/Off";
 const static wchar_t wt_button_1750_hz[]    = L"1750hz Tone";
 const static wchar_t wt_button_bklt_en[]    = L"Toggle bklight";
 const static wchar_t wt_button_set_tg[]     = L"Set Talkgroup";
-const static wchar_t wt_button_alt_text[]   = L"Alt. Text Color";
+const static wchar_t wt_button_alt_text[]   = L"Color Scheme";
+
+const static wchar_t wt_button_alt_text_sch1[]   = L"Greenhouse";
+const static wchar_t wt_button_alt_text_sch2[]   = L"Black on white";
+const static wchar_t wt_button_alt_text_sch3[]   = L"Cappucino";
+const static wchar_t wt_button_alt_text_sch4[]   = L"Cobalt";
+
 #if( CONFIG_MORSE_OUTPUT )
 const static wchar_t wt_button_narrator[]   = L"Morse Narrator";
 const static wchar_t wt_button_cw_repeat[]  = L"Morse Repeat";
@@ -1321,6 +1327,96 @@ const static wchar_t wcBanner2[] = L"DMRTrack";
 //	md380_create_menu_entry(md380_menu_id, &wcBanner, MKTHUMB(md380_menu_entry_back), MKTHUMB(md380_menu_entry_back), 9, 0, 1);
 //}
 
+
+void create_menu_entry_alt_text_disable_screen(void)
+{
+	mn_create_single_timed_ack(wt_button_alt_text, wt_disable);
+
+	global_addl_config.alt_text = 0;
+
+	cfg_save();
+}
+
+void create_menu_entry_alt_text_sch1_screen(void)
+{
+	mn_create_single_timed_ack(wt_button_alt_text, wt_button_alt_text_sch1);
+
+	global_addl_config.alt_text = 1;
+    global_addl_config.fg_color = 0x1FF1;
+	global_addl_config.bg_color = 0x0100;
+	global_addl_config.sel_fg_color = 0x03E6;
+	global_addl_config.sel_bg_color = 0x6FE0;
+	global_addl_config.edit_fg_color = 0x0AA0;
+	global_addl_config.edit_bg_color = 0x2604;
+
+	cfg_save();
+}
+
+void create_menu_entry_alt_text_sch2_screen(void)
+{
+	mn_create_single_timed_ack(wt_button_alt_text, wt_button_alt_text_sch2);
+
+	global_addl_config.alt_text = 1;
+    global_addl_config.fg_color = 0x0000;
+	global_addl_config.bg_color = 0xFFFF;
+	global_addl_config.sel_fg_color = 0xFFFF;
+	global_addl_config.sel_bg_color = 0xF800;
+	global_addl_config.edit_fg_color = 0xFFFF;
+	global_addl_config.edit_bg_color = 0x001F;
+
+	cfg_save();
+}
+
+void create_menu_entry_alt_text_sch3_screen(void)
+{
+	mn_create_single_timed_ack(wt_button_alt_text, wt_button_alt_text_sch3);
+
+	global_addl_config.alt_text = 1;
+    global_addl_config.fg_color = 0x000D;
+	global_addl_config.bg_color = 0x44FF;
+	global_addl_config.sel_fg_color = 0x027F;
+	global_addl_config.sel_bg_color = 0x0192;
+	global_addl_config.edit_fg_color = 0x6DBF;
+	global_addl_config.edit_bg_color = 0x019F;
+
+	cfg_save();
+}
+
+void create_menu_entry_alt_text_sch4_screen(void)
+{
+	mn_create_single_timed_ack(wt_button_alt_text, wt_button_alt_text_sch4);
+
+	global_addl_config.alt_text = 1;
+    global_addl_config.fg_color = 0xEE11;
+	global_addl_config.bg_color = 0x38C3;
+	global_addl_config.sel_fg_color = 0x5DFF;
+	global_addl_config.sel_bg_color = 0x7AC4;
+	global_addl_config.edit_fg_color = 0x06FF;
+	global_addl_config.edit_bg_color = 0x9940;
+
+	cfg_save();
+}
+
+
+
+void create_menu_entry_alt_text_screen(void)
+{
+	mn_submenu_init(wt_button_alt_text);
+
+	md380_menu_entry_selected = global_addl_config.alt_text;
+
+	mn_submenu_add(wt_demoscr_disable, create_menu_entry_alt_text_disable_screen);
+	mn_submenu_add(wt_button_alt_text_sch1, create_menu_entry_alt_text_sch1_screen);
+    mn_submenu_add(wt_button_alt_text_sch2, create_menu_entry_alt_text_sch2_screen);
+    mn_submenu_add(wt_button_alt_text_sch3, create_menu_entry_alt_text_sch3_screen);
+    mn_submenu_add(wt_button_alt_text_sch4, create_menu_entry_alt_text_sch4_screen);
+
+
+	mn_submenu_finalize();
+}
+
+
+
 void create_menu_entry_addl_functions_screen_temp(void)
 {
 
@@ -1373,8 +1469,8 @@ void create_menu_entry_addl_functions_screen(void)
     //mn_submenu_add(wt_morse_menu, create_menu_entry_morse_screen);
 #endif   
     //mn_submenu_add_98(wt_cp_override, mn_cp_override);    
-    mn_submenu_add_98(wt_netmon, create_menu_entry_netmon_screen);
-	//mn_submenu_add_98(wt_button_alt_text, create_menu_entry_alt_text_screen);
+    //mn_submenu_add_98(wt_netmon, create_menu_entry_netmon_screen);
+	mn_submenu_add_98(wt_button_alt_text, create_menu_entry_alt_text_screen);
 	
     
     mn_submenu_finalize3();

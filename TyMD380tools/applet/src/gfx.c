@@ -37,12 +37,13 @@ uint8_t GFX_backlight_on=0; // DL4YHF 2017-01-07 : 0="off" (low intensity), 1="o
 
 //! Draws text at an address by calling back to the MD380 function.
 
-uint32_t rgb16torgb(uint16_t color) {
+uint32_t rgb16torgb(uint32_t color) {
 	return (((color & 0xF800) << 5)*8) | (((color & 0x7E0) << 3) * 8) | (((color & 0x1F)) * 8);
 }
 
+
 void swapFGBG() {
-	uint16_t fg_color = 0, bg_color = 0;
+	uint32_t fg_color = 0, bg_color = 0;
 	if (global_addl_config.alt_text) {
 		fg_color = global_addl_config.fg_color;
 		bg_color = global_addl_config.bg_color;
@@ -53,7 +54,7 @@ void swapFGBG() {
 	}
 }
 void swapFGBGi() {
-	uint16_t fg_color = 0, bg_color = 0;
+	uint32_t fg_color = 0, bg_color = 0;
 	if (global_addl_config.alt_text) {
 		fg_color = global_addl_config.fg_color;
 		bg_color = global_addl_config.bg_color;
@@ -64,7 +65,7 @@ void swapFGBGi() {
 	}
 }
 void swapBG() {
-	uint16_t fg_color = 0, bg_color = 0;
+	uint32_t fg_color = 0, bg_color = 0;
 	if (global_addl_config.alt_text) {
 		fg_color = global_addl_config.fg_color;
 		bg_color = global_addl_config.bg_color;
