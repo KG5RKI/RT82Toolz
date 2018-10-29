@@ -1328,6 +1328,165 @@ const static wchar_t wcBanner2[] = L"DMRTrack";
 //}
 
 
+void create_menu_entry_edit_screen_store(void)
+{
+#if 0
+    printf("your enter: ");
+    printhex2((char *) md380_menu_edit_buf, 14);
+    printf("\n");
+#endif
+    md380_menu_id = md380_menu_id - 1;
+    md380_menu_depth = md380_menu_depth - 1;
+
+    md380_create_menu_entry(md380_menu_id, md380_menu_edit_buf, MKTHUMB(md380_menu_entry_back), MKTHUMB(md380_menu_entry_back), 6, 1, 1);
+
+}
+
+void create_menu_entry_edit_screen(void)
+{
+    menu_t *menu_mem;
+    uint8_t i;
+    uint8_t *p;
+
+    md380_menu_0x2001d3c1 = md380_menu_0x200011e4;
+    mn_editbuffer_poi = md380_menu_edit_buf;
+
+
+    /*
+      0x08012a8e      dff8200b       ldr.w r0, [pc, 0xb20]       ; [0x80135b0:4]=0x20001114
+      0x08012a92      dff8201b       ldr.w r1, [pc, 0xb20]       ; [0x80135b4:4]=0x2001b716
+      0x08012a96      0160           str r1, [r0]
+      0x08012a98      0020           movs r0, 0
+      0x08012a9a      07e0           b 0x8012aac
+      0x08012a9c      c0b2           uxtb r0, r0
+      0x08012a9e      dff8101b       ldr.w r1, [pc, 0xb10]       ; [0x80135b0:4]=0x20001114
+      0x08012aa2      0968           ldr r1, [r1]
+      0x08012aa4      0022           movs r2, 0
+      0x08012aa6      21f81020       strh.w r2, [r1, r0, lsl 1]
+      0x08012aaa      401c           adds r0, r0, 1
+      0x08012aac      c0b2           uxtb r0, r0
+      0x08012aae      1128           cmp r0, 0x11
+      0x08012ab0      f4d3           blo 0x8012a9c
+     */
+
+    // clear return buffer //  see 0x08012a98
+    // TODO: is wchar_t (16 bits))
+    for (i = 0; i < 0x11; i++) {
+        p = (uint8_t *) mn_editbuffer_poi;
+        p = p + i;
+        *p = 0;
+    }
+
+
+    md380_menu_0x2001d3ed = 8;
+    md380_menu_0x2001d3ee = 0;
+    md380_menu_0x2001d3ef = 0;
+    md380_menu_0x2001d3f0 = 3;
+    md380_menu_0x2001d3f1 = 0;
+    md380_menu_0x2001d3f4 = 0;
+
+    menu_mem = get_menu_stackpoi();
+    menu_mem->menu_title = wt_edit;
+    menu_mem->entries = &md380_menu_mem_base[md380_menu_id];
+    menu_mem->numberof_menu_entries = 1;
+    menu_mem->unknown_00 = 0;
+    menu_mem->unknown_01 = 0;
+
+    md380_create_menu_entry(md380_menu_id, wt_edit, MKTHUMB(create_menu_entry_edit_screen_store), MKTHUMB(md380_menu_numerical_input), 0x81, 0, 1);
+
+}
+
+void create_menu_entry_edit_dmr_id_screen_store(void)
+{
+    uint32_t new_dmr_id = 0;
+    wchar_t *bf;
+
+#if 0
+    printf("your enter: ");
+    printhex2((char *) md380_menu_edit_buf, 14);
+    printf("\n");
+#endif
+
+    bf = md380_menu_edit_buf;
+    while (*bf != 0) {
+        new_dmr_id *= 10;
+        new_dmr_id += (*bf++) - '0';
+    }
+    
+    if ( new_dmr_id > 0xffffff ) {
+        return;
+    }
+    
+#if 0
+    printf("\n%d\n", new_dmr_id);
+#endif
+    
+    // save in addl cfg.
+    global_addl_config.dmrid = new_dmr_id ;
+    cfg_save();
+
+    // save in codeplug.
+    md380_dmr_id = new_dmr_id;
+    md380_radio_config.dmrid = new_dmr_id ;
+    //md380_spiflash_write(&new_dmr_id, FLASH_OFFSET_DMRID, 4);
+    
+    md380_menu_id = md380_menu_id - 1;
+    md380_menu_depth = md380_menu_depth - 1;
+
+    //if (global_addl_config.userscsv == 1) {
+    //    cfg_set_radio_name();
+    //}
+
+    md380_create_menu_entry(md380_menu_id, md380_menu_edit_buf, MKTHUMB(md380_menu_entry_back), MKTHUMB(md380_menu_entry_back), 6, 1, 1);
+
+}
+
+void create_menu_entry_edit_dmr_id_screen(void)
+{
+    menu_t *menu_mem;
+    uint8_t i;
+    uint8_t *p;
+    uint32_t nchars;
+
+    md380_menu_0x2001d3c1 = md380_menu_0x200011e4;
+    mn_editbuffer_poi = md380_menu_edit_buf;
+
+
+
+    // clear return buffer //  see 0x08012a98
+    // TODO: is wchar_t (16 bits))
+    for (i = 0; i < 0x11; i++) {
+        p = (uint8_t *) mn_editbuffer_poi;
+        p = p + i;
+        *p = 0;
+    }
+
+    nchars = uli2w(md380_radio_config.dmrid, md380_menu_edit_buf);
+
+#if 0
+    printf("\ncreate_menu_entry_edit_dmr_id_screen %x %d \n", md380_menu_edit_buf, nchars);
+    printhex2((char *) md380_menu_edit_buf, 14);
+    printf("\n");
+#endif
+
+    md380_menu_0x2001d3ed = 8; // max char
+    md380_menu_0x2001d3ee = nchars; //  startpos cursor
+    md380_menu_0x2001d3ef = nchars; //  startpos cursor
+    md380_menu_0x2001d3f0 = 3; // 3 = numerical input
+    md380_menu_0x2001d3f1 = 0;
+    md380_menu_0x2001d3f4 = 0;
+    menu_mem = get_menu_stackpoi();
+    menu_mem->menu_title = wt_edit_dmr_id;
+    menu_mem->entries = &md380_menu_mem_base[md380_menu_id];
+    menu_mem->numberof_menu_entries = 1;
+    menu_mem->unknown_00 = 0;
+    menu_mem->unknown_01 = 0;
+
+    md380_create_menu_entry(md380_menu_id, wt_edit_dmr_id, MKTHUMB(create_menu_entry_edit_dmr_id_screen_store), MKTHUMB(md380_menu_numerical_input), 0x81, 0, 1);
+}
+
+
+
 void create_menu_entry_alt_text_disable_screen(void)
 {
 	mn_create_single_timed_ack(wt_button_alt_text, wt_disable);
@@ -1454,7 +1613,7 @@ void create_menu_entry_addl_functions_screen(void)
     //mn_submenu_add_98(wt_debug, create_menu_entry_debug_screen);
     //mn_submenu_add_98(wt_promtg, create_menu_entry_promtg_screen);
     //mn_submenu_add_8a(wt_edit, create_menu_entry_edit_screen, 0); // disable this menu entry - no function jet
-    //mn_submenu_add_8a(wt_edit_dmr_id, create_menu_entry_edit_dmr_id_screen, 1);
+    mn_submenu_add_8a(wt_edit_dmr_id, create_menu_entry_edit_dmr_id_screen, 1);
     //mn_submenu_add_8a(wt_set_tg_id, create_menu_entry_set_tg_screen, 1); // Brad's PR#708 already in use here (DL4YHF, since 2017-03)
     //mn_submenu_add_98(wt_micbargraph, create_menu_entry_micbargraph_screen);
 	//mn_submenu_add_98(wt_agc, create_menu_entry_agc_screen);

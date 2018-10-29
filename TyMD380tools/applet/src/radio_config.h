@@ -24,6 +24,7 @@ typedef struct {
 } radio_config_t ;
 
 extern radio_config_t md380_radio_config;
+extern uint32_t md380_dmr_id;
     
 // @ 0x2100 len=0x40 in spi fw:D13
 struct radio_config2 {
