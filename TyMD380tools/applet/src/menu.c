@@ -1657,7 +1657,7 @@ void create_menu_entry_addl_functions_screen(void)
 
 extern wchar_t	  	md380_wt_programradio[];  // menutext <- menu_entry_programradio
 
-
+extern uint8_t program_radio_flag_byte;
 void create_menu_utilies_hook()
 {
     menu_t *menu_mem;
@@ -1668,8 +1668,9 @@ void create_menu_utilies_hook()
     //menu_mem->numberof_menu_entries = 7;
 	menu_mem->unknown_00 = 0;
 	menu_mem->unk3 = 0;
-
-	md380_create_menu_entry(md380_menu_id+3, md380_wt_programradio, MKTHUMB(md380_menu_entry_programradio), MKTHUMB(md380_menu_entry_back), 0x8a, 0, 1);
+    uint8_t fProgramRadio = (!((program_radio_flag_byte >> 2) & 1) || gui_opmode3 == 2);
+    
+	md380_create_menu_entry(md380_menu_id+3, md380_wt_programradio, MKTHUMB(md380_menu_entry_programradio), MKTHUMB(md380_menu_entry_back), 0x8a, 0, (int)fProgramRadio);
 
     
 	//}

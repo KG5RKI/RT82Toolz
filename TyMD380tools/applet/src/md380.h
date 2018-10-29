@@ -197,7 +197,10 @@ void md380_copy_spiflash_security_bank2_to_ram(void);
 
 // rtc_timer process stuff ( user interface task)
 // menu no exit ....
-uint8_t gui_opmode1;
+extern uint8_t gui_opmode1;
+
+extern uint8_t gui_opmode2 ;
+extern uint8_t gui_opmode3 ;
 
 extern uint32_t store_dst;
 

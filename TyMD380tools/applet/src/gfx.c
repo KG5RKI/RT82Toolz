@@ -908,42 +908,42 @@ void draw_alt_statusline()
 	if (src == 0) {
 		if (global_addl_config.datef == 5 || global_addl_config.datef >= 7)
 		{
-			gfx_printf_pos2(STATUS_LINE_X_START, STATUS_LINE_Y_START, 120, "lh:                                                ");
+			gfx_printf_pos2(STATUS_LINE_X_START, STATUS_LINE_Y_START, 120, "lh:                                  ");
 		}
 		else {
-			gfx_printf_pos2(STATUS_LINE_X_START, STATUS_LINE_Y_START, 120, "TA:                                                ");
+			gfx_printf_pos2(STATUS_LINE_X_START, STATUS_LINE_Y_START, 120, "TA:                                  ");
 		}
 	}
 	else {
 		if (global_addl_config.datef == 6 && talkerAlias.length > 0)				// 2017-02-18 show talker alias in status if rcvd valid
 		{
-			gfx_printf_pos2(STATUS_LINE_X_START, STATUS_LINE_Y_START, 120, "TA: %s                                                ", talkerAlias.text);
+			gfx_printf_pos2(STATUS_LINE_X_START, STATUS_LINE_Y_START, 120, "TA: %s                                  ", talkerAlias.text);
 		}
 		else {										// 2017-02-18 otherwise show lastheard in status line
 
 			if (usr_find_by_dmrid(&usr, src) == 0) {
 				if (usr_find_by_dmrid(&usr2, rst_dst) != 0 && cfg_tst_display_flag(&global_addl_config, ShowLabelTG)) {
-					gfx_printf_pos2(STATUS_LINE_X_START, STATUS_LINE_Y_START, 120, "lh:%d->%s %c                                                ", src, usr2.callsign, mode);
+					gfx_printf_pos2(STATUS_LINE_X_START, STATUS_LINE_Y_START, 120, "lh:%d->%s %c                                  ", src, usr2.callsign, mode);
 				}
 				else {
-					gfx_printf_pos2(STATUS_LINE_X_START, STATUS_LINE_Y_START, 120, "lh:%d->%d %c                                                ", src, rst_dst, mode);
+					gfx_printf_pos2(STATUS_LINE_X_START, STATUS_LINE_Y_START, 120, "lh:%d->%d %c                                  ", src, rst_dst, mode);
 				}
 			}
 			else {
 
 				if (usr_find_by_dmrid(&usr2, rst_dst) != 0 && cfg_tst_display_flag(&global_addl_config, ShowLabelTG)) {
 					if (global_addl_config.datef == 7) {
-						gfx_printf_pos2(STATUS_LINE_X_START, STATUS_LINE_Y_START, 120, "lh:%s %s->%d %c                                                ", usr.callsign, usr.firstname, rst_dst, mode);
+						gfx_printf_pos2(STATUS_LINE_X_START, STATUS_LINE_Y_START, 120, "lh:%s %s->%d %c                                  ", usr.callsign, usr.firstname, rst_dst, mode);
 					}
 					else if (global_addl_config.datef == 8) {
-						gfx_printf_pos2(STATUS_LINE_X_START, STATUS_LINE_Y_START, 120, "lh:%s %s->%s %c                                                ", usr.callsign, usr.firstname, usr2.callsign, mode);
+						gfx_printf_pos2(STATUS_LINE_X_START, STATUS_LINE_Y_START, 120, "lh:%s %s->%s %c                                  ", usr.callsign, usr.firstname, usr2.callsign, mode);
 					}
 					else {
-						gfx_printf_pos2(STATUS_LINE_X_START, STATUS_LINE_Y_START, 120, "lh:%s->%s %c                                                ", usr.callsign, usr2.callsign, mode);
+						gfx_printf_pos2(STATUS_LINE_X_START, STATUS_LINE_Y_START, 120, "lh:%s->%s %c                                  ", usr.callsign, usr2.callsign, mode);
 					}
 				}
 				else {
-					gfx_printf_pos2(STATUS_LINE_X_START, STATUS_LINE_Y_START, 120, "lh:%s %s->%d %c                                                ", usr.callsign, (global_addl_config.datef == 7 ? usr.firstname : " "), rst_dst, mode);
+					gfx_printf_pos2(STATUS_LINE_X_START, STATUS_LINE_Y_START, 120, "lh:%s %s->%d %c                                  ", usr.callsign, (global_addl_config.datef == 7 ? usr.firstname : " "), rst_dst, mode);
 				}
 			}
 		}
@@ -968,8 +968,8 @@ void sub_801AC40(char *v0, int v1, int result, char *v3, char v4)
 
 void draw_adhoc_statusline()
 	{
-		int x =  20;
-		int y = 96 - 4;
+		//int x =  20;
+		//int y = 96 - 4;
 		gfx_set_fg_color(0);
 		gfx_set_bg_color(0xff8032);
 		gfx_select_font(gfx_font_small);
@@ -981,11 +981,11 @@ void draw_adhoc_statusline()
 			user_t usr;
 			if (usr_find_by_dmrid(&usr, tgNum) != 0 && cfg_tst_display_flag(&global_addl_config, ShowLabelTG)) {
 				//gfx_printf_pos2(x, y, 320, "%s - %d", (ad_hoc_call_type == CONTACT_GROUP ? "TG" : "Priv"), ad_hoc_talkgroup);
-				gfx_printf_pos2(RX_POPUP_X_START+3, 88, 20, "%s%s", (ad_hoc_tg_channel ? "* " : ""), usr.callsign);
+				gfx_printf_pos2(RX_POPUP_X_START, 88, 20, "%s%s", (ad_hoc_tg_channel ? "* " : ""), usr.callsign);
 			}
 			else {
 				//gfx_printf_pos2(x, y, 320, "%s - %s", (ad_hoc_call_type == CONTACT_GROUP ? "TG" : "Priv"), usr.callsign);
-				gfx_printf_pos2(RX_POPUP_X_START+3, 88, 20, "%s%s %d", (ad_hoc_tg_channel ? "* " : ""), (callType == CONTACT_GROUP ? "TG" : "Priv"), tgNum);
+				gfx_printf_pos2(RX_POPUP_X_START, 88, 20, "%s%s %d", (ad_hoc_tg_channel ? "* " : ""), (callType == CONTACT_GROUP ? "TG" : "Priv"), tgNum);
 			}
 		}
 		//draw_extra_info();

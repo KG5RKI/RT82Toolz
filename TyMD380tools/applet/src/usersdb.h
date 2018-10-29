@@ -20,8 +20,19 @@ typedef struct {
     char *state ;
     char *country ;
 	char fUserType;
-} user_t ;
+} user_t_2017 ;
 
+typedef struct {
+    char buffer[BSIZE];
+    char *id ;
+    char *callsign ;
+    char *firstname ;
+    char *name ;
+    char *place ;
+    char *state ;
+    char *country ;
+	char fUserType;
+} user_t ;
 /**
  * lookup the a user given their ID (dmr_search) in the database.
  * The function returns 1 for success and 0 for "not found".
