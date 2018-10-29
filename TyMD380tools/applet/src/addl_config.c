@@ -20,12 +20,14 @@ addl_config_t global_addl_config;
 
 void cfg_read_struct(addl_config_t *cfg)
 {
-	md380_spiflash_read(cfg, spi_flash_addl_config_start, sizeof(addl_config_t));
+	char buf[1024*4];
+	md380_spiflash_read(buf, spi_flash_addl_config_start, 1024*4);
+	memcpy(cfg, buf, sizeof(addl_config_t));
 }
 
 void cfg_write_struct(addl_config_t *cfg)
 {
-	md380_spiflash_write(cfg, spi_flash_addl_config_start, 1024);
+	md380_spiflash_write(cfg, spi_flash_addl_config_start, spi_flash_addl_config_size);
 }
 
 uint8_t calc_crc(void *buf, int size)
