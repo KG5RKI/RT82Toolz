@@ -881,9 +881,19 @@ void create_menu_entry_set_tg_screen_store(void)
 
 	checkAdHocTG(); // ad_hoc_talkgroup -> contact.xyz
 
+    /*if ( (unsigned char)md380_menu_depth == 255 )
+        md380_menu_depth = 0;
+    char* v3 = (char *)&md380_menu_memory + 16 * (unsigned char)md380_menu_depth + 16;
+    *(uint32_t *)v3 = (uint32_t)wt_button_set_tg;
+    *((uint32_t *)v3 + 1) = (uint32_t)&md380_menu_mem_base[24 * (uint8_t)md380_menu_id];
+    v3[8] = 1;
+    v3[9] = 0;
+    *((uint32_t *)v3 + 3) = 0;
+    */
     md380_menu_id = md380_menu_id - 1; // exit menu to the proper level (#708) 
     md380_menu_depth = md380_menu_depth - 1;
 
+    
     md380_create_menu_entry(md380_menu_id, md380_menu_edit_buf, MKTHUMB(md380_menu_entry_back), MKTHUMB(md380_menu_entry_back), 6, 1, 1);
 
 }
@@ -1209,6 +1219,8 @@ void create_menu_entry_set_priv_screen_store(void)
 
 	checkAdHocTG(); // ad_hoc_talkgroup -> contact.xyz
 
+    
+
 	md380_menu_id = md380_menu_id - 1; // exit menu to the proper level (#708) 
 	md380_menu_depth = md380_menu_depth - 1;
 
@@ -1224,7 +1236,7 @@ void create_menu_entry_set_tg_screen(void)
    uint32_t nchars;
    int current_tg = rst_dst;
 
-   md380_menu_0x2001d3c1 = md380_menu_0x200011e4;
+   md380_menu_0x2001d3c1 = md380_menu_depth;
    mn_editbuffer_poi = md380_menu_edit_buf;
 
    // clear return buffer //  see 0x08012a98
@@ -1241,7 +1253,7 @@ void create_menu_entry_set_tg_screen(void)
    current_tg = (current_tg<<8) + (int) contact.id_l;
    current_tg = rst_dst;
 
-   nchars = uli2w(current_tg, md380_menu_edit_buf);
+   nchars = uli2w(current_tg, mn_editbuffer_poi);
    //nchars = 0;
 
 
@@ -1251,6 +1263,14 @@ void create_menu_entry_set_tg_screen(void)
     md380_menu_0x2001d3f0 = 3; // 3 = numerical input
     md380_menu_0x2001d3f1 = 0;
     md380_menu_0x2001d3f4 = 0;
+
+    /*char* v4 = (char *)&md380_menu_memory + 16 * (unsigned char)md380_menu_depth + 16;
+    *(uint32_t *)v4 = (uint32_t)wt_set_tg_id;
+    *((uint32_t *)v4 + 1) = (uint32_t)&md380_menu_mem_base[24 * (unsigned char)md380_menu_id];
+    v4[8] = 1;
+    v4[9] = 0;
+    *((uint32_t *)v4 + 3) = 0;*/
+
     menu_mem = get_menu_stackpoi();
     menu_mem->menu_title = wt_set_tg_id;
     menu_mem->entries = &md380_menu_mem_base[md380_menu_id];
@@ -1259,7 +1279,7 @@ void create_menu_entry_set_tg_screen(void)
     menu_mem->unknown_01 = 0;
 	menu_mem->unk3 = 0;
 
-    md380_create_menu_entry(md380_menu_id, wt_set_tg_id, MKTHUMB(create_menu_entry_set_tg_screen_store), MKTHUMB(md380_menu_numerical_input), 0x81, 0, 1);
+    md380_create_menu_entry(md380_menu_id, md380_menu_edit_buf, MKTHUMB(create_menu_entry_set_tg_screen_store), MKTHUMB(md380_menu_numerical_input), 0x81, 0, 1);
 
 }
 
