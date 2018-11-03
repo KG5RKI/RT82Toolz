@@ -630,6 +630,11 @@ uint8_t *LCD_GetFontPixelPtr_6x12(uint8_t c)
 #if defined(FW_2017_GPS)
 #define FONT_MATRIX_FIRST_ADDR 0x080E4A98
 #endif
+#if defined(FW_2017_nonGPS)
+#define FONT_MATRIX_FIRST_ADDR 0x080E0DA4
+#endif
+
+
 #ifdef FONT_MATRIX_FIRST_ADDR
 	return (uint8_t*)(FONT_MATRIX_FIRST_ADDR + 12 * (int)(c - 32));
 #else

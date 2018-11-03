@@ -169,3 +169,23 @@ md380_current_TG                         = 0x2001C898 ;
 md380_CPS_version                        = 0x2001C84C ;
 
 get_menu_id_for_depth                    = 0x080115F7 ;
+
+OSSemPost                                = 0x0804007D;
+OSSemPend                                = 0x0803FF67 ;
+OSSemCreate                              = 0x0803FF15 ;
+ambe_mystery                             = 0x2000F6A8 ;
+ambe_decode_wav                          = 0x08073C05 ;
+ambe_unpack                              = 0x08068871 ;
+ambe_encode_thing                        = 0x0807375D ;
+bp_2001CCF0                              = 0x2001CBAC ;
+bp_freq                                  = 0x2001C764 ;
+
+OSTaskCreateExt                          = 0x0805F8A9 ;
+OSTaskNameSet                            = 0x0805F977 ;
+sub_805F562                              = 0x0805BEC3 ;
+radio_status_1                           = 0x2001C8AD ;
+current_channel_info                     = 0x2001BD30 ;
+program_radio_flag_byte                  = 0x2001C714 ;
+md380_dmr_id                             = 0x2001B908 ;
+
+aes_cipher                               = 0x08049529 ;

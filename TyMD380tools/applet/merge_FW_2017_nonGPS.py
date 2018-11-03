@@ -224,10 +224,12 @@ if __name__ == '__main__':
         0x804b782,
         0x804b7fe,
     ]
-    for adr in dmr_before_squelch_list:
-        merger.hookbl(adr, sapplet.getadr("dmr_before_squelch_hook"))
+    #for adr in dmr_before_squelch_list:
+    #    merger.hookbl(adr, sapplet.getadr("dmr_before_squelch_hook"))
 	
-	
+    aes_cipher_hook_list = [0x0802BB6E, 0x0802C4E0]
+    for adr in aes_cipher_hook_list:
+        merger.hookbl(adr, sapplet.getadr("aes_cipher_hook"))
 	
     draw_datetime_row_list = [
         0x8029278,

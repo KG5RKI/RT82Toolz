@@ -211,6 +211,10 @@ if __name__ == '__main__':
     merger.hookbl(0x08029844, sapplet.getadr("draw_statusline_hook"))
    
     merger.hookbl(0x080663DC, sapplet.getadr("init_global_addl_config_hook"), 0)
+
+    aes_cipher_hook_list = [0x802E240, 0x802D8CE]
+    for adr in aes_cipher_hook_list:
+        merger.hookbl(adr, sapplet.getadr("aes_cipher_hook"))
    
 
     # Hook lots of AMBE2+ encoder code and hope our places are correct.

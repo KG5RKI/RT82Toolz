@@ -14,8 +14,8 @@ patched.img: unwrapped.img
 	#../../md380-gfx --firmware=patched.img --gfx=replacement-font-small-latin.pbm fontreplace
 	#../../md380-gfx --firmware=patched.img --dir ./rsrc2017 extract 
 	
-	../../md380-gfx --firmware=patched.img --gfx ./extrsc4/0x80df3bc_mod.ppm write
-	../../md380-gfx --firmware=patched.img --gfx ./extrsc4/0x80df3e4_mod.ppm write
+	#../../md380-gfx --firmware=patched.img --gfx ./extrsc4/0x80df3bc_mod.ppm write
+	#../../md380-gfx --firmware=patched.img --gfx ./extrsc4/0x80df3e4_mod.ppm write
 ##### md380-gfx "relocate" and "write"  doun't work with d13.020
 #	../../md380-gfx --firmware=patched.img --gfx=0x80f9ca8-troopers-color.ppm relocate
 #	../../md380-gfx --firmware=patched.img --gfx=../2.032/0x80f9ca8-poc.ppm write

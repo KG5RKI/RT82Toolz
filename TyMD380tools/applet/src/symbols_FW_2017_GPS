@@ -155,9 +155,11 @@ OSTaskNameSet                            = 0x0806302A ;
 
 current_channel_info                     = 0x2001BE64 ;
 
-sub_805F562                              = 0x805F563 ;
+sub_805F562                              = 0x0805F563 ;
 usb_do_setup                             = 0x080D107F;
 
 msg_sms_hdr                              = 0x2001A7E8 ;
 msg_sms_hdr_prep                         = 0x2001C318 ;
 program_radio_flag_byte                  = 0x2001C854 ;
+
+aes_cipher                               = 0x0804C8D9 ;

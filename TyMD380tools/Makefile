@@ -76,7 +76,7 @@ flash_S13: image_S13
 	./flasha.exe write applet/experiment.bin
 	
 flash_FW_2017_nonGPS: image_2017_nonGPS
-	./md380-dfu upgrade applet/experiment2222.bin
+	sudo python ./md380_dfu.py new_upgrade applet/experiment.bin
 
 flash_FW_2017_GPS: image_2017_GPS
 	sudo python ./md380_dfu.py new_upgrade applet/experiment.bin
