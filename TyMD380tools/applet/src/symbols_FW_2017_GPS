@@ -163,3 +163,4 @@ msg_sms_hdr_prep                         = 0x2001C318 ;
 program_radio_flag_byte                  = 0x2001C854 ;
 
 aes_cipher                               = 0x0804C8D9 ;
+current_contact                          = 0x2001C9D8 ;

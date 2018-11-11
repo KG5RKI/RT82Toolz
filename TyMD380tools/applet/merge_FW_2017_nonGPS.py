@@ -202,13 +202,25 @@ if __name__ == '__main__':
     merger.hookbl(0x0803256E, sapplet.getadr("rx_screen_blue_hook"), 0)
     merger.hookbl(0x080325CC, sapplet.getadr("rx_screen_blue_hook"), 0)
 	
-    merger.hookbl(0x080D10BD, sapplet.getadr("usb_upld_hook"), 0)  # Old handler adr.
+    #merger.hookbl(0x080D10BD, sapplet.getadr("usb_upld_hook"), 0)  # Old handler adr.
 	
     # keyboard
     merger.hookbl(0x0806C47E, sapplet.getadr("kb_handler_hook"));
 	
     #merger.hookbl(0x0800E4B8, sapplet.getadr("print_date_hook"), 0)
    # merger.hookbl(0x08029844, sapplet.getadr("draw_statusline_hook"))
+
+    mbx_pend_list = [
+        0x08040C9E,
+        0x0805675E,
+        0x080573AA,
+        0x080578C6,
+        0x080596BE,
+        0x080635B2,
+        0x80635D8,
+    ]
+    for adr in mbx_pend_list:
+        merger.hookbl(adr, sapplet.getadr("OSMboxPend_hook"))
    
     
     merger.hookbl(0x08062A08, sapplet.getadr("init_global_addl_config_hook"), 0)
@@ -783,7 +795,7 @@ if __name__ == '__main__':
     merger.hookbl(0x0803D24C, sapplet.getadr("f_4225_hook"), 0)
     merger.hookbl(0x0806313E, sapplet.getadr("f_4225_hook"), 0)
 	
-    merger.hookbl(0x0801A5BC, sapplet.getadr("sub_801AC40"), 0)
+    #merger.hookbl(0x0801A5BC, sapplet.getadr("sub_801AC40"), 0)
     
 	
     merger.hookbl(0x08015416, sapplet.getadr("create_menu_utilies_hook"), 0)
@@ -816,8 +828,8 @@ if __name__ == '__main__':
         0x8042d5a,
         0x8045eea,
     ]
-    for adr in spiflashreadhooks:
-        merger.hookbl(adr, sapplet.getadr("spiflash_read_hook"))
+    #for adr in spiflashreadhooks:
+    #    merger.hookbl(adr, sapplet.getadr("spiflash_read_hook"))
 	
     md380_create_menu_entry_hooks = [
         0x800c276,
@@ -1460,7 +1472,28 @@ if __name__ == '__main__':
     ]
     #for adr in md380_create_menu_entry_hooks:
     #    merger.hookbl(adr, sapplet.getadr("md380_create_menu_entry_hook"))
-	
+    new_adr = sapplet.try_getadr("SysTick_Handler");
+
+    if new_adr != None:
+        vect_adr = 0x800C03C;  # address inside the VT for SysTick_Handler
+        exp_adr  = 0x80D3673;  # expected 'old' content of the above VT entry
+        old_adr  = merger.getword(vect_adr); # original content of the VT entry
+        new_adr |= 0x0000001;  # Thumb flag for new content in the VT
+        if( old_adr == exp_adr ) :
+           print("Patching SysTick_Handler in VT addr 0x%08x," % vect_adr)
+           print("  old value in vector table = 0x%08x," % old_adr)
+           print("   expected in vector table = 0x%08x," % exp_adr)
+           print("  new value in vector table = 0x%08x." % new_adr)
+           merger.setword( vect_adr, new_adr, old_adr);
+           print("  SysTick_Handler successfully patched.")
+        else:
+           print("Cannot patch SysTick_Handler() !")
+    else:
+           print("No SysTick_Handler() found in the symbol table. Building firmware without.")
+		   
+    #Change TIM12 IRQ Handler to new one
+    merger.setword(0x0800c0ec, sapplet.getadr("New_TIM12_IRQHandler")+1);
+
     print("Merging %s into %s at %08x" % (
         sys.argv[2],
         sys.argv[1],

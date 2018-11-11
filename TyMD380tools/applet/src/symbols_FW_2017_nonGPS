@@ -189,3 +189,4 @@ program_radio_flag_byte                  = 0x2001C714 ;
 md380_dmr_id                             = 0x2001B908 ;
 
 aes_cipher                               = 0x08049529 ;
+current_contact                          = 0x2001C898 ;

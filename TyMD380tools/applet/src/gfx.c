@@ -731,6 +731,9 @@ void gfx_drawtext4_hook(wchar_t *str, int x, int y, int xlen, int ylen)
   //  }
 # endif
 
+	//if( x == 2 && y == 75 && xlen ==157){
+//		return;
+//	}
     
     if( is_netmon_visible() ) {
         // channel name
@@ -867,12 +870,13 @@ void draw_statusline_hook(uint32_t r0)
 	draw_statusline(r0);
 }
 
+extern uint32_t current_contact;
 
 void checkAdHocTG() {
 	if (ad_hoc_talkgroup) {
 		//contact_t* contact = (contact_t*)0x2001C9D8;
 		
-		*(int*)0x2001C9D8 = ad_hoc_talkgroup;
+		current_contact = ad_hoc_talkgroup;
 		//*(int*)0x2001C9E0 = ad_hoc_talkgroup;
 		//*(int*)0x2001C9DC = ad_hoc_talkgroup;
 		
