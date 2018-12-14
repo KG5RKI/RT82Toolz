@@ -54,7 +54,7 @@
 #ifdef FW_2017_nonGPS // <- for stoneage firmware (only here to avoid errors in the main makefile's output)
 #  define IRQ_VT_ADDRESS_ORIGINAL_FW  0x0800C000
 #  define IRQ_VT_ADDRESS_OUR_FIRMWARE 0x0809B000
-#  define IRQ_ORIGINAL_SYSTICK_HDLR   0x080D3672 // original SysTick_Handler address (without 'Thumb' indicator in bit 0)
+#  define IRQ_ORIGINAL_SYSTICK_HDLR   0x080D58B2 // original SysTick_Handler address (without 'Thumb' indicator in bit 0)
 #  undef  MD380_ADDR_DMR_POWER_SAVE_COUNTDOWN /* unknown -> not supported ! */
 #endif
 #ifndef IRQ_ORIGINAL_SYSTICK_HDLR

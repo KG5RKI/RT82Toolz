@@ -199,15 +199,15 @@ if __name__ == '__main__':
     merger.hookbl(0x8034018, sapplet.getadr("rx_screen_blue_hook"), 0)
     merger.hookbl(0x803c85e, sapplet.getadr("rx_screen_blue_hook"), 0)
 	
-    merger.hookbl(0x08032588, sapplet.getadr("rx_screen_blue_hook"), 0)
-    merger.hookbl(0x080325C2, sapplet.getadr("rx_screen_blue_hook"), 0)
+    #merger.hookbl(0x08032588, sapplet.getadr("rx_screen_blue_hook"), 0)
+    #merger.hookbl(0x080325C2, sapplet.getadr("rx_screen_blue_hook"), 0)
 	
     #merger.hookbl(0x080D8A20, sapplet.getadr("usb_upld_hook"), 0x080D94BC)  # Old handler adr.
 	
     # keyboard
     merger.hookbl(0x0807002E, sapplet.getadr("kb_handler_hook"));
 	
-    merger.hookbl(0x0800E4B8, sapplet.getadr("print_date_hook"), 0)
+    #merger.hookbl(0x0800E4B8, sapplet.getadr("print_date_hook"), 0)
     merger.hookbl(0x08029844, sapplet.getadr("draw_statusline_hook"))
    
     merger.hookbl(0x080663DC, sapplet.getadr("init_global_addl_config_hook"), 0)
