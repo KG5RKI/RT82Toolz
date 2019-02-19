@@ -44,7 +44,7 @@ $(UNWRAPDIR):
 	mkdir -p $@
 
 $(UNWRAPDIR)/%.img: $(BINDIR)/%.bin | $(UNWRAPDIR)
-	python ../md380_fw.py --unwrap $< $@
+	python2 ../md380_fw.py --unwrap $< $@
 
 $(BINDIR)/%.bin: $(DLDIR)/%.zip | $(BINDIR)
 	unzip -p $< "$(FIRMWARE_ZIPPATH)" >$@
