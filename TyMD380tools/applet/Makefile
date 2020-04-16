@@ -116,7 +116,7 @@ base.img:
 	
 merged.img: applet.img base.img   
 	cp ../patches/$(PATCHDIR)/patched.img ./merged.img
-	python merge_$(SRCVERSION).py merged.img applet.img $(MERGEBASE)
+	python2 merge_$(SRCVERSION).py merged.img applet.img $(MERGEBASE)
 
 #patched.bin: proj
 #	"${MAKE}" -C ../patches/$(PATCHDIR) patched.img
@@ -125,7 +125,7 @@ merged.img: applet.img base.img
 #The wrapped file is the one that works with the Windows updater.
 wrapped.bin: merged.img
 	cp ../firmware/RT82_header_rsrc.bin ./RT82_header_rsrc.bin
-	python ../md380_fw.py --wrap merged.img wrapped.bin
+	python2 ../md380_fw.py --wrap merged.img wrapped.bin
 
 experiment.bin: wrapped.bin
 	cp wrapped.bin experiment.bin
